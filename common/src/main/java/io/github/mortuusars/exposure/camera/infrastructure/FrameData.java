@@ -9,6 +9,7 @@ public class FrameData {
     public static final String ID = "Id";
     public static final String TEXTURE = "Texture";
     public static final String FILM_TYPE = "FilmType";
+    public static final String CHROMATIC = "Chromatic";
     public static final String SHUTTER_SPEED_MS = "ShutterSpeedMS";
     public static final String FOCAL_LENGTH = "FocalLength";
     public static final String TIMESTAMP = "Timestamp";
@@ -37,11 +38,11 @@ public class FrameData {
      */
     public static Either<String, ResourceLocation> getIdOrTexture(@NotNull CompoundTag tag) {
         String id = tag.getString(ID);
-        if (id.length() > 0)
+        if (!id.isEmpty())
             return Either.left(id);
 
         String texture = tag.getString(TEXTURE);
-        if (texture.length() > 0)
+        if (!texture.isEmpty())
             return Either.right(new ResourceLocation(texture));
 
         return Either.left("");

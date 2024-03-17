@@ -8,10 +8,10 @@
       "intarget": "minecraft:main",
       "outtarget": "swap",
       "uniforms": [
-        { "name": "Mul", "values": [ 0.53, 0.67, 1.0 ] },
-        { "name": "Add", "values": [ 0.05, 0.05, 0.05 ] },
-        { "name": "Contrast", "values": [ 1.1 ] },
-        { "name": "Saturation", "values": [ 0.9 ] }
+        { "name": "Mul", "values": [ 0.3, 0.3, 1.0 ] },
+        { "name": "Add", "values": [ 0.02, 0.02, 0.05 ] },
+        { "name": "Contrast", "values": [ 1.0 ] },
+        { "name": "Saturation", "values": [ 1.0 ] }
       ]
     },
     {

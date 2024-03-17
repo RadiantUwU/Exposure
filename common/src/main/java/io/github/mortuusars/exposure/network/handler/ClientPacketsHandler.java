@@ -33,6 +33,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,10 +43,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ClientPacketsHandler {
@@ -193,7 +191,6 @@ public class ClientPacketsHandler {
             return null;
         }
 
-
         if (negative) {
             List<Either<String, ResourceLocation>> exposures = new ArrayList<>();
             for (CompoundTag frame : latestFrames) {
@@ -216,6 +213,14 @@ public class ClientPacketsHandler {
     }
 
     public static void clearRenderingCache() {
+
+        // TODO: remove
+        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
+        Set<String> namespaces = resourceManager.getNamespaces();
+
+        boolean a = true;
+
+
         ExposureClient.getExposureRenderer().clearData();
     }
 }
