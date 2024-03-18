@@ -5,8 +5,11 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.block.entity.Lightroom;
 import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
+import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.item.IFilmItem;
+import io.github.mortuusars.exposure.util.ItemAndStack;
+import io.github.mortuusars.exposure.util.PagingDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -28,6 +31,8 @@ public class LightroomMenu extends AbstractContainerMenu {
     public static final int PRINT_BUTTON_ID = 0;
     public static final int PREVIOUS_FRAME_BUTTON_ID = 1;
     public static final int NEXT_FRAME_BUTTON_ID = 2;
+    public static final int PREVIOUS_PROCESS_BUTTON_ID = 3;
+    public static final int NEXT_PROCESS_BUTTON_ID = 4;
 
     private final LightroomBlockEntity lightroomBlockEntity;
     private final ContainerData data;
@@ -177,12 +182,42 @@ public class LightroomMenu extends AbstractContainerMenu {
             }
         }
 
+        if (buttonId == PREVIOUS_PROCESS_BUTTON_ID || buttonId == NEXT_PROCESS_BUTTON_ID ) {
+            PagingDirection direction = buttonId == PREVIOUS_PROCESS_BUTTON_ID ? PagingDirection.PREVIOUS : PagingDirection.NEXT;
+            int newProcessIndex = getNewProcessIndex(direction);
+            lightroomBlockEntity.setProcess(Lightroom.Process.values()[newProcessIndex]);
+        }
+
         if (buttonId == PRINT_BUTTON_ID) {
             lightroomBlockEntity.startPrintingProcess(false);
             return true;
         }
 
         return false;
+    }
+
+    public boolean canPrintChromatic() {
+        ItemStack filmStack = getBlockEntity().getItem(Lightroom.FILM_SLOT);
+        if (filmStack.isEmpty())
+            return false;
+
+        ItemAndStack<DevelopedFilmItem> film = new ItemAndStack<>(filmStack);
+        ListTag frames = film.getItem().getExposedFrames(film.getStack());
+        CompoundTag frameTag = frames.getCompound(getSelectedFrame());
+
+        return frameTag.getBoolean(FrameData.CHROMATIC);
+    }
+
+    private int getNewProcessIndex(PagingDirection direction) {
+        Lightroom.Process currentProcess = lightroomBlockEntity.getProcess();
+        int newProcessIndex = currentProcess.ordinal() + direction.getValue();
+
+        if (newProcessIndex >= Lightroom.Process.values().length)
+            newProcessIndex = 0;
+        else if (newProcessIndex < 0)
+            newProcessIndex = Lightroom.Process.values().length - 1;
+
+        return newProcessIndex;
     }
 
     @Override

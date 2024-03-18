@@ -442,6 +442,7 @@ public class CameraItem extends Item {
 
         getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
             tag.putBoolean(FrameData.CHROMATIC, true);
+            tag.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
         });
 
         if (flash)

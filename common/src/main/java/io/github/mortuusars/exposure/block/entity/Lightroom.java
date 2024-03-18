@@ -1,6 +1,27 @@
 package io.github.mortuusars.exposure.block.entity;
 
+import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
+
 public class Lightroom {
+    public enum Process implements StringRepresentable {
+        REGULAR,
+        CHROMATIC;
+
+        public static Process fromStringOrDefault(String serializedName, Process defaultValue) {
+            for (Process value : values()) {
+                if (value.getSerializedName().equals(serializedName))
+                    return value;
+            }
+            return defaultValue;
+        }
+
+        @Override
+        public @NotNull String getSerializedName() {
+            return name().toLowerCase();
+        }
+    }
+
     public static final int SLOTS = 7;
     public static final int FILM_SLOT = 0;
     public static final int PAPER_SLOT = 1;

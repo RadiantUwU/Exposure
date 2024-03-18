@@ -8,8 +8,12 @@ import org.jetbrains.annotations.NotNull;
 public class FrameData {
     public static final String ID = "Id";
     public static final String TEXTURE = "Texture";
-    public static final String FILM_TYPE = "FilmType";
+    public static final String TYPE = "Type";
     public static final String CHROMATIC = "Chromatic";
+    public static final String CHROMATIC_CHANNEL = "ChromaticChannel";
+    public static final String RED_CHANNEL = "RedChannel";
+    public static final String GREEN_CHANNEL = "GreenChannel";
+    public static final String BLUE_CHANNEL = "BlueChannel";
     public static final String SHUTTER_SPEED_MS = "ShutterSpeedMS";
     public static final String FOCAL_LENGTH = "FocalLength";
     public static final String TIMESTAMP = "Timestamp";

@@ -99,7 +99,6 @@ public class PhotographItem extends Item {
                     tooltipComponents.add(Component.literal(text).withStyle(ChatFormatting.DARK_GRAY));
                 }
             }
-
         }
     }
 

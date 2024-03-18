@@ -72,7 +72,7 @@ public class RecipesProvider /*extends net.minecraft.data.recipes.RecipeProvider
                 .requirements(RequirementsStrategy.OR);
 
         CompoundTag bwTag = new CompoundTag();
-        bwTag.putString(FrameData.FILM_TYPE, FilmType.BLACK_AND_WHITE.getSerializedName());
+        bwTag.putString(FrameData.TYPE, FilmType.BLACK_AND_WHITE.getSerializedName());
 
         recipeConsumer.accept(new PhotographCopyingFinishedRecipe(bwPhotoCloningRecipeId,
                 Exposure.Items.PHOTOGRAPH.get(), 1, "",

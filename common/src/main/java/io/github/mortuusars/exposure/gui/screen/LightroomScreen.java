@@ -110,7 +110,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
             int progress = getMenu().getData().get(LightroomBlockEntity.CONTAINER_DATA_PROGRESS_ID);
             int time = getMenu().getData().get(LightroomBlockEntity.CONTAINER_DATA_PRINT_TIME_ID);
             int width = progress != 0 && time != 0 ? progress * 24 / time : 0;
-            blit(poseStack, leftPos + 116, topPos + 91, 176, 0, width + 1, 17);
+            blit(poseStack, leftPos + 116, topPos + 91, 176, 0, width, 17);
         }
 
         RenderSystem.setShaderTexture(0, FILM_OVERLAYS_TEXTURE);
@@ -173,6 +173,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
     @Override
     protected void renderTooltip(@NotNull PoseStack poseStack, int mouseX, int mouseY) {
+        updatePrintButtonTooltip(!getMenu().canPrintChromatic());
         super.renderTooltip(poseStack, mouseX, mouseY);
 
         boolean advancedTooltips = Minecraft.getInstance().options.advancedItemTooltips;
@@ -199,6 +200,33 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         }
 
         renderTooltip(poseStack, tooltipLines, Optional.empty(), mouseX, mouseY);
+    }
+
+    private void updatePrintButtonTooltip(boolean clear) {
+        if (clear) {
+            printButton.setTooltip(Tooltip.create(Component.translatable("gui.exposure.lightroom.print")));
+            return;
+        }
+
+        MutableComponent component = Component.translatable("gui.exposure.lightroom.print")
+                .append("\n")
+                .append(Component.literal("Select Process:").withStyle(ChatFormatting.GRAY));
+
+        Lightroom.Process currentProcess = getMenu().getBlockEntity().getProcess();
+
+        for (Lightroom.Process pr : Lightroom.Process.values()) {
+            component.append("\n");
+            MutableComponent c = Component.literal(pr.name());
+
+            if (pr == currentProcess)
+                c.append(" <--").withStyle(ChatFormatting.GOLD);
+            else
+                c.withStyle(ChatFormatting.GRAY);
+
+            component.append(c);
+        }
+
+        printButton.setTooltip(Tooltip.create(component));
     }
 
     private void addFrameInfoToAdvancedTooltip(int frameIndex, List<Component> tooltipLines) {
