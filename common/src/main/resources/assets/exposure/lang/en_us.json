@@ -78,6 +78,9 @@
   "gui.exposure.lightroom.zoom_in.tooltip": "Left Click or Scroll Up to zoom in",
   "gui.exposure.lightroom.next_frame": "Next Frame",
   "gui.exposure.lightroom.print": "Print",
+  "gui.exposure.lightroom.process.regular": "Process: Regular",
+  "gui.exposure.lightroom.process.chromatic": "Process: Chromatic",
+  "gui.exposure.lightroom.process.chromatic.info": "Printing individual channels",
 
   "category.exposure": "Exposure",
   "key.exposure.camera_controls": "Open Camera Controls (Not bound = Sneak)",

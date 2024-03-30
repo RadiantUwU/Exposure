@@ -10,10 +10,7 @@ import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
-import io.github.mortuusars.exposure.item.ChromaticFragmentItem;
-import io.github.mortuusars.exposure.item.DevelopedFilmItem;
-import io.github.mortuusars.exposure.item.PhotographItem;
-import io.github.mortuusars.exposure.item.StackedPhotographsItem;
+import io.github.mortuusars.exposure.item.*;
 import io.github.mortuusars.exposure.menu.LightroomMenu;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.core.BlockPos;
@@ -43,11 +40,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
@@ -62,7 +61,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             return switch (id) {
                 case CONTAINER_DATA_PROGRESS_ID -> LightroomBlockEntity.this.progress;
                 case CONTAINER_DATA_PRINT_TIME_ID -> LightroomBlockEntity.this.printTime;
-                case CONTAINER_DATA_SELECTED_FRAME_ID -> LightroomBlockEntity.this.getSelectedFrame();
+                case CONTAINER_DATA_SELECTED_FRAME_ID -> LightroomBlockEntity.this.getSelectedFrameIndex();
                 default -> 0;
             };
         }
@@ -130,10 +129,10 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         ItemAndStack<DevelopedFilmItem> film = new ItemAndStack<>(getItem(Lightroom.FILM_SLOT));
         int frames = film.getItem().getExposedFramesCount(film.getStack());
 
-        if (getSelectedFrame() >= frames - 1) { // On last frame
+        if (getSelectedFrameIndex() >= frames - 1) { // On last frame
             tryEjectFilm();
         } else {
-            setSelectedFrame(getSelectedFrame() + 1);
+            setSelectedFrame(getSelectedFrameIndex() + 1);
             setChanged();
         }
     }
@@ -166,7 +165,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return true;
     }
 
-    public int getSelectedFrame() {
+    public int getSelectedFrameIndex() {
         return selectedFrame;
     }
 
@@ -177,7 +176,31 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
     }
 
+    /*
+        Process setting stays where it was set by the player, But if the frame does not support it -
+        image would be printed with supported process (probably regular), WITHOUT changing the process setting -
+        this means that this process will be used again if some other image is supporting it.
+
+        This was done to not reset Process in automated setups, if there were some image on a film that doesn't support selected process.
+     */
+
+    /**
+     * @return Process SETTING. Can be different from actual process that would be used to print an image
+     * (if frame does not support this process, for example).
+     */
     public Lightroom.Process getProcess() {
+        return process;
+    }
+
+    /**
+     * @return Process, which currently selected image supports.
+     */
+    public Lightroom.Process getActualProcess() {
+        ItemStack film = getItem(Lightroom.FILM_SLOT);
+
+        if (!isSelectedFrameChromatic(film, getSelectedFrameIndex()))
+            return Lightroom.Process.REGULAR;
+
         return process;
     }
 
@@ -186,7 +209,23 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         setChanged();
     }
 
-    public void startPrintingProcess(boolean advanceFrame) {
+    public Optional<CompoundTag> getSelectedFrame(ItemStack film) {
+        if (!film.isEmpty() && film.getItem() instanceof DevelopedFilmItem developedFilm) {
+            ListTag frames = developedFilm.getExposedFrames(film);
+            if (frames.size() > getSelectedFrameIndex())
+                return Optional.of(frames.getCompound(selectedFrame));
+        }
+
+        return Optional.empty();
+    }
+
+    public boolean isSelectedFrameChromatic(ItemStack film, int selectedFrame) {
+        return getSelectedFrame(film)
+                .map(frame -> frame.getBoolean(FrameData.CHROMATIC))
+                .orElse(false);
+    }
+
+    public void startPrintingProcess(boolean advanceFrameOnFinish) {
         if (!canPrint())
             return;
 
@@ -194,10 +233,11 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilmItem))
             return;
 
+        //TODO: Chromatic print time
         printTime = developedFilmItem.getType() == FilmType.COLOR ?
                 Config.Common.LIGHTROOM_COLOR_FILM_PRINT_TIME.get() :
                 Config.Common.LIGHTROOM_BW_FILM_PRINT_TIME.get();
-        this.advanceFrame = advanceFrame;
+        advanceFrame = advanceFrameOnFinish;
         if (level != null) {
             level.setBlock(getBlockPos(), level.getBlockState(getBlockPos())
                     .setValue(LightroomBlock.LIT, true), Block.UPDATE_CLIENTS);
@@ -219,48 +259,68 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return printTime > 0;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean canPrint() {
-        if (getSelectedFrame() < 0) // Upper bound is checked further down
+        if (getSelectedFrameIndex() < 0) // Upper bound is checked further down
             return false;
 
-        if (getItem(Lightroom.PAPER_SLOT).isEmpty())
+        ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
+        if (paperStack.isEmpty())
             return false;
 
         ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
-        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm) || !developedFilm.hasExposedFrame(filmStack, getSelectedFrame()))
+        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm) || !developedFilm.hasExposedFrame(filmStack, getSelectedFrameIndex()))
             return false;
 
-        if (!hasDyesForPrint(developedFilm.getType()))
+        Lightroom.Process process = getActualProcess();
+        if (!hasDyesForPrint(filmStack, paperStack, process))
             return false;
 
-        ItemStack resultStack = getItem(Lightroom.RESULT_SLOT);
+        return canOutputToResultSlot(getItem(Lightroom.RESULT_SLOT), filmStack, process);
+    }
 
-        ItemAndStack<DevelopedFilmItem> film = new ItemAndStack<>(getItem(Lightroom.FILM_SLOT));
-        ListTag frames = film.getItem().getExposedFrames(film.getStack());
-        CompoundTag frameTag = frames.getCompound(getSelectedFrame());
-
-        if (frameTag.getBoolean(FrameData.CHROMATIC) && getProcess() == Lightroom.Process.CHROMATIC) {
+    private boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process actualProcess) {
+        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && getProcess() == Lightroom.Process.CHROMATIC)
             return resultStack.isEmpty();
-        }
 
         return resultStack.isEmpty() || resultStack.getItem() instanceof PhotographItem
                 || (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem
                 && stackedPhotographsItem.canAddPhotograph(resultStack));
     }
 
-    public boolean hasDyesForPrint(FilmType type) {
-        if (type == FilmType.COLOR)
-            return !getItem(Lightroom.CYAN_SLOT).isEmpty()
-                    && !getItem(Lightroom.MAGENTA_SLOT).isEmpty()
-                    && !getItem(Lightroom.YELLOW_SLOT).isEmpty()
-                    && !getItem(Lightroom.BLACK_SLOT).isEmpty();
+    public boolean hasDyesForPrint(ItemStack film, ItemStack paper, Lightroom.Process process) {
+        int[] dyeSlots = getRequiredDyeSlotsForPrint(film, paper, process);
 
-        if (type == FilmType.BLACK_AND_WHITE)
-            return !getItem(Lightroom.BLACK_SLOT).isEmpty();
+        for (int slot : dyeSlots) {
+            if (getItem(slot).isEmpty())
+                return false;
+        }
 
-        LogUtils.getLogger().info("Don't know what dyes needed for the film type: <" + type + ">");
-        return false;
+        return true;
+    }
+
+    protected int[] getRequiredDyeSlotsForPrint(ItemStack film, ItemStack paper, Lightroom.Process process) {
+        if (!(film.getItem() instanceof IFilmItem filmItem))
+            return ArrayUtils.EMPTY_INT_ARRAY;
+
+        if (process == Lightroom.Process.REGULAR) {
+            return filmItem.getType() == FilmType.COLOR ? Lightroom.DYES_FOR_COLOR : Lightroom.DYES_FOR_BW;
+        }
+
+        if (process == Lightroom.Process.CHROMATIC) {
+            int chromaticStep = getChromaticStep(paper);
+            if (chromaticStep == 0) return Lightroom.DYES_FOR_CHROMATIC_RED;
+            if (chromaticStep == 1) return Lightroom.DYES_FOR_CHROMATIC_GREEN;
+            if (chromaticStep == 2) return Lightroom.DYES_FOR_CHROMATIC_BLUE;
+        }
+
+        return ArrayUtils.EMPTY_INT_ARRAY;
+    }
+
+    protected int getChromaticStep(ItemStack paper) {
+        if (!(paper.getItem() instanceof ChromaticFragmentItem chromaticFragment))
+            return 0;
+
+        return chromaticFragment.getExposures(paper).size();
     }
 
     public boolean tryPrint() {
@@ -268,51 +328,37 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         if (!canPrint())
             return false;
 
-        ItemAndStack<DevelopedFilmItem> film = new ItemAndStack<>(getItem(Lightroom.FILM_SLOT));
-        ListTag frames = film.getItem().getExposedFrames(film.getStack());
+        ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
+        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm))
+            return false;
 
-        CompoundTag frameTag = frames.getCompound(getSelectedFrame());
-        frameTag.putString(FrameData.TYPE, film.getItem().getType().getSerializedName());
+        Optional<CompoundTag> selectedFrame = getSelectedFrame(filmStack);
+        if (selectedFrame.isEmpty()) {
+            LogUtils.getLogger().error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
+            return false;
+        }
 
-        if (process == Lightroom.Process.CHROMATIC && frameTag.getBoolean(FrameData.CHROMATIC)) {
-            ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
+        CompoundTag frame = selectedFrame.get().copy();
+        Lightroom.Process process = getActualProcess();
+        ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
 
-            ItemStack result;
+        ItemStack printResult = createPrintResult(frame, filmStack, paperStack, process);
+        putPrintResultInOutputSlot(printResult);
 
-            if (paperStack.getItem() instanceof ChromaticFragmentItem chromaticFragmentItem) {
-                chromaticFragmentItem.addExposure(paperStack, frameTag);
-                List<CompoundTag> exposures = chromaticFragmentItem.getExposures(paperStack);
+        // Consume items required for printing:
+        int[] dyesSlots = getRequiredDyeSlotsForPrint(filmStack, paperStack, process);
+        for (int slot : dyesSlots) {
+            getItem(slot).shrink(1);
+        }
+        getItem(Lightroom.PAPER_SLOT).shrink(1);
 
-                if (exposures.size() == 3) {
-                    result = finalizeChromaticFragment(paperStack);
-                }
-                else
-                    result = paperStack;
-            }
-            else {
-                ItemStack chromaticFragmentStack = new ItemStack(Exposure.Items.CHROMATIC_FRAGMENT.get());
-                Preconditions.checkState(chromaticFragmentStack.getItem() instanceof ChromaticFragmentItem,
-                        "Chromatic Fragment stack should be an instance of ChromaticFragmentItem. " +
-                                "Probably item was changed and the changes was not applied here.");
+        level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
 
-                ChromaticFragmentItem chromaticFragmentItem = (ChromaticFragmentItem) chromaticFragmentStack.getItem();
-                chromaticFragmentItem.addExposure(chromaticFragmentStack, frameTag);
-                result = chromaticFragmentStack;
-            }
+        printedPhotographsCount++;
 
-            setItem(Lightroom.RESULT_SLOT, result.copy());
-
-            getItem(Lightroom.BLACK_SLOT).shrink(1);
-
-            getItem(Lightroom.PAPER_SLOT).shrink(1);
-
-            if (level != null)
-                level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
-
-            printedPhotographsCount++;
-
+        if (process != Lightroom.Process.CHROMATIC) { // Chromatics create new exposure. Marking is not needed.
             // Mark exposure as printed
-            String id = frameTag.getString(FrameData.ID);
+            String id = frame.getString(FrameData.ID);
             if (!id.isEmpty()) {
                 ExposureServer.getExposureStorage().getOrQuery(id).ifPresent(exposure -> {
                     CompoundTag properties = exposure.getProperties();
@@ -322,78 +368,74 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
                     }
                 });
             }
-
-            return true;
-        }
-
-        ItemStack photographStack = new ItemStack(Exposure.Items.PHOTOGRAPH.get());
-        photographStack.setTag(frameTag);
-
-        ItemStack resultStack = getItem(Lightroom.RESULT_SLOT);
-        if (resultStack.isEmpty())
-            resultStack = photographStack;
-        else if (resultStack.getItem() instanceof PhotographItem) {
-            StackedPhotographsItem stackedPhotographsItem = Exposure.Items.STACKED_PHOTOGRAPHS.get();
-            ItemStack newStackedPhotographs = new ItemStack(stackedPhotographsItem);
-            stackedPhotographsItem.addPhotographOnTop(newStackedPhotographs, resultStack);
-            stackedPhotographsItem.addPhotographOnTop(newStackedPhotographs, photographStack);
-            resultStack = newStackedPhotographs;
-        } else if (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {
-            stackedPhotographsItem.addPhotographOnTop(resultStack, photographStack);
-        } else {
-            LogUtils.getLogger().error("Unexpected item in result slot: " + resultStack);
-            return false;
-        }
-
-        setItem(Lightroom.RESULT_SLOT, resultStack);
-
-        if (film.getItem().getType() == FilmType.COLOR) {
-            getItem(Lightroom.CYAN_SLOT).shrink(1);
-            getItem(Lightroom.MAGENTA_SLOT).shrink(1);
-            getItem(Lightroom.YELLOW_SLOT).shrink(1);
-        }
-        getItem(Lightroom.BLACK_SLOT).shrink(1);
-
-        getItem(Lightroom.PAPER_SLOT).shrink(1);
-
-        if (level != null)
-            level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
-
-        printedPhotographsCount++;
-
-        // Mark exposure as printed
-        String id = frameTag.getString(FrameData.ID);
-        if (!id.isEmpty()) {
-            ExposureServer.getExposureStorage().getOrQuery(id).ifPresent(exposure -> {
-                CompoundTag properties = exposure.getProperties();
-                if (!properties.getBoolean(ExposureSavedData.WAS_PRINTED_PROPERTY)) {
-                    properties.putBoolean(ExposureSavedData.WAS_PRINTED_PROPERTY, true);
-                    exposure.setDirty();
-                }
-            });
         }
 
         return true;
     }
 
-    private ItemStack finalizeChromaticFragment(ItemStack stack) {
+    private void putPrintResultInOutputSlot(ItemStack printResult) {
+        ItemStack resultStack = getItem(Lightroom.RESULT_SLOT);
+        if (resultStack.isEmpty())
+            resultStack = printResult;
+        else if (resultStack.getItem() instanceof PhotographItem) {
+            StackedPhotographsItem stackedPhotographsItem = Exposure.Items.STACKED_PHOTOGRAPHS.get();
+            ItemStack newStackedPhotographs = new ItemStack(stackedPhotographsItem);
+            stackedPhotographsItem.addPhotographOnTop(newStackedPhotographs, resultStack);
+            stackedPhotographsItem.addPhotographOnTop(newStackedPhotographs, printResult);
+            resultStack = newStackedPhotographs;
+        } else if (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {
+            stackedPhotographsItem.addPhotographOnTop(resultStack, printResult);
+        } else {
+            LogUtils.getLogger().error("Unexpected item in result slot: " + resultStack);
+            return;
+        }
+        setItem(Lightroom.RESULT_SLOT, resultStack);
+    }
+
+    protected ItemStack createPrintResult(CompoundTag frame, ItemStack film, ItemStack paper, Lightroom.Process process) {
+        if (!(film.getItem() instanceof IFilmItem filmItem))
+            throw new IllegalStateException("Film stack is invalid: " + film);
+
+        paper = paper.copy();
+
+        // Type is currently used to decide what dyes are used when copying photograph.
+        // Or for quests. Or other purposes. It's important.
+        frame.putString(FrameData.TYPE, process == Lightroom.Process.REGULAR
+                ? filmItem.getType().getSerializedName() : FilmType.COLOR.getSerializedName());
+
+        if (process == Lightroom.Process.CHROMATIC) {
+            ItemAndStack<ChromaticFragmentItem> chromaticFragment = new ItemAndStack<>(
+                    paper.getItem() instanceof ChromaticFragmentItem ? paper
+                            : new ItemStack(Exposure.Items.CHROMATIC_FRAGMENT.get()));
+
+            chromaticFragment.getItem().addExposure(chromaticFragment.getStack(), frame);
+
+            if (chromaticFragment.getItem().getExposures(chromaticFragment.getStack()).size() >= 3)
+                return chromaticFragment.getItem().finalize(Objects.requireNonNull(level), chromaticFragment.getStack());
+
+            return chromaticFragment.getStack();
+        }
+        else {
+            ItemStack photographStack = new ItemStack(Exposure.Items.PHOTOGRAPH.get());
+            photographStack.setTag(frame);
+            return photographStack;
+        }
+    }
+
+    private ItemStack finalizeChromaticFragment(ItemAndStack<ChromaticFragmentItem> chromaticFragment) {
         if (level == null)
-            return stack;
+            return chromaticFragment.getStack();
 
-        if (!(stack.getItem() instanceof ChromaticFragmentItem chromaticFragmentItem))
-            throw new IllegalStateException("Chromatic Fragment stack should be an instance of ChromaticFragmentItem. " +
-                        "Probably item was changed and the changes was not applied here.");
-
-        List<CompoundTag> exposures = chromaticFragmentItem.getExposures(stack);
+        List<CompoundTag> exposures = chromaticFragment.getItem().getExposures(chromaticFragment.getStack());
         Preconditions.checkState(exposures.size() == 3,
-                "Finalizing Chromatic Fragment requires 3 exposures. " + stack);
+                "Finalizing Chromatic Fragment requires 3 exposures. " + chromaticFragment);
 
         CompoundTag redTag = exposures.get(0);
         String redId = redTag.getString(FrameData.ID);
         Optional<ExposureSavedData> redOpt = ExposureServer.getExposureStorage().getOrQuery(redId);
         if (redOpt.isEmpty()) {
             LogUtils.getLogger().error("Cannot create Chromatic Photograph: Red channel exposure '" + redId + "' is not found.");
-            return stack;
+            return chromaticFragment.getStack();
         }
 
         CompoundTag greenTag = exposures.get(1);
@@ -401,7 +443,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         Optional<ExposureSavedData> greenOpt = ExposureServer.getExposureStorage().getOrQuery(greenId);
         if (greenOpt.isEmpty()) {
             LogUtils.getLogger().error("Cannot create Chromatic Photograph: Green channel exposure '" + greenId + "' is not found.");
-            return stack;
+            return chromaticFragment.getStack();
         }
 
         CompoundTag blueTag = exposures.get(2);
@@ -409,7 +451,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         Optional<ExposureSavedData> blueOpt = ExposureServer.getExposureStorage().getOrQuery(blueId);
         if (blueOpt.isEmpty()) {
             LogUtils.getLogger().error("Cannot create Chromatic Photograph: Blue channel exposure '" + blueId + "' is not found.");
-            return stack;
+            return chromaticFragment.getStack();
         }
 
         ExposureSavedData red = redOpt.get();
@@ -421,12 +463,12 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
         if (width <= 0) {
             LogUtils.getLogger().error("Cannot create Chromatic Photograph: Width should be larger than 0");
-            return stack;
+            return chromaticFragment.getStack();
         }
 
         if (height <= 0) {
             LogUtils.getLogger().error("Cannot create Chromatic Photograph: Height should be larger than 0");
-            return stack;
+            return chromaticFragment.getStack();
         }
 
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -513,8 +555,11 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         else if (slot == Lightroom.MAGENTA_SLOT) return stack.is(Exposure.Tags.Items.MAGENTA_PRINTING_DYES);
         else if (slot == Lightroom.YELLOW_SLOT) return stack.is(Exposure.Tags.Items.YELLOW_PRINTING_DYES);
         else if (slot == Lightroom.BLACK_SLOT) return stack.is(Exposure.Tags.Items.BLACK_PRINTING_DYES);
-        else if (slot == Lightroom.PAPER_SLOT) return stack.is(Exposure.Tags.Items.PHOTO_PAPERS) || stack.getItem() instanceof ChromaticFragmentItem;
-        else if (slot == Lightroom.RESULT_SLOT) return stack.getItem() instanceof PhotographItem || stack.getItem() instanceof ChromaticFragmentItem;
+        else if (slot == Lightroom.PAPER_SLOT)
+            return stack.is(Exposure.Tags.Items.PHOTO_PAPERS) ||
+                    (stack.getItem() instanceof ChromaticFragmentItem chromatic && chromatic.getExposures(stack).size() < 3);
+        else if (slot == Lightroom.RESULT_SLOT)
+            return stack.getItem() instanceof PhotographItem || stack.getItem() instanceof ChromaticFragmentItem;
         return false;
     }
 
@@ -594,8 +639,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     protected void saveAdditional(@NotNull CompoundTag tag) {
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, items);
-        if (getSelectedFrame() > 0)
-            tag.putInt("SelectedFrame", getSelectedFrame());
+        if (getSelectedFrameIndex() > 0)
+            tag.putInt("SelectedFrame", getSelectedFrameIndex());
         if (progress > 0)
             tag.putInt("Progress", progress);
         if (printTime > 0)

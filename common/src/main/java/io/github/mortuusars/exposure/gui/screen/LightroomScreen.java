@@ -44,7 +44,9 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
     public static final ResourceLocation MAIN_TEXTURE = Exposure.resource("textures/gui/lightroom.png");
     public static final ResourceLocation FILM_OVERLAYS_TEXTURE = Exposure.resource("textures/gui/lightroom_film_overlays.png");
     public static final int FRAME_SIZE = 54;
-    private Button printButton;
+
+    protected Button printButton;
+    protected ChromaticProcessToggleButton processToggleButton;
 
     public LightroomScreen(LightroomMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -61,25 +63,39 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
                 22, MAIN_TEXTURE, 256, 256, this::onPrintButtonPressed,
                 (b, ps, x, y) -> renderTooltip(ps, Component.translatable("gui.exposure.lightroom.print"), x, y), Component.empty());
         addRenderableWidget(printButton);
+
+        processToggleButton = new ChromaticProcessToggleButton(leftPos - 19, topPos + 91,
+                this::onProcessToggleButtonPressed, () -> getMenu().getBlockEntity().getProcess());
+        processToggleButton.setTooltip(Tooltip.create(Component.translatable("gui.exposure.lightroom.current_frame")));
+        addRenderableWidget(processToggleButton);
     }
 
-    private void onPrintButtonPressed(Button button) {
+    protected void onPrintButtonPressed(Button button) {
         if (Minecraft.getInstance().gameMode != null)
             Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_BUTTON_ID);
     }
 
+    protected void onProcessToggleButtonPressed(Button button) {
+        if (Minecraft.getInstance().gameMode != null)
+            Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.TOGGLE_PROCESS_BUTTON_ID);
+    }
+
     @Override
     public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        printButton.active = canPressPrintButton();
-        printButton.visible = !getMenu().isPrinting();
+        updateButtons();
 
         renderBackground(poseStack);
         super.render(poseStack, mouseX, mouseY, partialTick);
         renderTooltip(poseStack, mouseX, mouseY);
     }
 
-    private boolean canPressPrintButton() {
-        return getMenu().getBlockEntity().canPrint();
+    private void updateButtons() {
+        printButton.active = getMenu().getBlockEntity().canPrint();
+        printButton.visible = !getMenu().isPrinting();
+
+        processToggleButton.active = true;
+        processToggleButton.visible = getMenu().getExposedFrames().getCompound(
+                getMenu().getSelectedFrame()).getBoolean(FrameData.CHROMATIC);
     }
 
     @Override
@@ -202,33 +218,6 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         renderTooltip(poseStack, tooltipLines, Optional.empty(), mouseX, mouseY);
     }
 
-    private void updatePrintButtonTooltip(boolean clear) {
-        if (clear) {
-            printButton.setTooltip(Tooltip.create(Component.translatable("gui.exposure.lightroom.print")));
-            return;
-        }
-
-        MutableComponent component = Component.translatable("gui.exposure.lightroom.print")
-                .append("\n")
-                .append(Component.literal("Select Process:").withStyle(ChatFormatting.GRAY));
-
-        Lightroom.Process currentProcess = getMenu().getBlockEntity().getProcess();
-
-        for (Lightroom.Process pr : Lightroom.Process.values()) {
-            component.append("\n");
-            MutableComponent c = Component.literal(pr.name());
-
-            if (pr == currentProcess)
-                c.append(" <--").withStyle(ChatFormatting.GOLD);
-            else
-                c.withStyle(ChatFormatting.GRAY);
-
-            component.append(c);
-        }
-
-        printButton.setTooltip(Tooltip.create(component));
-    }
-
     private void addFrameInfoToAdvancedTooltip(int frameIndex, List<Component> tooltipLines) {
         @Nullable CompoundTag frame = getMenu().getFrameIdByIndex(frameIndex);
         if (frame != null) {
@@ -343,7 +332,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
                 .getRandom().nextFloat() * 0.4f + 0.8f);
 
         // Update block entity clientside to faster update advance frame arrows:
-        getMenu().getBlockEntity().setSelectedFrame(getMenu().getBlockEntity().getSelectedFrame() + (navigation == PagingDirection.NEXT ? 1 : -1));
+        getMenu().getBlockEntity().setSelectedFrame(getMenu().getBlockEntity().getSelectedFrameIndex() + (navigation == PagingDirection.NEXT ? 1 : -1));
     }
 
     private void enterFrameInspectMode() {
