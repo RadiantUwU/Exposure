@@ -6,8 +6,10 @@
 
 Lightroom:
 - When in creative mode, you can now hold [Shift] to print exposure instantly and without dyes/paper   
+- Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 
 
---
+
+---
 
 ## 1.4.1 - 2024-03-15
 - Fixed Lenses config resetting and not working properly.

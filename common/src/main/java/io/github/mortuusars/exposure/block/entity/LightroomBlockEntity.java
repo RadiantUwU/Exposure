@@ -79,10 +79,10 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
     protected NonNullList<ItemStack> items = NonNullList.withSize(Lightroom.SLOTS, ItemStack.EMPTY);
 
-    protected int selectedFrame = 0;
-    protected int progress = 0;
-    protected int printTime = 0;
-    protected int printedPhotographsCount = 0;
+    protected int selectedFrame;
+    protected int progress;
+    protected int printTime;
+    protected int storedExperience;
     protected boolean advanceFrame;
     protected Lightroom.Process process = Lightroom.Process.REGULAR;
 
@@ -126,7 +126,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         int frames = film.getItem().getExposedFramesCount(film.getStack());
 
         if (getSelectedFrameIndex() >= frames - 1) { // On last frame
-            tryEjectFilm();
+            if (canEjectFilm())
+                ejectFilm();
         } else {
             setSelectedFrame(getSelectedFrameIndex() + 1);
             setChanged();
@@ -137,16 +138,22 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return advanceFrame;
     }
 
-    protected boolean tryEjectFilm() {
+    protected boolean canEjectFilm() {
         if (level == null || level.isClientSide || getItem(Lightroom.FILM_SLOT).isEmpty())
             return false;
 
         BlockPos pos = getBlockPos();
         Direction facing = level.getBlockState(pos).getValue(LightroomBlock.FACING);
 
-        if (level.getBlockState(pos.relative(facing)).canOcclude())
-            return false;
+        return !level.getBlockState(pos.relative(facing)).canOcclude();
+    }
 
+    protected void ejectFilm() {
+        if (level == null || level.isClientSide || getItem(Lightroom.FILM_SLOT).isEmpty())
+            return;
+
+        BlockPos pos = getBlockPos();
+        Direction facing = level.getBlockState(pos).getValue(LightroomBlock.FACING);
         ItemStack filmStack = removeItem(Lightroom.FILM_SLOT, 1);
 
         Vec3i normal = facing.getNormal();
@@ -157,8 +164,6 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         level.addFreshEntity(itemEntity);
 
         inventoryContentsChanged(Lightroom.FILM_SLOT);
-
-        return true;
     }
 
     public int getSelectedFrameIndex() {
@@ -367,7 +372,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
         level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
 
-        printedPhotographsCount++;
+        storeExperienceForPrint(filmStack, frame, process, printResult);
 
         if (process != Lightroom.Process.CHROMATIC) { // Chromatics create new exposure. Marking is not needed.
             // Mark exposure as printed
@@ -384,6 +389,27 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
 
         return true;
+    }
+
+    protected void storeExperienceForPrint(ItemStack film, CompoundTag frame, Lightroom.Process process, ItemStack result) {
+        if (level == null)
+            return;
+
+        int xp = 0;
+        if (process == Lightroom.Process.CHROMATIC) {
+            // Printing intermediate channels does not grant xp. Only finished photograph does.
+            xp = result.getItem() instanceof ChromaticSheetItem ? 0 : Config.Common.LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC.get();
+        }
+        else if (film.getItem() instanceof IFilmItem filmItem)
+            xp = filmItem.getType() == FilmType.COLOR
+                    ? Config.Common.LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR.get()
+                    : Config.Common.LIGHTROOM_EXPERIENCE_PER_PRINT_BW.get();
+
+        if (xp > 0) {
+            float variability = level.getRandom().nextFloat() * 0.3f + 1f;
+            int variableXp = (int)Math.max(1, Math.ceil(xp * variability));
+            storedExperience += variableXp;
+        }
     }
 
     public void printInCreativeMode() {
@@ -412,6 +438,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             getItem(Lightroom.PAPER_SLOT).shrink(1);
 
         level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
+
+        storeExperienceForPrint(filmStack, frame, process, printResult);
 
         if (process != Lightroom.Process.CHROMATIC) { // Chromatics create new exposure. Marking is not needed.
             // Mark exposure as printed
@@ -478,19 +506,11 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     }
 
     public void dropStoredExperience(@Nullable Player player) {
-        if (level == null || level.isClientSide)
-            return;
-
-        int xpPerPrint = Config.Common.LIGHTROOM_EXPERIENCE_PER_PRINT.get();
-        if (xpPerPrint > 0) {
-            for (int i = 0; i < printedPhotographsCount; i++) {
-                ExperienceOrb.award(((ServerLevel) level), player != null ? player.position() : Vec3.atCenterOf(getBlockPos()), xpPerPrint - 1 + level.getRandom()
-                        .nextInt(0, 3));
-            }
+        if (level instanceof ServerLevel serverLevel && storedExperience > 0) {
+            ExperienceOrb.award(serverLevel, Vec3.atCenterOf(getBlockPos()), storedExperience);
+            storedExperience = 0;
+            setChanged();
         }
-
-        printedPhotographsCount = 0;
-        setChanged();
     }
 
 
@@ -587,7 +607,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         this.setSelectedFrame(tag.getInt("SelectedFrame"));
         this.progress = tag.getInt("Progress");
         this.printTime = tag.getInt("PrintTime");
-        this.printedPhotographsCount = tag.getInt("PrintedPhotographsCount");
+        this.storedExperience = tag.getInt("PrintedPhotographsCount");
         this.advanceFrame = tag.getBoolean("AdvanceFrame");
         this.process = Lightroom.Process.fromStringOrDefault(tag.getString("Process"), Lightroom.Process.REGULAR);
     }
@@ -602,8 +622,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             tag.putInt("Progress", progress);
         if (printTime > 0)
             tag.putInt("PrintTime", printTime);
-        if (printedPhotographsCount > 0)
-            tag.putInt("PrintedPhotographsCount", printedPhotographsCount);
+        if (storedExperience > 0)
+            tag.putInt("PrintedPhotographsCount", storedExperience);
         if (advanceFrame)
             tag.putBoolean("AdvanceFrame", true);
         if (process != Lightroom.Process.REGULAR)

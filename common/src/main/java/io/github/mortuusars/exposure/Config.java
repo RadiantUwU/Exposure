@@ -27,7 +27,9 @@ public class Config {
         // Lightroom
         public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_FILM_PRINT_TIME;
         public static final ForgeConfigSpec.IntValue LIGHTROOM_COLOR_FILM_PRINT_TIME;
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_BW;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC;
 
         // Photographs
         public static final ForgeConfigSpec.IntValue STACKED_PHOTOGRAPHS_MAX_SIZE;
@@ -66,9 +68,15 @@ public class Config {
                 LIGHTROOM_COLOR_FILM_PRINT_TIME = builder
                         .comment("Time in ticks to print color photograph.")
                         .defineInRange("ColorPrintTime", 200, 1, Integer.MAX_VALUE);
-                LIGHTROOM_EXPERIENCE_PER_PRINT = builder
-                        .comment("Amount of experience awarded per printed Photograph. Set to 0 to disable.")
-                        .defineInRange("ExperiencePerPrint", 4, 0, 32767);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_BW = builder
+                        .comment("Amount of experience awarded per printed black and white Photograph. Set to 0 to disable.")
+                        .defineInRange("ExperiencePerPrintBW", 2, 0, 99);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR = builder
+                        .comment("Amount of experience awarded per printed color Photograph. Set to 0 to disable.")
+                        .defineInRange("ExperiencePerPrintColor", 4, 0, 99);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC = builder
+                        .comment("Amount of experience awarded per printed chromatic Photograph (when all three channels have been printed). Set to 0 to disable.")
+                        .defineInRange("ExperiencePerPrintChromatic", 5, 0, 99);
             }
             builder.pop();
 
