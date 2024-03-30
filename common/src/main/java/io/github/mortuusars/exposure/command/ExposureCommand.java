@@ -13,7 +13,6 @@ public class ExposureCommand {
                 .then(ExposeCommand.get())
                 .then(ExportCommand.get())
                 .then(ShowCommand.get())
-                .then(DebugCommand.get())
-                .then(TrichromeCommand.get()));
+                .then(DebugCommand.get()));
     }
 }
