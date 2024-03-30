@@ -9,6 +9,8 @@ Lightroom:
 - Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 
 
 
+- Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
+
 ---
 
 ## 1.4.1 - 2024-03-15
