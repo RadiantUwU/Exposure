@@ -21,6 +21,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -33,13 +35,13 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
@@ -47,11 +49,13 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
     public static final ResourceLocation FILM_OVERLAYS_TEXTURE = Exposure.resource("textures/gui/lightroom_film_overlays.png");
     public static final int FRAME_SIZE = 54;
 
+    protected Player player;
     protected Button printButton;
     protected ChromaticProcessToggleButton processToggleButton;
 
     public LightroomScreen(LightroomMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.player = playerInventory.player;
     }
 
     @Override
@@ -64,17 +68,32 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         printButton = new ImageButton(leftPos + 117, topPos + 89, 22, 22, 176, 17,
                 22, MAIN_TEXTURE, 256, 256, this::onPrintButtonPressed,
                 (b, ps, x, y) -> renderTooltip(ps, Component.translatable("gui.exposure.lightroom.print"), x, y), Component.empty());
+                Component.translatable("gui.exposure.lightroom.print"));
+
+        MutableComponent tooltip = Component.translatable("gui.exposure.lightroom.print");
+        if (player.isCreative()) {
+            tooltip.append("\n")
+                    .append(Component.translatable("gui.exposure.lightroom.print.creative_tooltip"));
+        }
+
+        printButton.setTooltip(Tooltip.create(tooltip));
         addRenderableWidget(printButton);
 
         processToggleButton = new ChromaticProcessToggleButton(leftPos - 19, topPos + 91,
                 this::onProcessToggleButtonPressed, () -> getMenu().getBlockEntity().getProcess());
         processToggleButton.setTooltip(Tooltip.create(Component.translatable("gui.exposure.lightroom.current_frame")));
         addRenderableWidget(processToggleButton);
+
+        updateButtons();
     }
 
     protected void onPrintButtonPressed(Button button) {
-        if (Minecraft.getInstance().gameMode != null)
-            Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_BUTTON_ID);
+        if (Minecraft.getInstance().gameMode != null) {
+            if (Screen.hasShiftDown() && player.isCreative())
+                Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_CREATIVE_BUTTON_ID);
+            else
+                Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_BUTTON_ID);
+        }
     }
 
     protected void onProcessToggleButtonPressed(Button button) {
@@ -91,8 +110,8 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         renderTooltip(poseStack, mouseX, mouseY);
     }
 
-    private void updateButtons() {
-        printButton.active = getMenu().getBlockEntity().canPrint();
+    protected void updateButtons() {
+        printButton.active = getMenu().getBlockEntity().canPrint() || (player.isCreative() && Screen.hasShiftDown() && getMenu().getBlockEntity().canPrintInCreativeMode());
         printButton.visible = !getMenu().isPrinting();
 
         processToggleButton.active = true;
@@ -335,7 +354,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         Preconditions.checkState(minecraft.gameMode != null);
         int buttonId = navigation == PagingDirection.NEXT ? LightroomMenu.NEXT_FRAME_BUTTON_ID : LightroomMenu.PREVIOUS_FRAME_BUTTON_ID;
         minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, buttonId);
-        minecraft.player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, minecraft.player.getLevel()
+        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, minecraft.player.level()
                 .getRandom().nextFloat() * 0.4f + 0.8f);
 
         // Update block entity clientside to faster update advance frame arrows:
@@ -344,8 +363,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
     private void enterFrameInspectMode() {
         Minecraft.getInstance().setScreen(new FilmFrameInspectScreen(this, getMenu()));
-        Objects.requireNonNull(Minecraft.getInstance().player)
-                .playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, 1.3f);
+        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, 1.3f);
     }
 
     @Override

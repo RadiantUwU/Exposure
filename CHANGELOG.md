@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+- Added chromatic (trichrome) printing process
+- Red, Green and Blue filters now have stronger effect to enable chromatic process
+
+Lightroom:
+- When in creative mode, you can now hold [Shift] to print exposure instantly and without dyes/paper   
+
+--
+
 ## 1.4.1 - 2024-03-15
 - Fixed Lenses config resetting and not working properly.
 - Fixed issue with `Cold Sweat` when closing viewfinder with filter installed causing blur shader to apply when it shouldn't.

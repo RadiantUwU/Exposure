@@ -188,10 +188,10 @@ public class LightroomMenu extends AbstractContainerMenu {
             return true;
         }
 
-        //TODO: Creative print
-//        if (buttonId == PRINT_CREATIVE_BUTTON_ID) {
-//            getBlockEntity().
-//        }
+        if (buttonId == PRINT_CREATIVE_BUTTON_ID) {
+            if (player.isCreative())
+                getBlockEntity().printInCreativeMode();
+        }
 
         return false;
     }

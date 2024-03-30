@@ -6,7 +6,6 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.block.LightroomBlock;
-import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
@@ -38,14 +37,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -81,7 +77,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
     };
 
-    private NonNullList<ItemStack> items = NonNullList.withSize(Lightroom.SLOTS, ItemStack.EMPTY);
+    protected NonNullList<ItemStack> items = NonNullList.withSize(Lightroom.SLOTS, ItemStack.EMPTY);
 
     protected int selectedFrame = 0;
     protected int progress = 0;
@@ -277,6 +273,17 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
                 && canOutputToResultSlot(getItem(Lightroom.RESULT_SLOT), filmStack, process);
     }
 
+    public boolean canPrintInCreativeMode() {
+        if (getSelectedFrameIndex() < 0) // Upper bound is checked further down
+            return false;
+
+        ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
+        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm) || !developedFilm.hasExposedFrame(filmStack, getSelectedFrameIndex()))
+            return false;
+
+        return canOutputToResultSlot(getItem(Lightroom.RESULT_SLOT), filmStack, getActualProcess(filmStack));
+    }
+
     protected boolean isPaperValidForPrint(ItemStack paperStack, ItemStack filmStack, Lightroom.Process process) {
         if (paperStack.isEmpty())
             return false;
@@ -295,8 +302,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return true;
     }
 
-    protected boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process actualProcess) {
-        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && getProcess() == Lightroom.Process.CHROMATIC)
+    public boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process process) {
+        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && process == Lightroom.Process.CHROMATIC)
             return resultStack.isEmpty();
 
         return resultStack.isEmpty() || resultStack.getItem() instanceof PhotographItem
@@ -379,7 +386,49 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return true;
     }
 
-    private void putPrintResultInOutputSlot(ItemStack printResult) {
+    public void printInCreativeMode() {
+        Preconditions.checkState(level != null && !level.isClientSide, "Cannot be called clientside.");
+        if (!canPrintInCreativeMode())
+            return;
+
+        ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
+        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm))
+            return;
+
+        Optional<CompoundTag> selectedFrame = getSelectedFrame(filmStack);
+        if (selectedFrame.isEmpty()) {
+            LogUtils.getLogger().error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
+            return;
+        }
+
+        CompoundTag frame = selectedFrame.get().copy();
+        Lightroom.Process process = getActualProcess(filmStack);
+        ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
+
+        ItemStack printResult = createPrintResult(frame, filmStack, paperStack, process);
+        putPrintResultInOutputSlot(printResult);
+
+        if (process == Lightroom.Process.CHROMATIC)
+            getItem(Lightroom.PAPER_SLOT).shrink(1);
+
+        level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
+
+        if (process != Lightroom.Process.CHROMATIC) { // Chromatics create new exposure. Marking is not needed.
+            // Mark exposure as printed
+            String id = frame.getString(FrameData.ID);
+            if (!id.isEmpty()) {
+                ExposureServer.getExposureStorage().getOrQuery(id).ifPresent(exposure -> {
+                    CompoundTag properties = exposure.getProperties();
+                    if (!properties.getBoolean(ExposureSavedData.WAS_PRINTED_PROPERTY)) {
+                        properties.putBoolean(ExposureSavedData.WAS_PRINTED_PROPERTY, true);
+                        exposure.setDirty();
+                    }
+                });
+            }
+        }
+    }
+
+    protected void putPrintResultInOutputSlot(ItemStack printResult) {
         ItemStack resultStack = getItem(Lightroom.RESULT_SLOT);
         if (resultStack.isEmpty())
             resultStack = printResult;
@@ -426,104 +475,6 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             photographStack.setTag(frame);
             return photographStack;
         }
-    }
-
-    private ItemStack finalizeChromaticFragment(ItemAndStack<ChromaticSheetItem> chromaticFragment) {
-        if (level == null)
-            return chromaticFragment.getStack();
-
-        List<CompoundTag> exposures = chromaticFragment.getItem().getExposures(chromaticFragment.getStack());
-        Preconditions.checkState(exposures.size() == 3,
-                "Finalizing Chromatic Fragment requires 3 exposures. " + chromaticFragment);
-
-        CompoundTag redTag = exposures.get(0);
-        String redId = redTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> redOpt = ExposureServer.getExposureStorage().getOrQuery(redId);
-        if (redOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Red channel exposure '" + redId + "' is not found.");
-            return chromaticFragment.getStack();
-        }
-
-        CompoundTag greenTag = exposures.get(1);
-        String greenId = greenTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> greenOpt = ExposureServer.getExposureStorage().getOrQuery(greenId);
-        if (greenOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Green channel exposure '" + greenId + "' is not found.");
-            return chromaticFragment.getStack();
-        }
-
-        CompoundTag blueTag = exposures.get(2);
-        String blueId = blueTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> blueOpt = ExposureServer.getExposureStorage().getOrQuery(blueId);
-        if (blueOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Blue channel exposure '" + blueId + "' is not found.");
-            return chromaticFragment.getStack();
-        }
-
-        ExposureSavedData red = redOpt.get();
-        ExposureSavedData green = greenOpt.get();
-        ExposureSavedData blue = blueOpt.get();
-
-        int width = Math.min(red.getWidth(), Math.min(green.getWidth(), blue.getWidth()));
-        int height = Math.min(red.getHeight(), Math.min(green.getHeight(), blue.getHeight()));
-
-        if (width <= 0) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Width should be larger than 0");
-            return chromaticFragment.getStack();
-        }
-
-        if (height <= 0) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Height should be larger than 0");
-            return chromaticFragment.getStack();
-        }
-
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                int r = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
-                int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
-                int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
-
-                int rgb = 0xFF << 24 | r << 16 | g << 8 | b;
-
-                image.setRGB(x, y, rgb);
-            }
-        }
-
-        byte[] mapColorPixels = FloydDither.ditherWithMapColors(image);
-
-        CompoundTag properties = new CompoundTag();
-        properties.putString(ExposureSavedData.TYPE_PROPERTY, FilmType.COLOR.getSerializedName());
-
-        ExposureSavedData resultData = new ExposureSavedData(image.getWidth(), image.getHeight(), mapColorPixels, properties);
-
-        String name;
-        int underscoreIndex = redId.lastIndexOf("_");
-        if (underscoreIndex != -1)
-            name = redId.substring(0, underscoreIndex);
-        else
-            name = Integer.toString(redId.hashCode());
-
-        String id = String.format("%s_chromatic_%s", name, level.getGameTime());
-
-        ExposureServer.getExposureStorage().put(id, resultData);
-
-        ItemStack photograph = new ItemStack(Exposure.Items.PHOTOGRAPH.get());
-
-        //TODO: Only include properties common to all 3 exposures
-        CompoundTag tag = redTag.copy();
-        tag = tag.merge(greenTag);
-        tag = tag.merge(blueTag);
-
-        tag.putString(FrameData.ID, id);
-        tag.putString(FrameData.RED_CHANNEL, redId);
-        tag.putString(FrameData.GREEN_CHANNEL, greenId);
-        tag.putString(FrameData.BLUE_CHANNEL, blueId);
-
-        photograph.setTag(tag);
-
-        return photograph;
     }
 
     public void dropStoredExperience(@Nullable Player player) {
