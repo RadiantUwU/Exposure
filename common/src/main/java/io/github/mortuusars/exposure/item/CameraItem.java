@@ -440,10 +440,16 @@ public class CameraItem extends Item {
         tag.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
         tag.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
 
-        getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
-            tag.putBoolean(FrameData.CHROMATIC, true);
-            tag.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
-        });
+        // Chromatic only for black and white:
+        Boolean isBW = getAttachment(cameraStack, FILM_ATTACHMENT)
+                .map(f -> f.getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.BLACK_AND_WHITE)
+                .orElse(false);
+        if (isBW) {
+            getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
+                tag.putBoolean(FrameData.CHROMATIC, true);
+                tag.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
+            });
+        }
 
         if (flash)
             tag.putBoolean(FrameData.FLASH, true);
