@@ -439,8 +439,6 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
         level.playSound(null, getBlockPos(), Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get(), SoundSource.PLAYERS, 0.8f, 1f);
 
-        storeExperienceForPrint(filmStack, frame, process, printResult);
-
         if (process != Lightroom.Process.CHROMATIC) { // Chromatics create new exposure. Marking is not needed.
             // Mark exposure as printed
             String id = frame.getString(FrameData.ID);
