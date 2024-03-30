@@ -195,7 +195,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     /**
      * @return Process, which currently selected image supports.
      */
-    public Lightroom.Process getActualProcess() {
+    public Lightroom.Process getActualProcess(ItemStack filmStack) {
         ItemStack film = getItem(Lightroom.FILM_SLOT);
 
         if (!isSelectedFrameChromatic(film, getSelectedFrameIndex()))
@@ -206,6 +206,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
     public void setProcess(Lightroom.Process process) {
         this.process = process;
+        stopPrintingProcess();
         setChanged();
     }
 
@@ -263,31 +264,27 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         if (getSelectedFrameIndex() < 0) // Upper bound is checked further down
             return false;
 
-        ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
-        if (paperStack.isEmpty())
-            return false;
-
         ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
         if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilm) || !developedFilm.hasExposedFrame(filmStack, getSelectedFrameIndex()))
             return false;
 
-        Lightroom.Process process = getActualProcess();
-        if (!hasDyesForPrint(filmStack, paperStack, process))
+        Lightroom.Process process = getActualProcess(filmStack);
+
+        ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
+
+        return isPaperValidForPrint(paperStack, filmStack, process)
+                && hasDyesForPrint(filmStack, paperStack, process)
+                && canOutputToResultSlot(getItem(Lightroom.RESULT_SLOT), filmStack, process);
+    }
+
+    protected boolean isPaperValidForPrint(ItemStack paperStack, ItemStack filmStack, Lightroom.Process process) {
+        if (paperStack.isEmpty())
             return false;
 
-        return canOutputToResultSlot(getItem(Lightroom.RESULT_SLOT), filmStack, process);
+        return process != Lightroom.Process.REGULAR || paperStack.is(Exposure.Tags.Items.PHOTO_PAPERS);
     }
 
-    private boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process actualProcess) {
-        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && getProcess() == Lightroom.Process.CHROMATIC)
-            return resultStack.isEmpty();
-
-        return resultStack.isEmpty() || resultStack.getItem() instanceof PhotographItem
-                || (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem
-                && stackedPhotographsItem.canAddPhotograph(resultStack));
-    }
-
-    public boolean hasDyesForPrint(ItemStack film, ItemStack paper, Lightroom.Process process) {
+    protected boolean hasDyesForPrint(ItemStack film, ItemStack paper, Lightroom.Process process) {
         int[] dyeSlots = getRequiredDyeSlotsForPrint(film, paper, process);
 
         for (int slot : dyeSlots) {
@@ -296,6 +293,15 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
 
         return true;
+    }
+
+    protected boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process actualProcess) {
+        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && getProcess() == Lightroom.Process.CHROMATIC)
+            return resultStack.isEmpty();
+
+        return resultStack.isEmpty() || resultStack.getItem() instanceof PhotographItem
+                || (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem
+                && stackedPhotographsItem.canAddPhotograph(resultStack));
     }
 
     protected int[] getRequiredDyeSlotsForPrint(ItemStack film, ItemStack paper, Lightroom.Process process) {
@@ -317,7 +323,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     }
 
     protected int getChromaticStep(ItemStack paper) {
-        if (!(paper.getItem() instanceof ChromaticFragmentItem chromaticFragment))
+        if (!(paper.getItem() instanceof ChromaticSheetItem chromaticFragment))
             return 0;
 
         return chromaticFragment.getExposures(paper).size();
@@ -339,7 +345,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
 
         CompoundTag frame = selectedFrame.get().copy();
-        Lightroom.Process process = getActualProcess();
+        Lightroom.Process process = getActualProcess(filmStack);
         ItemStack paperStack = getItem(Lightroom.PAPER_SLOT);
 
         ItemStack printResult = createPrintResult(frame, filmStack, paperStack, process);
@@ -404,9 +410,9 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
                 ? filmItem.getType().getSerializedName() : FilmType.COLOR.getSerializedName());
 
         if (process == Lightroom.Process.CHROMATIC) {
-            ItemAndStack<ChromaticFragmentItem> chromaticFragment = new ItemAndStack<>(
-                    paper.getItem() instanceof ChromaticFragmentItem ? paper
-                            : new ItemStack(Exposure.Items.CHROMATIC_FRAGMENT.get()));
+            ItemAndStack<ChromaticSheetItem> chromaticFragment = new ItemAndStack<>(
+                    paper.getItem() instanceof ChromaticSheetItem ? paper
+                            : new ItemStack(Exposure.Items.CHROMATIC_SHEET.get()));
 
             chromaticFragment.getItem().addExposure(chromaticFragment.getStack(), frame);
 
@@ -422,7 +428,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         }
     }
 
-    private ItemStack finalizeChromaticFragment(ItemAndStack<ChromaticFragmentItem> chromaticFragment) {
+    private ItemStack finalizeChromaticFragment(ItemAndStack<ChromaticSheetItem> chromaticFragment) {
         if (level == null)
             return chromaticFragment.getStack();
 
@@ -557,9 +563,9 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         else if (slot == Lightroom.BLACK_SLOT) return stack.is(Exposure.Tags.Items.BLACK_PRINTING_DYES);
         else if (slot == Lightroom.PAPER_SLOT)
             return stack.is(Exposure.Tags.Items.PHOTO_PAPERS) ||
-                    (stack.getItem() instanceof ChromaticFragmentItem chromatic && chromatic.getExposures(stack).size() < 3);
+                    (stack.getItem() instanceof ChromaticSheetItem chromatic && chromatic.getExposures(stack).size() < 3);
         else if (slot == Lightroom.RESULT_SLOT)
-            return stack.getItem() instanceof PhotographItem || stack.getItem() instanceof ChromaticFragmentItem;
+            return stack.getItem() instanceof PhotographItem || stack.getItem() instanceof ChromaticSheetItem;
         return false;
     }
 

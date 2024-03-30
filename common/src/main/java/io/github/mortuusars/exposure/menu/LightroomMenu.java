@@ -25,9 +25,10 @@ import java.util.Objects;
 
 public class LightroomMenu extends AbstractContainerMenu {
     public static final int PRINT_BUTTON_ID = 0;
-    public static final int PREVIOUS_FRAME_BUTTON_ID = 1;
-    public static final int NEXT_FRAME_BUTTON_ID = 2;
-    public static final int TOGGLE_PROCESS_BUTTON_ID = 3;
+    public static final int PRINT_CREATIVE_BUTTON_ID = 1;
+    public static final int PREVIOUS_FRAME_BUTTON_ID = 2;
+    public static final int NEXT_FRAME_BUTTON_ID = 3;
+    public static final int TOGGLE_PROCESS_BUTTON_ID = 4;
 
     private final LightroomBlockEntity lightroomBlockEntity;
     private final ContainerData data;
@@ -186,6 +187,11 @@ public class LightroomMenu extends AbstractContainerMenu {
             getBlockEntity().startPrintingProcess(false);
             return true;
         }
+
+        //TODO: Creative print
+//        if (buttonId == PRINT_CREATIVE_BUTTON_ID) {
+//            getBlockEntity().
+//        }
 
         return false;
     }

@@ -15,6 +15,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.menu.LightroomMenu;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
+import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.PagingDirection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -28,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -196,37 +198,42 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         int selectedFrame = getMenu().getSelectedFrame();
         List<Component> tooltipLines = new ArrayList<>();
 
+        int hoveredFrameIndex = -1;
+
         if (isOverLeftFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame - 1;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.previous_frame"));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame - 1, tooltipLines);
-            }
         } else if (isOverCenterFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.current_frame", Integer.toString(getMenu().getSelectedFrame() + 1)));
-            tooltipLines.add(Component.translatable("gui.exposure.lightroom.zoom_in.tooltip")
-                    .withStyle(ChatFormatting.GRAY));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame, tooltipLines);
-            }
         } else if (isOverRightFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame + 1;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.next_frame"));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame + 1, tooltipLines);
-            }
         }
+
+        if (hoveredFrameIndex != -1)
+            addFrameInfoTooltipLines(tooltipLines, hoveredFrameIndex, advancedTooltips);
 
         renderTooltip(poseStack, tooltipLines, Optional.empty(), mouseX, mouseY);
     }
 
-    private void addFrameInfoToAdvancedTooltip(int frameIndex, List<Component> tooltipLines) {
+    private void addFrameInfoTooltipLines(List<Component> tooltipLines, int frameIndex, boolean isAdvancedTooltips) {
         @Nullable CompoundTag frame = getMenu().getFrameIdByIndex(frameIndex);
         if (frame != null) {
-            Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(frame);
-            MutableComponent component = idOrTexture.map(
-                            id -> !id.isEmpty() ? Component.literal("Id: " + id) : Component.empty(),
-                            texture -> Component.literal("Texture: " + texture))
-                    .withStyle(ChatFormatting.DARK_GRAY);
-            tooltipLines.add(component);
+            ColorChannel.fromString(frame.getString(FrameData.CHROMATIC_CHANNEL)).ifPresent(c ->
+                    tooltipLines.add(Component.translatable("gui.exposure.channel." + c.getSerializedName())
+                        .withStyle(Style.EMPTY.withColor(c.getRepresentationColor()))));
+
+            if (isAdvancedTooltips) {
+                Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(frame);
+                MutableComponent component = idOrTexture.map(
+                                id -> !id.isEmpty() ? Component.translatable("gui.exposure.frame.id",
+                                        Component.literal(id).withStyle(ChatFormatting.GRAY)) : Component.empty(),
+                                texture -> Component.translatable("gui.exposure.frame.texture",
+                                        Component.literal(texture.toString()).withStyle(ChatFormatting.GRAY)))
+                        .withStyle(ChatFormatting.DARK_GRAY);
+                tooltipLines.add(component);
+            }
         }
     }
 

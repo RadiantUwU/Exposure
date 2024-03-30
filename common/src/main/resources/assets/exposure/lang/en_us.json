@@ -27,6 +27,9 @@
   "item.exposure.photograph.photographer_tooltip": "Taken by: %s",
   "item.exposure.stacked_photographs": "Stacked Photographs",
 
+  "item.exposure.chromatic_sheet": "Chromatic Sheet",
+  "item.exposure.chromatic_sheet.use_tooltip": "Use to combine three channels into a Photograph",
+
   "item.exposure.film_roll.tooltip.frame_count": "%s/%s",
   "item.exposure.film_roll.tooltip.frame_size": "Size: %smm",
   "item.exposure.film_roll.tooltip.developing_step": "Developing: %s",
@@ -72,6 +75,14 @@
   "gui.exposure.album.sign": "Sign Album",
   "gui.exposure.album.sign.warning": "Note! When you sign the album, it will no longer be editable.",
   "gui.exposure.album.cancel_signing": "Cancel",
+
+  "gui.exposure.frame.id": "Id: %s",
+  "gui.exposure.frame.texture": "Texture: %s",
+
+  "gui.exposure.channel.red": "R",
+  "gui.exposure.channel.green": "G",
+  "gui.exposure.channel.blue": "B",
+  "gui.exposure.channel.separator": "·",
 
   "gui.exposure.lightroom.previous_frame": "Previous Frame",
   "gui.exposure.lightroom.current_frame": "Frame: %s",

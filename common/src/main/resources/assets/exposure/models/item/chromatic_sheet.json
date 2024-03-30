@@ -1,0 +1,26 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "exposure:item/chromatic_sheet_three"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "channels": 0.1
+      },
+      "model": "exposure:item/chromatic_sheet_one"
+    },
+    {
+      "predicate": {
+        "channels": 0.2
+      },
+      "model": "exposure:item/chromatic_sheet_two"
+    },
+    {
+      "predicate": {
+        "channels": 0.3
+      },
+      "model": "exposure:item/chromatic_sheet_three"
+    }
+  ]
+}

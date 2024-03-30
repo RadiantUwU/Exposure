@@ -8,9 +8,19 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 
 public enum ColorChannel implements StringRepresentable {
-    RED,
-    GREEN,
-    BLUE;
+    RED(0xFFD8523E),
+    GREEN(0xFF7BC64B),
+    BLUE(0xFF4E73CE);
+
+    private final int color;
+
+    ColorChannel(int color) {
+        this.color = color;
+    }
+
+    public int getRepresentationColor() {
+        return color;
+    }
 
     public static Optional<ColorChannel> fromStack(ItemStack stack) {
         if (stack.is(Exposure.Tags.Items.RED_FILTERS))
@@ -29,6 +39,14 @@ public enum ColorChannel implements StringRepresentable {
                 return value;
         }
         return defaultValue;
+    }
+
+    public static Optional<ColorChannel> fromString(String serializedName) {
+        for (ColorChannel value : values()) {
+            if (value.getSerializedName().equals(serializedName))
+                return Optional.of(value);
+        }
+        return Optional.empty();
     }
 
     @Override

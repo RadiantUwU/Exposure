@@ -133,8 +133,8 @@ public class Exposure {
                         .stacksTo(1)
                         .tab(CreativeModeTab.TAB_TOOLS)));
 
-        public static final Supplier<Item> CHROMATIC_FRAGMENT = Register.item("chromatic_fragment",
-                () -> new ChromaticFragmentItem(new Item.Properties()
+        public static final Supplier<Item> CHROMATIC_SHEET = Register.item("chromatic_sheet",
+                () -> new ChromaticSheetItem(new Item.Properties()
                         .stacksTo(1)));
 
         public static final Supplier<PhotographItem> AGED_PHOTOGRAPH = Register.item("aged_photograph",

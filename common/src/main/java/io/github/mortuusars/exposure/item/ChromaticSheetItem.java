@@ -8,11 +8,14 @@ import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
+import io.github.mortuusars.exposure.util.ColorChannel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -30,9 +33,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ChromaticFragmentItem extends Item {
+public class ChromaticSheetItem extends Item {
     public static final String EXPOSURES_TAG = "Exposures";
-    public ChromaticFragmentItem(Properties properties) {
+    public ChromaticSheetItem(Properties properties) {
         super(properties);
     }
 
@@ -61,12 +64,29 @@ public class ChromaticFragmentItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         List<CompoundTag> exposures = getExposures(stack);
 
-        if (!exposures.isEmpty())
-            tooltipComponents.add(Component.literal("■").withStyle(ChatFormatting.RED));
-        if (exposures.size() >= 2)
-            tooltipComponents.add(Component.literal("■").withStyle(ChatFormatting.GREEN));
-        if (exposures.size() >= 3)
-            tooltipComponents.add(Component.literal("■").withStyle(ChatFormatting.BLUE));
+        if (!exposures.isEmpty()) {
+            MutableComponent component = Component.translatable("gui.exposure.channel.red")
+                    .withStyle(Style.EMPTY.withColor(ColorChannel.RED.getRepresentationColor()));
+
+            if (exposures.size() >= 2){
+                component.append(Component.translatable("gui.exposure.channel.separator").withStyle(ChatFormatting.GRAY));
+                component.append(Component.translatable("gui.exposure.channel.green")
+                        .withStyle(Style.EMPTY.withColor(ColorChannel.GREEN.getRepresentationColor())));
+            }
+
+            if (exposures.size() >= 3) {
+                component.append(Component.translatable("gui.exposure.channel.separator").withStyle(ChatFormatting.GRAY));
+                component.append(Component.translatable("gui.exposure.channel.blue")
+                        .withStyle(Style.EMPTY.withColor(ColorChannel.BLUE.getRepresentationColor())));
+            }
+
+            tooltipComponents.add(component);
+
+            if (exposures.size() >= 3) {
+                component.append(Component.translatable("item.exposure.chromatic_sheet.use_tooltip").withStyle(ChatFormatting.GRAY));
+            }
+        }
+
     }
 
     @Override
@@ -76,7 +96,7 @@ public class ChromaticFragmentItem extends Item {
         if (!level.isClientSide && getExposures(stack).size() >= 3) {
             ItemStack result = finalize(level, stack);
             player.setItemInHand(usedHand, result);
-            return InteractionResultHolder.sidedSuccess(result, level.isClientSide);
+            return InteractionResultHolder.success(result);
         }
 
         return super.use(level, player, usedHand);
