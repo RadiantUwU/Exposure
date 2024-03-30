@@ -9,6 +9,7 @@ Lightroom:
 - Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 
 
 
+- [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
 - Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
 
 ---

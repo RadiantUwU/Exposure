@@ -11,7 +11,7 @@ authors = "${mod_authors}"
 description = '''
 ${mod_description}
 '''
-logoFile = "../../../../../common/src/main/resources/icon.png"
+logoFile = "icon.png"
 
 [[dependencies.exposure]]
 modId = "forge"
