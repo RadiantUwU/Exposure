@@ -5,9 +5,15 @@ import io.github.mortuusars.exposure.command.ExposureCommand;
 import io.github.mortuusars.exposure.command.ShaderCommand;
 import io.github.mortuusars.exposure.command.TestCommand;
 import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
+import io.github.mortuusars.exposure.data.Lenses;
+import io.github.mortuusars.exposure.data.LensesDataLoader;
 import io.github.mortuusars.exposure.network.forge.PacketsImpl;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,6 +35,16 @@ public class CommonEvents {
         @SubscribeEvent
         public static void serverStarting(ServerStartingEvent event) {
             Exposure.initServer(event.getServer());
+        }
+
+        @SubscribeEvent
+        public static void addReloadListeners(AddReloadListenerEvent event) {
+            event.addListener(new LensesDataLoader());
+        }
+
+        @SubscribeEvent
+        public static void onDatapackSync(OnDatapackSyncEvent event) {
+            Lenses.onDatapackSync(event.getPlayerList(), event.getPlayer());
         }
 
         @SubscribeEvent

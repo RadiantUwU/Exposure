@@ -130,6 +130,12 @@ public class PacketsImpl {
                 .decoder(ClearRenderingCacheS2CP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
+
+        CHANNEL.messageBuilder(SyncLensesS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(SyncLensesS2CP::toBuffer)
+                .decoder(SyncLensesS2CP::fromBuffer)
+                .consumerMainThread(PacketsImpl::handlePacket)
+                .add();
     }
 
     public static void sendToServer(IPacket packet) {

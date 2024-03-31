@@ -559,7 +559,7 @@ public class CameraItem extends Item {
     }
 
     public FocalRange getFocalRange(ItemStack cameraStack) {
-        return getAttachment(cameraStack, LENS_ATTACHMENT).map(FocalRange::fromStack).orElse(getDefaultFocalRange());
+        return getAttachment(cameraStack, LENS_ATTACHMENT).map(FocalRange::ofStack).orElse(getDefaultFocalRange());
     }
 
     public FocalRange getDefaultFocalRange() {

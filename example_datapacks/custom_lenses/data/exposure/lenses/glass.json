@@ -1,0 +1,9 @@
+{
+  "item": {
+    "item": "minecraft:glass"
+  },
+  "focal_range": {
+    "min": 10,
+    "max": 18
+  }
+}

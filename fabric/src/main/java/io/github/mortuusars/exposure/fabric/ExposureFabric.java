@@ -6,6 +6,7 @@ import io.github.mortuusars.exposure.command.ExposureCommand;
 import io.github.mortuusars.exposure.command.ShaderCommand;
 import io.github.mortuusars.exposure.command.TestCommand;
 import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
+import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.fabric.integration.create.CreateFilmDeveloping;
 import io.github.mortuusars.exposure.network.fabric.PacketsImpl;
 import net.fabricmc.api.ModInitializer;
@@ -45,6 +46,8 @@ public class ExposureFabric implements ModInitializer {
         Exposure.Stats.register();
 
         ServerLifecycleEvents.SERVER_STARTING.register(Exposure::initServer);
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) ->
+                Lenses.onDatapackSync(player.getServer().getPlayerList(), null));
 
         PacketsImpl.registerC2SPackets();
     }

@@ -1,7 +1,5 @@
 package io.github.mortuusars.exposure;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import net.minecraft.core.Registry;
@@ -22,7 +20,6 @@ public class Config {
 
         // Camera
         public static final ForgeConfigSpec.ConfigValue<String> CAMERA_DEFAULT_FOCAL_RANGE;
-        public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CAMERA_LENSES;
 
         // Lightroom
         public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_FILM_PRINT_TIME;
@@ -34,7 +31,7 @@ public class Config {
         // Photographs
         public static final ForgeConfigSpec.IntValue STACKED_PHOTOGRAPHS_MAX_SIZE;
 
-        // Compat
+        // Compatibility
         public static final ForgeConfigSpec.BooleanValue CREATE_SPOUT_DEVELOPING_ENABLED;
         public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CREATE_SPOUT_DEVELOPING_SEQUENCE_COLOR;
         public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CREATE_SPOUT_DEVELOPING_SEQUENCE_BW;
@@ -49,14 +46,6 @@ public class Config {
                                 "Allowed range: " + FocalRange.ALLOWED_MIN + "-" + FocalRange.ALLOWED_MAX,
                                 "Default: 18-55")
                         .define("DefaultFocalRange", "18-55");
-
-                CAMERA_LENSES = builder
-                        .comment("Focal Range per lens. Item ID and min-max (or single number for primes) focal lengths. " +
-                                    "Separated by a comma. Allowed range: " + FocalRange.ALLOWED_MIN + "-" + FocalRange.ALLOWED_MAX,
-                                "Note: to attach the custom lens to the camera - it needs to be added to '#exposure:lenses' item tag.",
-                                "Default: [\"minecraft:spyglass,55-200\"]")
-                        .defineListAllowEmpty(List.of("LensFocalRanges"), () ->
-                                List.of("minecraft:spyglass,55-200"), Common::validateLensProperties);
             }
             builder.pop();
 
@@ -112,33 +101,6 @@ public class Config {
             builder.pop();
 
             SPEC = builder.build();
-        }
-
-        private static boolean validateLensProperties(Object o) {
-            String value = (String) o;
-            try {
-                @SuppressWarnings("unused") Pair<Item, FocalRange> unused = parseLens(value);
-                return true;
-            } catch (Exception e) {
-                LogUtils.getLogger().error("Lens property '" + value + "' is not a valid. " + e);
-                return false;
-            }
-        }
-
-        public static Pair<Item, FocalRange> parseLens(String value) {
-            String[] split = value.split(",");
-            if (split.length != 2)
-                throw new IllegalStateException(value + " is not a valid lens property. Exactly two parts, separated by a comma, are required.");
-
-            ResourceLocation id = new ResourceLocation(split[0]);
-            Item item = Registry.ITEM.get(id);
-
-            if (item == Items.AIR)
-                throw new IllegalStateException(item + " is not a valid item for lens property. Value: " + value);
-
-            FocalRange focalRange = FocalRange.parse(split[1]);
-
-            return Pair.of(item, focalRange);
         }
 
         public static ForgeConfigSpec.ConfigValue<List<? extends String>> spoutDevelopingSequence(FilmType filmType) {

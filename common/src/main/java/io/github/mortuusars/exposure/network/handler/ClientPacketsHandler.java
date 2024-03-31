@@ -16,6 +16,7 @@ import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
+import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.gui.screen.NegativeExposureScreen;
 import io.github.mortuusars.exposure.gui.screen.PhotographScreen;
 import io.github.mortuusars.exposure.item.CameraItem;
@@ -23,6 +24,7 @@ import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.network.packet.client.ApplyShaderS2CP;
 import io.github.mortuusars.exposure.network.packet.client.ShowExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
+import io.github.mortuusars.exposure.network.packet.client.SyncLensesS2CP;
 import io.github.mortuusars.exposure.util.ColorUtils;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.ChatFormatting;
@@ -33,7 +35,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,16 +45,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClientPacketsHandler {
     public static void applyShader(ApplyShaderS2CP packet) {
-        Minecraft mc = Minecraft.getInstance();
-        mc.execute(() -> {
+        executeOnMainThread(() -> {
             if (packet.shaderLocation().getPath().equals("none")) {
-                mc.gameRenderer.shutdownEffect();
+                Minecraft.getInstance().gameRenderer.shutdownEffect();
             } else {
-                mc.gameRenderer.loadEffect(packet.shaderLocation());
+                Minecraft.getInstance().gameRenderer.loadEffect(packet.shaderLocation());
             }
         });
     }
@@ -65,7 +64,7 @@ public class ClientPacketsHandler {
                     .getHeight());
 
         int finalSize = size;
-        Minecraft.getInstance().execute(() -> {
+        executeOnMainThread(() -> {
             String fileName = Util.getFilenameFormattedDateTime();
             CompoundTag frameData = new CompoundTag();
             frameData.putString(FrameData.ID, fileName);
@@ -96,40 +95,38 @@ public class ClientPacketsHandler {
 
         String finalExposureId = exposureId;
         new Thread(() -> {
-            Minecraft.getInstance().execute(() -> {
-                try {
-                    BufferedImage read = ImageIO.read(new File(path));
+            try {
+                BufferedImage read = ImageIO.read(new File(path));
 
-                    NativeImage image = new NativeImage(read.getWidth(), read.getHeight(), false);
+                NativeImage image = new NativeImage(read.getWidth(), read.getHeight(), false);
 
-                    for (int x = 0; x < read.getWidth(); x++) {
-                        for (int y = 0; y < read.getHeight(); y++) {
-                            image.setPixelRGBA(x, y, ColorUtils.BGRtoRGB(read.getRGB(x, y)));
-                        }
+                for (int x = 0; x < read.getWidth(); x++) {
+                    for (int y = 0; y < read.getHeight(); y++) {
+                        image.setPixelRGBA(x, y, ColorUtils.BGRtoRGB(read.getRGB(x, y)));
                     }
-
-                    CompoundTag frameData = new CompoundTag();
-                    frameData.putString(FrameData.ID, finalExposureId);
-
-                    Capture capture = new Capture(finalExposureId, frameData)
-                            .size(size)
-                            .cropFactor(1f)
-                            .components(new ExposureStorageSaveComponent(finalExposureId, true))
-                            .converter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
-                    capture.processImage(image);
-
-                    LogUtils.getLogger()
-                            .info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
-                    Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
-                            Component.translatable("command.exposure.load_from_file.success", finalExposureId)
-                                    .withStyle(ChatFormatting.GREEN), false);
-                } catch (IOException e) {
-                    LogUtils.getLogger().error("Cannot load exposure:" + e);
-                    Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
-                            Component.translatable("command.exposure.load_from_file.failure")
-                                    .withStyle(ChatFormatting.RED), false);
                 }
-            });
+
+                CompoundTag frameData = new CompoundTag();
+                frameData.putString(FrameData.ID, finalExposureId);
+
+                Capture capture = new Capture(finalExposureId, frameData)
+                        .size(size)
+                        .cropFactor(1f)
+                        .components(new ExposureStorageSaveComponent(finalExposureId, true))
+                        .converter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
+                capture.processImage(image);
+
+                LogUtils.getLogger()
+                        .info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
+                Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
+                        Component.translatable("command.exposure.load_from_file.success", finalExposureId)
+                                .withStyle(ChatFormatting.GREEN), false);
+            } catch (IOException e) {
+                LogUtils.getLogger().error("Cannot load exposure:" + e);
+                Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
+                        Component.translatable("command.exposure.load_from_file.failure")
+                                .withStyle(ChatFormatting.RED), false);
+            }
         }).start();
     }
 
@@ -147,7 +144,7 @@ public class ClientPacketsHandler {
     }
 
     public static void showExposure(ShowExposureS2CP packet) {
-        Minecraft.getInstance().execute(() -> {
+        executeOnMainThread(() -> {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
                 LogUtils.getLogger().error("Cannot show exposures. Player is null.");
@@ -213,14 +210,14 @@ public class ClientPacketsHandler {
     }
 
     public static void clearRenderingCache() {
+        executeOnMainThread(() -> ExposureClient.getExposureRenderer().clearData());
+    }
 
-        // TODO: remove
-        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        Set<String> namespaces = resourceManager.getNamespaces();
+    public static void syncLenses(SyncLensesS2CP packet) {
+        executeOnMainThread(() -> Lenses.reload(packet.lenses()));
+    }
 
-        boolean a = true;
-
-
-        ExposureClient.getExposureRenderer().clearData();
+    private static void executeOnMainThread(Runnable runnable) {
+        Minecraft.getInstance().execute(runnable);
     }
 }

@@ -106,7 +106,7 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
     public @NotNull List<Component> getTooltipFromItem(ItemStack stack) {
         List<Component> tooltip = super.getTooltipFromItem(stack);
         if (stack.is(Exposure.Tags.Items.LENSES) && hoveredSlot != null && hoveredSlot.getItem().equals(stack)) {
-            tooltip.add(Component.translatable("gui.exposure.viewfinder.focal_length", FocalRange.fromStack(stack).getSerializedName())
+            tooltip.add(Component.translatable("gui.exposure.viewfinder.focal_length", FocalRange.ofStack(stack).getSerializedName())
                     .withStyle(ChatFormatting.GOLD));
         }
         return tooltip;

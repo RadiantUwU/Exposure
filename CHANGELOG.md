@@ -4,6 +4,10 @@
 - Added chromatic (trichrome) printing process
 - Red, Green and Blue filters now have stronger effect to enable chromatic process
 
+
+- Lenses configuration is now data-driven. [Custom Lenses Wiki](https://github.com/mortuusars/Exposure/wiki/Additional-Information#custom-lenses-) 
+
+
 Lightroom:
 - When in creative mode, you can now hold [Shift] to print exposure instantly and without dyes/paper   
 - Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 

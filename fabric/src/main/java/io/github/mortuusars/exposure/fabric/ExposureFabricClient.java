@@ -2,6 +2,8 @@ package io.github.mortuusars.exposure.fabric;
 
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.fabric.resources.ExposureFabricClientReloadListener;
+import io.github.mortuusars.exposure.fabric.resources.FabricLensesDataLoader;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
 import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
 import io.github.mortuusars.exposure.gui.screen.album.AlbumScreen;
@@ -52,6 +54,8 @@ public class ExposureFabricClient implements ClientModInitializer {
                 out.accept(new ModelResourceLocation("exposure", "camera_gui", "inventory")));
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new ExposureFabricClientReloadListener());
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricLensesDataLoader());
+
         EntityRendererRegistry.register(Exposure.EntityTypes.PHOTOGRAPH.get(), PhotographEntityRenderer::new);
         TooltipComponentCallback.EVENT.register(data -> data instanceof PhotographTooltip photographTooltip ? photographTooltip : null);
 

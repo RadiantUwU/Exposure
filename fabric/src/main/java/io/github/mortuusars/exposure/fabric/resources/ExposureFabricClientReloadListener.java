@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.fabric;
+package io.github.mortuusars.exposure.fabric.resources;
 
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.client.ExposureClientReloadListener;
