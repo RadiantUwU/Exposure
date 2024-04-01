@@ -194,7 +194,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     }
 
     /**
-     * @return Process, which currently selected image supports.
+     * @return Process, that will be used to print an image.
      */
     public Lightroom.Process getActualProcess(ItemStack filmStack) {
         ItemStack film = getItem(Lightroom.FILM_SLOT);
@@ -232,14 +232,18 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             return;
 
         ItemStack filmStack = getItem(Lightroom.FILM_SLOT);
-        if (!(filmStack.getItem() instanceof DevelopedFilmItem developedFilmItem))
+        if (!(filmStack.getItem() instanceof DevelopedFilmItem film))
             return;
 
-        //TODO: Chromatic print time
-        printTime = developedFilmItem.getType() == FilmType.COLOR ?
-                Config.Common.LIGHTROOM_COLOR_FILM_PRINT_TIME.get() :
-                Config.Common.LIGHTROOM_BW_FILM_PRINT_TIME.get();
+        if (getActualProcess(filmStack) == Lightroom.Process.CHROMATIC)
+            printTime = Config.Common.LIGHTROOM_CHROMATIC_PRINT_TIME.get();
+        else if (film.getType() == FilmType.BLACK_AND_WHITE)
+            printTime = Config.Common.LIGHTROOM_BW_PRINT_TIME.get();
+        else
+            printTime = Config.Common.LIGHTROOM_COLOR_PRINT_TIME.get();
+
         advanceFrame = advanceFrameOnFinish;
+
         if (level != null) {
             level.setBlock(getBlockPos(), level.getBlockState(getBlockPos())
                     .setValue(LightroomBlock.LIT, true), Block.UPDATE_CLIENTS);

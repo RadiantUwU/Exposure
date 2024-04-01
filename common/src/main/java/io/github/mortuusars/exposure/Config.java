@@ -22,8 +22,9 @@ public class Config {
         public static final ForgeConfigSpec.ConfigValue<String> CAMERA_DEFAULT_FOCAL_RANGE;
 
         // Lightroom
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_FILM_PRINT_TIME;
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_COLOR_FILM_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_COLOR_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_CHROMATIC_PRINT_TIME;
         public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_BW;
         public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR;
         public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC;
@@ -51,20 +52,23 @@ public class Config {
 
             builder.push("Lightroom");
             {
-                LIGHTROOM_BW_FILM_PRINT_TIME = builder
-                        .comment("Time in ticks to print black and white photograph.")
+                LIGHTROOM_BW_PRINT_TIME = builder
+                        .comment("Time in ticks to print black and white photograph. Default: 80")
                         .defineInRange("BlackAndWhitePrintTime", 80, 1, Integer.MAX_VALUE);
-                LIGHTROOM_COLOR_FILM_PRINT_TIME = builder
-                        .comment("Time in ticks to print color photograph.")
+                LIGHTROOM_COLOR_PRINT_TIME = builder
+                        .comment("Time in ticks to print color photograph. Default: 200")
                         .defineInRange("ColorPrintTime", 200, 1, Integer.MAX_VALUE);
+                LIGHTROOM_CHROMATIC_PRINT_TIME = builder
+                        .comment("Time in ticks to print one channel of a chromatic photograph. Default: 120")
+                        .defineInRange("ChromaticPrintTime", 120, 1, Integer.MAX_VALUE);
                 LIGHTROOM_EXPERIENCE_PER_PRINT_BW = builder
-                        .comment("Amount of experience awarded per printed black and white Photograph. Set to 0 to disable.")
+                        .comment("Amount of experience awarded per printed black and white Photograph. Set to 0 to disable. Default: 2")
                         .defineInRange("ExperiencePerPrintBW", 2, 0, 99);
                 LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR = builder
-                        .comment("Amount of experience awarded per printed color Photograph. Set to 0 to disable.")
+                        .comment("Amount of experience awarded per printed color Photograph. Set to 0 to disable. Default: 4")
                         .defineInRange("ExperiencePerPrintColor", 4, 0, 99);
                 LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC = builder
-                        .comment("Amount of experience awarded per printed chromatic Photograph (when all three channels have been printed). Set to 0 to disable.")
+                        .comment("Amount of experience awarded per printed chromatic Photograph (when all three channels have been printed). Set to 0 to disable. Default: 5")
                         .defineInRange("ExperiencePerPrintChromatic", 5, 0, 99);
             }
             builder.pop();
