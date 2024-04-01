@@ -9,7 +9,6 @@ import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.client.Minecraft;
 
 public class SynchronizedCameraInHandActions {
-    //TODO: Refactor
     public static void setZoom(double focalLength) {
         CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
         if (!camera.isEmpty()) {

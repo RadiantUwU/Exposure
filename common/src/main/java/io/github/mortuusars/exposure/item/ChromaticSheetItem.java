@@ -145,7 +145,8 @@ public class ChromaticSheetItem extends Item {
         
         ItemStack photograph = new ItemStack(Exposure.Items.PHOTOGRAPH.get());
 
-        //TODO: Only include properties common to all 3 exposures
+        // It would probably be better to make a tag that contains properties common to all 3 tags,
+        // but it's tricky to implement, and it wouldn't be noticed most of the time.
         CompoundTag tag = redTag.copy();
         tag = tag.merge(greenTag);
         tag = tag.merge(blueTag);
@@ -159,8 +160,13 @@ public class ChromaticSheetItem extends Item {
 
         photograph.setTag(tag);
 
-        //TODO: Process exposure on a separate thread.
-        processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
+        new Thread(() -> {
+            try {
+                processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
+            } catch (Exception e) {
+                LogUtils.getLogger().error("Cannot process and save Chromatic Photograph: " + e);
+            }
+        }).start();
 
         return photograph;
     }

@@ -35,9 +35,7 @@ public class FileSaveComponent implements ICaptureComponent {
 
         File outputFile = new File(folder + "/" + (levelNameSubfolder ? getLevelName() + "/" : "") + exposureId + ".png");
         try {
-            //TODO: Overwrite or not to overwrite?
-//            if (outputFile.exists())
-//                return ;
+            // Existing file would be overwritten
 
             //noinspection ResultOfMethodCallIgnored
             outputFile.mkdirs();
