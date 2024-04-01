@@ -21,8 +21,6 @@ public class LensesDataLoader extends SimpleJsonResourceReloadListener {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final String DIRECTORY = "lenses";
 
-    private ConcurrentMap<Ingredient, FocalRange> lenses = new ConcurrentHashMap<>();
-
     public LensesDataLoader() {
         super(GSON, DIRECTORY);
     }

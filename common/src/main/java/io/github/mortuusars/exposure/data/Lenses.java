@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,10 +33,6 @@ public class Lenses {
 
     public static IPacket getSyncToClientPacket() {
         return new SyncLensesS2CP(new ConcurrentHashMap<>(lenses));
-    }
-
-    public static void onDatapackSyncPacket(SyncLensesS2CP packet) {
-        reload(new ConcurrentHashMap<>(packet.lenses()));
     }
 
     public static void onDatapackSync(PlayerList playerList, @Nullable ServerPlayer excludePlayer) {
