@@ -5,7 +5,9 @@
 - Red, Green and Blue filters now have stronger effect to enable chromatic process
 
 
-- Lenses configuration is now data-driven. [Custom Lenses Wiki](https://github.com/mortuusars/Exposure/wiki/Additional-Information#custom-lenses-) 
+- Lenses configuration is now data-driven. [Custom Lenses Wiki](https://github.com/mortuusars/Exposure/wiki/Additional-Information#custom-lenses-)
+  - LensFocalRanges config setting has been removed.
+- Changed how custom filters are configured, allowing the use of shaders from vanilla or other mods. [Custom Filters Wiki](https://github.com/mortuusars/Exposure/wiki/Additional-Information#custom-filters-%EF%B8%8F)
 
 
 Lightroom:

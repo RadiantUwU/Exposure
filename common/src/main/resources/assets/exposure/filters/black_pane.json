@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:black_stained_glass_pane"
+  },
+  "shader": "exposure:shaders/black_tint.json"
+}

@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:purple_stained_glass_pane"
+  },
+  "shader": "exposure:shaders/purple_tint.json"
+}
