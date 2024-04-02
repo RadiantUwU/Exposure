@@ -5,6 +5,8 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.command.ExposureCommand;
 import io.github.mortuusars.exposure.command.ShaderCommand;
 import io.github.mortuusars.exposure.command.TestCommand;
+import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
+import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
 import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.fabric.integration.create.CreateFilmDeveloping;
@@ -40,6 +42,10 @@ public class ExposureFabric implements ModInitializer {
 
         ArgumentTypeRegistry.registerArgumentType(Exposure.resource("shader_location"),
                 ShaderLocationArgument.class, SingletonArgumentInfo.contextFree(ShaderLocationArgument::new));
+        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("exposure_size"),
+                ExposureSizeArgument.class, SingletonArgumentInfo.contextFree(ExposureSizeArgument::new));
+        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("exposure_look"),
+                ExposureLookArgument.class, SingletonArgumentInfo.contextFree(ExposureLookArgument::new));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 
             ExposureCommand.register(dispatcher);

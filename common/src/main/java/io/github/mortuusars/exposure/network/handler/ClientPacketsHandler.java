@@ -4,19 +4,21 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Either;
 import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
 import io.github.mortuusars.exposure.camera.capture.component.BaseComponent;
+import io.github.mortuusars.exposure.camera.capture.component.ExposureExporterComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ExposureStorageSaveComponent;
-import io.github.mortuusars.exposure.camera.capture.component.FileSaveComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.Lenses;
+import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.gui.screen.NegativeExposureScreen;
 import io.github.mortuusars.exposure.gui.screen.PhotographScreen;
 import io.github.mortuusars.exposure.item.CameraItem;
@@ -25,6 +27,8 @@ import io.github.mortuusars.exposure.network.packet.client.ApplyShaderS2CP;
 import io.github.mortuusars.exposure.network.packet.client.ShowExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.client.SyncLensesS2CP;
+import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
+import io.github.mortuusars.exposure.util.ClientsideWorldNameGetter;
 import io.github.mortuusars.exposure.util.ColorUtils;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.ChatFormatting;
@@ -44,7 +48,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class ClientPacketsHandler {
     public static void applyShader(ApplyShaderS2CP packet) {
@@ -65,19 +71,23 @@ public class ClientPacketsHandler {
 
         int finalSize = size;
         executeOnMainThread(() -> {
-            String fileName = Util.getFilenameFormattedDateTime();
+            String filename = Util.getFilenameFormattedDateTime();
             CompoundTag frameData = new CompoundTag();
-            frameData.putString(FrameData.ID, fileName);
-            Capture capture = new Capture(fileName, frameData)
+            frameData.putString(FrameData.ID, filename);
+            Capture capture = new Capture(filename, frameData)
                     .size(finalSize)
                     .cropFactor(1f)
                     .components(
                             new BaseComponent(true),
-                            FileSaveComponent.withDefaultFolders(fileName),
+                            new ExposureExporterComponent(filename)
+                                    .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(),
+                                            ClientsideWorldNameGetter::getWorldName)
+                                    .withModifier(ExposurePixelModifiers.EMPTY)
+                                    .withSize(ExposureSize.X1),
                             new ICaptureComponent() {
                                 @Override
                                 public void end(Capture capture) {
-                                    LogUtils.getLogger().info("Saved exposure screenshot: " + fileName);
+                                    LogUtils.getLogger().info("Saved exposure screenshot: " + filename);
                                 }
                             })
                     .converter(new DitheringColorConverter());

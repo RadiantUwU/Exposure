@@ -6,6 +6,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import io.github.mortuusars.exposure.data.ExposureSize;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.awt.*;
@@ -135,6 +136,7 @@ public class Config {
         // IMAGE SAVING
         public static final ForgeConfigSpec.BooleanValue SAVE_EXPOSURE_TO_FILE_WHEN_VIEWED;
         public static final ForgeConfigSpec.BooleanValue EXPOSURE_SAVING_LEVEL_SUBFOLDER;
+        public static final ForgeConfigSpec.EnumValue<ExposureSize> EXPOSURE_SAVING_SIZE;
 
         static {
             ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -197,8 +199,15 @@ public class Config {
                         .comment("When the Photograph is viewed in UI, image will be saved to 'exposures' folder as a png.")
                         .define("SavePhotographs", true);
                 EXPOSURE_SAVING_LEVEL_SUBFOLDER = builder
-                        .comment("When saving, exposures will be organized into a folders corresponding to current world name.")
+                        .comment("When saving, exposures will be placed into folder corresponding to current world name.")
                         .define("WorldNameSubfolder", true);
+                EXPOSURE_SAVING_SIZE = builder
+                        .comment("Saved exposures will be enlarged by this multiplier.",
+                                "Given the default exposure size of 320 - this will produce:",
+                                "320/640/960/1280px png image. Be careful with larger frame sizes.",
+                                "Default: X2")
+                        .defineEnum("Size", ExposureSize.X2);
+
                 builder.pop();
             }
 

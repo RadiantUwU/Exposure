@@ -1,14 +1,18 @@
 package io.github.mortuusars.exposure.command.exposure;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.ExposureServer;
-import io.github.mortuusars.exposure.camera.capture.component.FileSaveComponent;
+import io.github.mortuusars.exposure.data.ExposureLook;
+import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
+import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
+import io.github.mortuusars.exposure.data.storage.ExposureExporter;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
+import io.github.mortuusars.exposure.data.ExposureSize;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.storage.LevelResource;
@@ -19,25 +23,54 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import static net.minecraft.commands.Commands.*;
+
 public class ExportCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
-        return Commands.literal("export")
+        return literal("export")
                 .requires((stack) -> stack.hasPermission(3))
-                .then(Commands.literal("id")
-                        .then(Commands.argument("id", StringArgumentType.string())
+                .then(id())
+                .then(all());
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> id() {
+        return literal("id")
+                .then(argument("id", StringArgumentType.string())
+                        .executes(context -> exportExposures(context.getSource(),
+                                List.of(StringArgumentType.getString(context, "id")),
+                                ExposureSize.X1,
+                                ExposureLook.REGULAR))
+                        .then(argument("size", new ExposureSizeArgument())
                                 .executes(context -> exportExposures(context.getSource(),
-                                        List.of(StringArgumentType.getString(context, "id"))))))
-                .then(Commands.literal("all")
-                        .executes(context ->
-                                exportAll(context.getSource())));
+                                        List.of(StringArgumentType.getString(context, "id")),
+                                        ExposureSizeArgument.getSize(context, "size"),
+                                        ExposureLook.REGULAR))
+                                .then(argument("look", new ExposureLookArgument())
+                                        .executes(context -> exportExposures(context.getSource(),
+                                                List.of(StringArgumentType.getString(context, "id")),
+                                                ExposureSizeArgument.getSize(context, "size"),
+                                                ExposureLookArgument.getLook(context, "look"))))));
     }
 
-    private static int exportAll(CommandSourceStack source) {
+    private static ArgumentBuilder<CommandSourceStack, ?> all() {
+        return literal("all")
+                .executes(context -> exportAll(context.getSource(), ExposureSize.X1, ExposureLook.REGULAR))
+                .then(argument("size", new ExposureSizeArgument())
+                        .executes(context -> exportAll(context.getSource(),
+                                ExposureSizeArgument.getSize(context, "size"),
+                                ExposureLook.REGULAR))
+                        .then(argument("look", new ExposureLookArgument())
+                                .executes(context -> exportAll(context.getSource(),
+                                        ExposureSizeArgument.getSize(context, "size"),
+                                        ExposureLookArgument.getLook(context, "look")))));
+    }
+
+    private static int exportAll(CommandSourceStack source, ExposureSize size, ExposureLook look) {
         List<String> ids = ExposureServer.getExposureStorage().getAllIds();
-        return exportExposures(source, ids);
+        return exportExposures(source, ids, size, look);
     }
 
-    private static int exportExposures(CommandSourceStack stack, List<String> exposureIds) {
+    private static int exportExposures(CommandSourceStack stack, List<String> exposureIds, ExposureSize size, ExposureLook look) {
         int savedCount = 0;
 
         File folder = stack.getServer().getWorldPath(LevelResource.ROOT).resolve("exposures").toFile();
@@ -51,10 +84,13 @@ public class ExportCommand {
             }
 
             ExposureSavedData exposureSavedData = data.get();
+            String name = id + look.getIdSuffix();
 
-            boolean saved = new FileSaveComponent(id, folder.getAbsolutePath(), false)
-                    .save(exposureSavedData.getPixels(), exposureSavedData.getWidth(), exposureSavedData.getHeight(),
-                            exposureSavedData.getProperties());
+            boolean saved = new ExposureExporter(name)
+                    .withFolder(folder.getAbsolutePath())
+                    .withModifier(look.getModifier())
+                    .withSize(size)
+                    .save(exposureSavedData);
 
             if (saved)
                 stack.sendSuccess(Component.translatable("command.exposure.export.success.saved_exposure_id", id), true);

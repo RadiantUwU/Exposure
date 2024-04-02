@@ -10,13 +10,21 @@
 - Changed how custom filters are configured, allowing the use of shaders from vanilla or other mods. [Custom Filters Wiki](https://github.com/mortuusars/Exposure/wiki/Additional-Information#custom-filters-%EF%B8%8F)
 
 
+Exporting:
+- Aged Photographs can be exported now (same as regular - when screen is opened). PNG will have `_aged` suffix.  
+- Exported PNGs are now X2 the size. Configurable in client config.
+- `/exposure export` command has been updated:
+  - Added optional `size` argument. Defaults to "X1" when omitted. (X1/X2/X3/X4)
+  - Added optional `look` argument. Defaults to "regular". (regular/aged/negative/negative_film) 
+- Exported PNG files will have their `Date Created` attribute set to time when they were taken. Only for exposures made on this version an up.  
+
 Lightroom:
 - When in creative mode, you can now hold [Shift] to print exposure instantly and without dyes/paper   
 - Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 
 
 
-- [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
 - Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
+- [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
 
 ---
 

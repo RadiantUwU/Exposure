@@ -198,6 +198,8 @@ public class ChromaticSheetItem extends Item {
 
         CompoundTag properties = new CompoundTag();
         properties.putString(ExposureSavedData.TYPE_PROPERTY, FilmType.COLOR.getSerializedName());
+        long unixTime = System.currentTimeMillis() / 1000L;
+        properties.putLong(ExposureSavedData.TIMESTAMP_PROPERTY, unixTime);
 
         ExposureSavedData resultData = new ExposureSavedData(image.getWidth(), image.getHeight(), mapColorPixels, properties);
         ExposureServer.getExposureStorage().put(id, resultData);

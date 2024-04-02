@@ -6,10 +6,12 @@ import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ExposureSavedData extends SavedData {
     public static final String TYPE_PROPERTY = "Type";
     public static final String WAS_PRINTED_PROPERTY = "WasPrinted";
+    public static final String TIMESTAMP_PROPERTY = "Timestamp";
 
     private final int width;
     private final int height;
@@ -56,7 +58,7 @@ public class ExposureSavedData extends SavedData {
         return properties;
     }
 
-    public FilmType getType() {
+    public @Nullable FilmType getType() {
         String typeString = properties.getString(TYPE_PROPERTY);
         return FilmType.byName(typeString);
     }

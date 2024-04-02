@@ -77,11 +77,13 @@ public class NegativeExposureScreen extends ZoomableScreen {
 
         Either<String, ResourceLocation> idOrTexture = exposures.get(pager.getCurrentPage());
 
-        FilmType type = idOrTexture.map(
+        @Nullable FilmType type = idOrTexture.map(
                 id -> ExposureClient.getExposureStorage().getOrQuery(id).map(ExposureSavedData::getType)
                         .orElse(FilmType.BLACK_AND_WHITE),
                 texture -> (texture.getPath().endsWith("_black_and_white") || texture.getPath()
                         .endsWith("_bw")) ? FilmType.COLOR : FilmType.BLACK_AND_WHITE);
+        if (type == null)
+            type = FilmType.BLACK_AND_WHITE;
 
         @Nullable ExposureImage exposure = idOrTexture.map(
                 id -> ExposureClient.getExposureStorage().getOrQuery(id).map(data -> new ExposureImage(id, data)).orElse(null),
@@ -94,9 +96,8 @@ public class NegativeExposureScreen extends ZoomableScreen {
                 }
         );
 
-        if (exposure == null) {
+        if (exposure == null)
             return;
-        }
 
         int width = exposure.getWidth();
         int height = exposure.getHeight();
