@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.ExposureServer;
+import io.github.mortuusars.exposure.command.suggestion.ExposureIdSuggestionProvider;
 import io.github.mortuusars.exposure.data.ExposureLook;
 import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
 import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
@@ -36,6 +37,7 @@ public class ExportCommand {
     private static ArgumentBuilder<CommandSourceStack, ?> id() {
         return literal("id")
                 .then(argument("id", StringArgumentType.string())
+                        .suggests(new ExposureIdSuggestionProvider())
                         .executes(context -> exportExposures(context.getSource(),
                                 List.of(StringArgumentType.getString(context, "id")),
                                 ExposureSize.X1,

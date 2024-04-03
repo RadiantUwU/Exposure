@@ -152,8 +152,8 @@ public class ExposureRenderer implements AutoCloseable {
             if (texture.getPixels() == null)
                 return;
 
-            for (int y = 0; y < this.exposure.getWidth(); y++) {
-                for (int x = 0; x < this.exposure.getHeight(); x++) {
+            for (int y = 0; y < this.exposure.getHeight(); y++) {
+                for (int x = 0; x < this.exposure.getWidth(); x++) {
                     int ABGR = this.exposure.getPixelABGR(x, y);
                     ABGR = pixelModifier.modifyPixel(ABGR);
                     this.texture.getPixels().setPixelRGBA(x, y, ABGR); // Texture is in BGR format

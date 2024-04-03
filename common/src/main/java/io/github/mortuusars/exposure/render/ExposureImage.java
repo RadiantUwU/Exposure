@@ -33,7 +33,7 @@ public class ExposureImage {
         if (exposureData != null) {
             return exposureData.getWidth();
         }
-        else if (texture != null){
+        else if (texture != null) {
             @Nullable NativeImage image = texture.getImage();
             return image != null ? image.getWidth() : 1;
         }
@@ -44,7 +44,7 @@ public class ExposureImage {
         if (exposureData != null) {
             return exposureData.getHeight();
         }
-        else if (texture != null){
+        else if (texture != null) {
             @Nullable NativeImage image = texture.getImage();
             return image != null ? image.getHeight() : 1;
         }

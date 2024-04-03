@@ -12,17 +12,25 @@
 
 Exporting:
 - Aged Photographs can be exported now (same as regular - when screen is opened). PNG will have `_aged` suffix.  
-- Exported PNGs are now X2 the size. Configurable in client config.
-- `/exposure export` command has been updated:
-  - Added optional `size` argument. Defaults to "X1" when omitted. (X1/X2/X3/X4)
-  - Added optional `look` argument. Defaults to "regular". (regular/aged/negative/negative_film) 
+- Exported PNGs are now X2 the size. Configurable in client config. 
 - Exported PNG files will have their `Date Created` attribute set to time when they were taken. Only for exposures made on this version an up.  
+
+
+Commands:
+- Renamed literal `exposure` to `id` in `/exposure show` command.
+- Added two optional arguments to `/exposure export` command:
+  - `size` - Defaults to "X1". (X1/X2/X3/X4)
+  - `look` - Defaults to "regular". (regular/aged/negative/negative_film)
+- `id` argument (in export and show commands) will show all available exposure IDs as autocomplete suggestions.
+- `path` argument (in `/exposure show texture` command) will show a list of all available textures as autocomplete suggestions.
+
 
 Lightroom:
 - When in creative mode, you can now hold [Shift] to print exposure instantly and without dyes/paper   
-- Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this. 
+- Experience points, granted for printing an image, are now different per process - bw/color/chromatic. Config now has three options instead of one to configure this.
 
 
+- Fixed crash when rendering a non-square texture as a Photograph.
 - Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
 - [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
 
