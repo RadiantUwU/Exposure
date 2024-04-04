@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.5.0 - 2024-04-04
 - Added chromatic (trichrome) printing process
 - Red, Green and Blue filters now have stronger effect to enable chromatic process
 
@@ -31,8 +31,8 @@ Lightroom:
 
 
 - Fixed crash when rendering a non-square texture as a Photograph.
-- Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
 - [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
+- [Fabric] Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
 
 ---
 
