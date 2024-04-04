@@ -7,6 +7,10 @@ import io.github.mortuusars.exposure.block.LightroomBlock;
 import io.github.mortuusars.exposure.block.entity.FlashBlockEntity;
 import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
+import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
+import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
+import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
+import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
 import io.github.mortuusars.exposure.entity.PhotographEntity;
 import io.github.mortuusars.exposure.item.*;
 import io.github.mortuusars.exposure.menu.AlbumMenu;
@@ -17,6 +21,8 @@ import io.github.mortuusars.exposure.recipe.FilmDevelopingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographAgingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographCopyingRecipe;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -56,6 +62,7 @@ public class Exposure {
         MenuTypes.init();
         RecipeSerializers.init();
         SoundEvents.init();
+        ArgumentTypes.init();
     }
 
     public static void initServer(MinecraftServer server) {
@@ -275,5 +282,17 @@ public class Exposure {
             public static final TagKey<Item> GREEN_FILTERS = TagKey.create(Registry.ITEM_REGISTRY, Exposure.resource("green_filters"));
             public static final TagKey<Item> BLUE_FILTERS = TagKey.create(Registry.ITEM_REGISTRY, Exposure.resource("blue_filters"));
         }
+    }
+
+    public static class ArgumentTypes {
+        public static final Supplier<ArgumentTypeInfo<ExposureSizeArgument, SingletonArgumentInfo<ExposureSizeArgument>.Template>> EXPOSURE_SIZE =
+                Register.commandArgumentType("exposure_size", ExposureSizeArgument.class, SingletonArgumentInfo.contextFree(ExposureSizeArgument::new));
+        public static final Supplier<ArgumentTypeInfo<ExposureLookArgument, SingletonArgumentInfo<ExposureLookArgument>.Template>> EXPOSURE_LOOK =
+                Register.commandArgumentType("exposure_look", ExposureLookArgument.class, SingletonArgumentInfo.contextFree(ExposureLookArgument::new));
+        public static final Supplier<ArgumentTypeInfo<ShaderLocationArgument, SingletonArgumentInfo<ShaderLocationArgument>.Template>> SHADER_LOCATION =
+                Register.commandArgumentType("shader_location", ShaderLocationArgument.class, SingletonArgumentInfo.contextFree(ShaderLocationArgument::new));
+        public static final Supplier<ArgumentTypeInfo<TextureLocationArgument, SingletonArgumentInfo<TextureLocationArgument>.Template>> TEXTURE_LOCATION =
+                Register.commandArgumentType("texture_location", TextureLocationArgument.class, SingletonArgumentInfo.contextFree(TextureLocationArgument::new));
+        public static void init() { }
     }
 }

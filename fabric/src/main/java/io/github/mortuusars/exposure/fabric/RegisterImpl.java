@@ -1,10 +1,16 @@
 package io.github.mortuusars.exposure.fabric;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.Register;
+import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
+import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -67,5 +73,11 @@ public class RegisterImpl {
     public static Supplier<RecipeSerializer<?>> recipeSerializer(String id, Supplier<RecipeSerializer<?>> supplier) {
         RecipeSerializer<?> obj = Registry.register(Registry.RECIPE_SERIALIZER, Exposure.resource(id), supplier.get());
         return () -> obj;
+    }
+
+    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>>
+            Supplier<ArgumentTypeInfo<A, T>> commandArgumentType(String id, Class<A> infoClass, I argumentTypeInfo) {
+        ArgumentTypeRegistry.registerArgumentType(Exposure.resource(id), infoClass, argumentTypeInfo);
+        return () -> argumentTypeInfo;
     }
 }

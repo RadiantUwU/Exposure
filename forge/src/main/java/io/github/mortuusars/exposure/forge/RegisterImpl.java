@@ -1,7 +1,10 @@
 package io.github.mortuusars.exposure.forge;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.Register;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -27,6 +30,7 @@ public class RegisterImpl {
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, Exposure.ID);
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Exposure.ID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, Exposure.ID);
+    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(ForgeRegistries.COMMAND_ARGUMENT_TYPES, Exposure.ID);
 
     public static <T extends Block> Supplier<T> block(String id, Supplier<T> supplier) {
         return BLOCKS.register(id, supplier);
@@ -64,5 +68,11 @@ public class RegisterImpl {
 
     public static Supplier<RecipeSerializer<?>> recipeSerializer(String id, Supplier<RecipeSerializer<?>> supplier) {
         return RECIPE_SERIALIZERS.register(id, supplier);
+    }
+
+    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>>
+            Supplier<ArgumentTypeInfo<A, T>> commandArgumentType(String id, Class<A> infoClass, I argumentTypeInfo) {
+        return COMMAND_ARGUMENT_TYPES.register(id,
+                () -> ArgumentTypeInfos.registerByClass(infoClass, argumentTypeInfo));
     }
 }

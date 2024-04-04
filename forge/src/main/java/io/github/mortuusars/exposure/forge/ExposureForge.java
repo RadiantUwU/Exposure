@@ -5,7 +5,6 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.forge.event.ClientEvents;
 import io.github.mortuusars.exposure.forge.event.CommonEvents;
 import io.github.mortuusars.exposure.forge.integration.create.CreateFilmDeveloping;
-import net.minecraft.SharedConstants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -36,6 +35,7 @@ public class ExposureForge {
         RegisterImpl.MENU_TYPES.register(modEventBus);
         RegisterImpl.RECIPE_SERIALIZERS.register(modEventBus);
         RegisterImpl.SOUND_EVENTS.register(modEventBus);
+        RegisterImpl.COMMAND_ARGUMENT_TYPES.register(modEventBus);
 
         modEventBus.register(CommonEvents.ModBus.class);
         MinecraftForge.EVENT_BUS.register(CommonEvents.ForgeBus.class);

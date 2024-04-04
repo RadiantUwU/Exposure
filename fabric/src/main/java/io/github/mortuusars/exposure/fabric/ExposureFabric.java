@@ -5,16 +5,11 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.command.ExposureCommand;
 import io.github.mortuusars.exposure.command.ShaderCommand;
 import io.github.mortuusars.exposure.command.TestCommand;
-import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
-import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
-import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
-import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.fabric.integration.create.CreateFilmDeveloping;
 import io.github.mortuusars.exposure.fabric.resources.FabricLensesDataLoader;
 import io.github.mortuusars.exposure.network.fabric.PacketsImpl;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.ArgumentTypeRegistry;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -41,16 +36,7 @@ public class ExposureFabric implements ModInitializer {
         ModLoadingContext.registerConfig(Exposure.ID, ModConfig.Type.COMMON, Config.Common.SPEC);
         ModLoadingContext.registerConfig(Exposure.ID, ModConfig.Type.CLIENT, Config.Client.SPEC);
 
-        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("shader_location"),
-                ShaderLocationArgument.class, SingletonArgumentInfo.contextFree(ShaderLocationArgument::new));
-        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("texture_location"),
-                TextureLocationArgument.class, SingletonArgumentInfo.contextFree(TextureLocationArgument::new));
-        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("exposure_size"),
-                ExposureSizeArgument.class, SingletonArgumentInfo.contextFree(ExposureSizeArgument::new));
-        ArgumentTypeRegistry.registerArgumentType(Exposure.resource("exposure_look"),
-                ExposureLookArgument.class, SingletonArgumentInfo.contextFree(ExposureLookArgument::new));
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-
             ExposureCommand.register(dispatcher);
             ShaderCommand.register(dispatcher);
             TestCommand.register(dispatcher);
