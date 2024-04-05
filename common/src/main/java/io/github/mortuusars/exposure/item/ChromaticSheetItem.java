@@ -18,7 +18,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -153,6 +152,8 @@ public class ChromaticSheetItem extends Item {
         CompoundTag tag = redTag.copy();
         tag = tag.merge(greenTag);
         tag = tag.merge(blueTag);
+
+        tag.remove(FrameData.CHROMATIC_CHANNEL);
 
         tag.putString(FrameData.ID, id);
         tag.putBoolean(FrameData.CHROMATIC, true);
