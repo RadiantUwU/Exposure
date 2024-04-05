@@ -7,7 +7,7 @@ import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
 import io.github.mortuusars.exposure.util.ColorUtils;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.MaterialColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -128,7 +128,7 @@ public class ExposureExporter {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int bgr = MapColor.getColorFromPackedId(MapColorPixels[x + y * width]); // Mojang returns BGR color
+                int bgr = MaterialColor.getColorFromPackedId(MapColorPixels[x + y * width]); // Mojang returns BGR color
                 bgr = modifier.modifyPixel(bgr);
 
                 // Tint image like it's rendered in LightroomScreen or NegativeExposureScreen:

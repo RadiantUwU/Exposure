@@ -9,7 +9,7 @@ import java.nio.file.Path;
 public class ClientsideWorldNameGetter {
     public static String getWorldName() {
         try {
-            if (Minecraft.getInstance().isSingleplayer()) {
+            if (Minecraft.getInstance().isLocalServer()) {
                 if (Minecraft.getInstance().getSingleplayerServer() != null)
                     return Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName()
                             .replace('.', '_'); // Folder name has underscores instead of dots.

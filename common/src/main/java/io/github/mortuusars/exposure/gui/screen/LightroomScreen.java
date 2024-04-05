@@ -21,7 +21,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -67,21 +66,28 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
         printButton = new ImageButton(leftPos + 117, topPos + 89, 22, 22, 176, 17,
                 22, MAIN_TEXTURE, 256, 256, this::onPrintButtonPressed,
-                (b, ps, x, y) -> renderTooltip(ps, Component.translatable("gui.exposure.lightroom.print"), x, y), Component.empty());
-                Component.translatable("gui.exposure.lightroom.print"));
-
-        MutableComponent tooltip = Component.translatable("gui.exposure.lightroom.print");
-        if (player.isCreative()) {
-            tooltip.append("\n")
-                    .append(Component.translatable("gui.exposure.lightroom.print.creative_tooltip"));
-        }
-
-        printButton.setTooltip(Tooltip.create(tooltip));
+                (b, ps, x, y) -> {
+                    List<Component> lines = new ArrayList<>();
+                    lines.add(Component.translatable("gui.exposure.lightroom.print"));
+                    if (player.isCreative()) {
+                        lines.add(Component.translatable("gui.exposure.lightroom.print.creative_tooltip"));
+                    }
+                    renderTooltip(ps, lines, Optional.empty(), x, y);
+                }, Component.translatable("gui.exposure.lightroom.print"));
         addRenderableWidget(printButton);
 
         processToggleButton = new ChromaticProcessToggleButton(leftPos - 19, topPos + 91,
+                (b, ps, x, y) -> {
+                    Lightroom.Process process = getMenu().getBlockEntity().getProcess();
+                    List<Component> lines = new ArrayList<>();
+                    lines.add(Component.translatable("gui.exposure.lightroom.process." + process.getSerializedName()));
+                    if (process == Lightroom.Process.CHROMATIC) {
+                        lines.add(Component.translatable("gui.exposure.lightroom.process.chromatic.info")
+                                .withStyle(ChatFormatting.GRAY));
+                    }
+                    renderTooltip(ps, lines, Optional.empty(), x, y);
+                },
                 this::onProcessToggleButtonPressed, () -> getMenu().getBlockEntity().getProcess());
-        processToggleButton.setTooltip(Tooltip.create(Component.translatable("gui.exposure.lightroom.current_frame")));
         addRenderableWidget(processToggleButton);
 
         updateButtons();
@@ -210,7 +216,6 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
     @Override
     protected void renderTooltip(@NotNull PoseStack poseStack, int mouseX, int mouseY) {
-        updatePrintButtonTooltip(!getMenu().canPrintChromatic());
         super.renderTooltip(poseStack, mouseX, mouseY);
 
         boolean advancedTooltips = Minecraft.getInstance().options.advancedItemTooltips;
@@ -354,7 +359,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         Preconditions.checkState(minecraft.gameMode != null);
         int buttonId = navigation == PagingDirection.NEXT ? LightroomMenu.NEXT_FRAME_BUTTON_ID : LightroomMenu.PREVIOUS_FRAME_BUTTON_ID;
         minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, buttonId);
-        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, minecraft.player.level()
+        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, player.getLevel()
                 .getRandom().nextFloat() * 0.4f + 0.8f);
 
         // Update block entity clientside to faster update advance frame arrows:

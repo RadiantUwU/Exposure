@@ -23,7 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.MaterialColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -184,9 +184,9 @@ public class ChromaticSheetItem extends Item {
 
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
-                int r = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
-                int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
-                int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
+                int r = MaterialColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
+                int g = MaterialColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
+                int b = MaterialColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
 
                 int rgb = 0xFF << 24 | r << 16 | g << 8 | b;
 

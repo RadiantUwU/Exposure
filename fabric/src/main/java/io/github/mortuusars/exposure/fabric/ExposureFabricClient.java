@@ -4,7 +4,6 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.fabric.resources.ExposureFabricClientReloadListener;
 import io.github.mortuusars.exposure.fabric.resources.FabricFiltersResourceLoader;
-import io.github.mortuusars.exposure.fabric.resources.FabricLensesDataLoader;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
 import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
 import io.github.mortuusars.exposure.gui.screen.album.AlbumScreen;
@@ -12,6 +11,7 @@ import io.github.mortuusars.exposure.gui.screen.album.LecternAlbumScreen;
 import io.github.mortuusars.exposure.gui.screen.camera.CameraAttachmentsScreen;
 import io.github.mortuusars.exposure.item.AlbumItem;
 import io.github.mortuusars.exposure.item.CameraItemClientExtensions;
+import io.github.mortuusars.exposure.item.ChromaticSheetItem;
 import io.github.mortuusars.exposure.item.StackedPhotographsItem;
 import io.github.mortuusars.exposure.network.fabric.PacketsImpl;
 import io.github.mortuusars.exposure.render.PhotographEntityRenderer;
@@ -40,6 +40,9 @@ public class ExposureFabricClient implements ClientModInitializer {
         MenuScreens.register(Exposure.MenuTypes.LIGHTROOM.get(), LightroomScreen::new);
 
         ItemProperties.register(Exposure.Items.CAMERA.get(), new ResourceLocation("camera_state"), CameraItemClientExtensions::itemPropertyFunction);
+        ItemProperties.register(Exposure.Items.CHROMATIC_SHEET.get(), new ResourceLocation("channels"), (stack, clientLevel, livingEntity, seed) ->
+                stack.getItem() instanceof ChromaticSheetItem chromaticSheet ?
+                        chromaticSheet.getExposures(stack).size() / 10f : 0f);
         ItemProperties.register(Exposure.Items.STACKED_PHOTOGRAPHS.get(), new ResourceLocation("count"),
                 (pStack, pLevel, pEntity, pSeed) -> {
                     if (pStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {

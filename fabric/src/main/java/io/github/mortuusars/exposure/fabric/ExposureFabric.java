@@ -12,14 +12,11 @@ import io.github.mortuusars.exposure.network.fabric.PacketsImpl;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.server.packs.PackType;
 import net.minecraftforge.api.ModLoadingContext;
 import net.minecraftforge.api.fml.event.config.ModConfigEvents;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.fml.config.ModConfig;
 
 public class ExposureFabric implements ModInitializer {
@@ -48,8 +45,10 @@ public class ExposureFabric implements ModInitializer {
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricLensesDataLoader());
 
         ServerLifecycleEvents.SERVER_STARTING.register(Exposure::initServer);
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) ->
-                Lenses.onDatapackSync(player.getServer().getPlayerList(), null));
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
+            if (player.getServer() != null)
+                Lenses.onDatapackSync(player.getServer().getPlayerList(), null);
+        });
 
         PacketsImpl.registerC2SPackets();
     }
