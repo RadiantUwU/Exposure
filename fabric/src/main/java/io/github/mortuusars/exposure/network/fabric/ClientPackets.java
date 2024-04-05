@@ -25,6 +25,7 @@ public class ClientPackets {
         ClientPlayNetworking.registerGlobalReceiver(PlayOnePerPlayerSoundS2CP.ID, new ClientHandler(PlayOnePerPlayerSoundS2CP::fromBuffer));
         ClientPlayNetworking.registerGlobalReceiver(StopOnePerPlayerSoundS2CP.ID, new ClientHandler(StopOnePerPlayerSoundS2CP::fromBuffer));
         ClientPlayNetworking.registerGlobalReceiver(ClearRenderingCacheS2CP.ID, new ClientHandler(ClearRenderingCacheS2CP::fromBuffer));
+        ClientPlayNetworking.registerGlobalReceiver(SyncLensesS2CP.ID, new ClientHandler(SyncLensesS2CP::fromBuffer));
     }
 
     public static void sendToServer(IPacket packet) {

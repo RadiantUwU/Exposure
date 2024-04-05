@@ -7,6 +7,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.client.ExposureClientReloadListener;
 import io.github.mortuusars.exposure.client.MouseHandler;
+import io.github.mortuusars.exposure.data.FiltersResourceLoader;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
 import io.github.mortuusars.exposure.gui.screen.album.AlbumScreen;
 import io.github.mortuusars.exposure.gui.screen.album.LecternAlbumScreen;
@@ -14,6 +15,7 @@ import io.github.mortuusars.exposure.gui.screen.camera.CameraAttachmentsScreen;
 import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
 import io.github.mortuusars.exposure.item.AlbumItem;
 import io.github.mortuusars.exposure.item.CameraItemClientExtensions;
+import io.github.mortuusars.exposure.item.ChromaticSheetItem;
 import io.github.mortuusars.exposure.item.StackedPhotographsItem;
 import io.github.mortuusars.exposure.render.ItemFramePhotographRenderer;
 import io.github.mortuusars.exposure.render.PhotographEntityRenderer;
@@ -38,7 +40,10 @@ public class ClientEvents {
                 MenuScreens.register(Exposure.MenuTypes.LECTERN_ALBUM.get(), LecternAlbumScreen::new);
                 MenuScreens.register(Exposure.MenuTypes.LIGHTROOM.get(), LightroomScreen::new);
 
-                ItemProperties.register(Exposure.Items.CAMERA.get(), new ResourceLocation("camera_state"), CameraItemClientExtensions::itemPropertyFunction);
+                //noinspection deprecation
+                ItemProperties.register(Exposure.Items.CAMERA.get(), new ResourceLocation("camera_state"), CameraItemClientExtensions::itemPropertyFunction);                ItemProperties.register(Exposure.Items.CHROMATIC_SHEET.get(), new ResourceLocation("channels"), (stack, clientLevel, livingEntity, seed) ->
+                        stack.getItem() instanceof ChromaticSheetItem chromaticSheet ?
+                                chromaticSheet.getExposures(stack).size() / 10f : 0f);
                 ItemProperties.register(Exposure.Items.STACKED_PHOTOGRAPHS.get(), new ResourceLocation("count"),
                         (stack, clientLevel, livingEntity, seed) ->
                                 stack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem ?
@@ -62,6 +67,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerResourceReloadListeners(RegisterClientReloadListenersEvent event) {
             event.registerReloadListener(new ExposureClientReloadListener());
+            event.registerReloadListener(new FiltersResourceLoader());
         }
 
         @SubscribeEvent

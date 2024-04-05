@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:magenta_stained_glass_pane"
+  },
+  "shader": "exposure:shaders/magenta_tint.json"
+}

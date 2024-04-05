@@ -19,10 +19,10 @@ public interface IFilmItem {
     }
 
     default boolean hasExposedFrame(ItemStack filmStack, int index) {
-        if (index < 0 || !filmStack.hasTag() || !filmStack.getOrCreateTag().contains("Frames", Tag.TAG_LIST))
+        if (index < 0 || filmStack.getTag() == null || !filmStack.getTag().contains("Frames", Tag.TAG_LIST))
             return false;
 
-        ListTag list = filmStack.getOrCreateTag().getList("Frames", Tag.TAG_COMPOUND);
+        ListTag list = filmStack.getTag().getList("Frames", Tag.TAG_COMPOUND);
         return index < list.size();
     }
 

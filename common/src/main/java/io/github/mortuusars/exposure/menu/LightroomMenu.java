@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.block.entity.Lightroom;
 import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
-import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.item.IFilmItem;
 import net.minecraft.nbt.CompoundTag;
@@ -26,8 +25,10 @@ import java.util.Objects;
 
 public class LightroomMenu extends AbstractContainerMenu {
     public static final int PRINT_BUTTON_ID = 0;
-    public static final int PREVIOUS_FRAME_BUTTON_ID = 1;
-    public static final int NEXT_FRAME_BUTTON_ID = 2;
+    public static final int PRINT_CREATIVE_BUTTON_ID = 1;
+    public static final int PREVIOUS_FRAME_BUTTON_ID = 2;
+    public static final int NEXT_FRAME_BUTTON_ID = 3;
+    public static final int TOGGLE_PROCESS_BUTTON_ID = 4;
 
     private final LightroomBlockEntity lightroomBlockEntity;
     private final ContainerData data;
@@ -145,16 +146,16 @@ public class LightroomMenu extends AbstractContainerMenu {
         return index >= 0 && index < getExposedFrames().size() ? getExposedFrames().getCompound(index) : null;
     }
 
-    public boolean isColorFilm() {
-        return getSlot(Lightroom.FILM_SLOT).getItem().getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.COLOR;
-    }
-
     public int getSelectedFrame() {
         return data.get(LightroomBlockEntity.CONTAINER_DATA_SELECTED_FRAME_ID);
     }
 
+    public boolean isPrinting() {
+        return data.get(LightroomBlockEntity.CONTAINER_DATA_PRINT_TIME_ID) > 0;
+    }
+
     public int getTotalFrames() {
-        ItemStack filmStack = lightroomBlockEntity.getItem(Lightroom.FILM_SLOT);
+        ItemStack filmStack = getBlockEntity().getItem(Lightroom.FILM_SLOT);
         return (!filmStack.isEmpty() && filmStack.getItem() instanceof IFilmItem filmItem) ? filmItem.getExposedFramesCount(filmStack) : 0;
     }
 
@@ -163,7 +164,7 @@ public class LightroomMenu extends AbstractContainerMenu {
         Preconditions.checkState(!player.getLevel().isClientSide, "This should be server-side only.");
 
         if (buttonId == PREVIOUS_FRAME_BUTTON_ID || buttonId == NEXT_FRAME_BUTTON_ID) {
-            ItemStack filmStack = lightroomBlockEntity.getItem(Lightroom.FILM_SLOT);
+            ItemStack filmStack = getBlockEntity().getItem(Lightroom.FILM_SLOT);
             if (!filmStack.isEmpty() && filmStack.getItem() instanceof DevelopedFilmItem) {
                 int frames = getTotalFrames();
                 if (frames == 0)
@@ -177,9 +178,19 @@ public class LightroomMenu extends AbstractContainerMenu {
             }
         }
 
+        if (buttonId == TOGGLE_PROCESS_BUTTON_ID) {
+            Lightroom.Process currentProcess = getBlockEntity().getProcess();
+            getBlockEntity().setProcess(currentProcess == Lightroom.Process.CHROMATIC ? Lightroom.Process.REGULAR : Lightroom.Process.CHROMATIC);
+        }
+
         if (buttonId == PRINT_BUTTON_ID) {
-            lightroomBlockEntity.startPrintingProcess(false);
+            getBlockEntity().startPrintingProcess(false);
             return true;
+        }
+
+        if (buttonId == PRINT_CREATIVE_BUTTON_ID) {
+            if (player.isCreative())
+                getBlockEntity().printInCreativeMode();
         }
 
         return false;
@@ -286,9 +297,5 @@ public class LightroomMenu extends AbstractContainerMenu {
         if (blockEntityAtPos instanceof LightroomBlockEntity blockEntity)
             return blockEntity;
         throw new IllegalStateException("Block entity is not correct! " + blockEntityAtPos);
-    }
-
-    public boolean isPrinting() {
-        return data.get(LightroomBlockEntity.CONTAINER_DATA_PRINT_TIME_ID) > 0;
     }
 }

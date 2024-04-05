@@ -1,13 +1,12 @@
 package io.github.mortuusars.exposure;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import io.github.mortuusars.exposure.data.ExposureSize;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.awt.*;
@@ -22,17 +21,19 @@ public class Config {
 
         // Camera
         public static final ForgeConfigSpec.ConfigValue<String> CAMERA_DEFAULT_FOCAL_RANGE;
-        public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CAMERA_LENSES;
 
         // Lightroom
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_FILM_PRINT_TIME;
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_COLOR_FILM_PRINT_TIME;
-        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_COLOR_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_CHROMATIC_PRINT_TIME;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_BW;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR;
+        public static final ForgeConfigSpec.IntValue LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC;
 
         // Photographs
         public static final ForgeConfigSpec.IntValue STACKED_PHOTOGRAPHS_MAX_SIZE;
 
-        // Compat
+        // Compatibility
         public static final ForgeConfigSpec.BooleanValue CREATE_SPOUT_DEVELOPING_ENABLED;
         public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CREATE_SPOUT_DEVELOPING_SEQUENCE_COLOR;
         public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CREATE_SPOUT_DEVELOPING_SEQUENCE_BW;
@@ -47,28 +48,29 @@ public class Config {
                                 "Allowed range: " + FocalRange.ALLOWED_MIN + "-" + FocalRange.ALLOWED_MAX,
                                 "Default: 18-55")
                         .define("DefaultFocalRange", "18-55");
-
-                CAMERA_LENSES = builder
-                        .comment("Focal Range per lens. Item ID and min-max (or single number for primes) focal lengths. " +
-                                    "Separated by a comma. Allowed range: " + FocalRange.ALLOWED_MIN + "-" + FocalRange.ALLOWED_MAX,
-                                "Note: to attach the custom lens to the camera - it needs to be added to '#exposure:lenses' item tag.",
-                                "Default: [\"minecraft:spyglass,55-200\"]")
-                        .defineListAllowEmpty(List.of("LensFocalRanges"), () ->
-                                List.of("minecraft:spyglass,55-200"), Common::validateLensProperties);
             }
             builder.pop();
 
             builder.push("Lightroom");
             {
-                LIGHTROOM_BW_FILM_PRINT_TIME = builder
-                        .comment("Time in ticks to print black and white photograph.")
+                LIGHTROOM_BW_PRINT_TIME = builder
+                        .comment("Time in ticks to print black and white photograph. Default: 80")
                         .defineInRange("BlackAndWhitePrintTime", 80, 1, Integer.MAX_VALUE);
-                LIGHTROOM_COLOR_FILM_PRINT_TIME = builder
-                        .comment("Time in ticks to print color photograph.")
+                LIGHTROOM_COLOR_PRINT_TIME = builder
+                        .comment("Time in ticks to print color photograph. Default: 200")
                         .defineInRange("ColorPrintTime", 200, 1, Integer.MAX_VALUE);
-                LIGHTROOM_EXPERIENCE_PER_PRINT = builder
-                        .comment("Amount of experience awarded per printed Photograph. Set to 0 to disable.")
-                        .defineInRange("ExperiencePerPrint", 4, 0, 32767);
+                LIGHTROOM_CHROMATIC_PRINT_TIME = builder
+                        .comment("Time in ticks to print one channel of a chromatic photograph. Default: 120")
+                        .defineInRange("ChromaticPrintTime", 120, 1, Integer.MAX_VALUE);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_BW = builder
+                        .comment("Amount of experience awarded per printed black and white Photograph. Set to 0 to disable. Default: 2")
+                        .defineInRange("ExperiencePerPrintBW", 2, 0, 99);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_COLOR = builder
+                        .comment("Amount of experience awarded per printed color Photograph. Set to 0 to disable. Default: 4")
+                        .defineInRange("ExperiencePerPrintColor", 4, 0, 99);
+                LIGHTROOM_EXPERIENCE_PER_PRINT_CHROMATIC = builder
+                        .comment("Amount of experience awarded per printed chromatic Photograph (when all three channels have been printed). Set to 0 to disable. Default: 5")
+                        .defineInRange("ExperiencePerPrintChromatic", 5, 0, 99);
             }
             builder.pop();
 
@@ -106,33 +108,6 @@ public class Config {
             SPEC = builder.build();
         }
 
-        private static boolean validateLensProperties(Object o) {
-            String value = (String) o;
-            try {
-                @SuppressWarnings("unused") Pair<Item, FocalRange> unused = parseLens(value);
-                return true;
-            } catch (Exception e) {
-                LogUtils.getLogger().error("Lens property '" + value + "' is not a valid. " + e);
-                return false;
-            }
-        }
-
-        public static Pair<Item, FocalRange> parseLens(String value) {
-            String[] split = value.split(",");
-            if (split.length != 2)
-                throw new IllegalStateException(value + " is not a valid lens property. Exactly two parts, separated by a comma, are required.");
-
-            ResourceLocation id = new ResourceLocation(split[0]);
-            Item item = Registry.ITEM.get(id);
-
-            if (item == Items.AIR)
-                throw new IllegalStateException(item + " is not a valid item for lens property. Value: " + value);
-
-            FocalRange focalRange = FocalRange.parse(split[1]);
-
-            return Pair.of(item, focalRange);
-        }
-
         public static ForgeConfigSpec.ConfigValue<List<? extends String>> spoutDevelopingSequence(FilmType filmType) {
             return filmType == FilmType.COLOR ? CREATE_SPOUT_DEVELOPING_SEQUENCE_COLOR : CREATE_SPOUT_DEVELOPING_SEQUENCE_BW;
         }
@@ -161,6 +136,7 @@ public class Config {
         // IMAGE SAVING
         public static final ForgeConfigSpec.BooleanValue SAVE_EXPOSURE_TO_FILE_WHEN_VIEWED;
         public static final ForgeConfigSpec.BooleanValue EXPOSURE_SAVING_LEVEL_SUBFOLDER;
+        public static final ForgeConfigSpec.EnumValue<ExposureSize> EXPOSURE_SAVING_SIZE;
 
         static {
             ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -223,8 +199,15 @@ public class Config {
                         .comment("When the Photograph is viewed in UI, image will be saved to 'exposures' folder as a png.")
                         .define("SavePhotographs", true);
                 EXPOSURE_SAVING_LEVEL_SUBFOLDER = builder
-                        .comment("When saving, exposures will be organized into a folders corresponding to current world name.")
+                        .comment("When saving, exposures will be placed into folder corresponding to current world name.")
                         .define("WorldNameSubfolder", true);
+                EXPOSURE_SAVING_SIZE = builder
+                        .comment("Saved exposures will be enlarged by this multiplier.",
+                                "Given the default exposure size of 320 - this will produce:",
+                                "320/640/960/1280px png image. Be careful with larger frame sizes.",
+                                "Default: X2")
+                        .defineEnum("Size", ExposureSize.X2);
+
                 builder.pop();
             }
 

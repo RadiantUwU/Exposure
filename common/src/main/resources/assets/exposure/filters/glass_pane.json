@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:glass_pane"
+  },
+  "shader": "exposure:shaders/crisp.json"
+}

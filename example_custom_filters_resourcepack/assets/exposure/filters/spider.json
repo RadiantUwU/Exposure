@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:spider_eye"
+  },
+  "shader": "minecraft:shaders/post/spider.json"
+}

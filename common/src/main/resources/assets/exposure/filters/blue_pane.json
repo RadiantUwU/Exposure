@@ -1,0 +1,6 @@
+{
+  "item": {
+    "item": "minecraft:blue_stained_glass_pane"
+  },
+  "shader": "exposure:shaders/blue_filter.json"
+}

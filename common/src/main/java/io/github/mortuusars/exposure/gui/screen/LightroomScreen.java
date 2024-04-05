@@ -15,11 +15,13 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.menu.LightroomMenu;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
+import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.PagingDirection;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -28,26 +30,31 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
     public static final ResourceLocation MAIN_TEXTURE = Exposure.resource("textures/gui/lightroom.png");
     public static final ResourceLocation FILM_OVERLAYS_TEXTURE = Exposure.resource("textures/gui/lightroom_film_overlays.png");
     public static final int FRAME_SIZE = 54;
-    private Button printButton;
+
+    protected Player player;
+    protected Button printButton;
+    protected ChromaticProcessToggleButton processToggleButton;
 
     public LightroomScreen(LightroomMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.player = playerInventory.player;
     }
 
     @Override
@@ -59,27 +66,63 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
         printButton = new ImageButton(leftPos + 117, topPos + 89, 22, 22, 176, 17,
                 22, MAIN_TEXTURE, 256, 256, this::onPrintButtonPressed,
-                (b, ps, x, y) -> renderTooltip(ps, Component.translatable("gui.exposure.lightroom.print"), x, y), Component.empty());
+                (b, ps, x, y) -> {
+                    List<Component> lines = new ArrayList<>();
+                    lines.add(Component.translatable("gui.exposure.lightroom.print"));
+                    if (player.isCreative()) {
+                        lines.add(Component.translatable("gui.exposure.lightroom.print.creative_tooltip"));
+                    }
+                    renderTooltip(ps, lines, Optional.empty(), x, y);
+                }, Component.translatable("gui.exposure.lightroom.print"));
         addRenderableWidget(printButton);
+
+        processToggleButton = new ChromaticProcessToggleButton(leftPos - 19, topPos + 91,
+                (b, ps, x, y) -> {
+                    Lightroom.Process process = getMenu().getBlockEntity().getProcess();
+                    List<Component> lines = new ArrayList<>();
+                    lines.add(Component.translatable("gui.exposure.lightroom.process." + process.getSerializedName()));
+                    if (process == Lightroom.Process.CHROMATIC) {
+                        lines.add(Component.translatable("gui.exposure.lightroom.process.chromatic.info")
+                                .withStyle(ChatFormatting.GRAY));
+                    }
+                    renderTooltip(ps, lines, Optional.empty(), x, y);
+                },
+                this::onProcessToggleButtonPressed, () -> getMenu().getBlockEntity().getProcess());
+        addRenderableWidget(processToggleButton);
+
+        updateButtons();
     }
 
-    private void onPrintButtonPressed(Button button) {
+    protected void onPrintButtonPressed(Button button) {
+        if (Minecraft.getInstance().gameMode != null) {
+            if (Screen.hasShiftDown() && player.isCreative())
+                Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_CREATIVE_BUTTON_ID);
+            else
+                Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_BUTTON_ID);
+        }
+    }
+
+    protected void onProcessToggleButtonPressed(Button button) {
         if (Minecraft.getInstance().gameMode != null)
-            Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.PRINT_BUTTON_ID);
+            Minecraft.getInstance().gameMode.handleInventoryButtonClick(getMenu().containerId, LightroomMenu.TOGGLE_PROCESS_BUTTON_ID);
     }
 
     @Override
     public void render(@NotNull PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-        printButton.active = canPressPrintButton();
-        printButton.visible = !getMenu().isPrinting();
+        updateButtons();
 
         renderBackground(poseStack);
         super.render(poseStack, mouseX, mouseY, partialTick);
         renderTooltip(poseStack, mouseX, mouseY);
     }
 
-    private boolean canPressPrintButton() {
-        return getMenu().getBlockEntity().canPrint();
+    protected void updateButtons() {
+        printButton.active = getMenu().getBlockEntity().canPrint() || (player.isCreative() && Screen.hasShiftDown() && getMenu().getBlockEntity().canPrintInCreativeMode());
+        printButton.visible = !getMenu().isPrinting();
+
+        processToggleButton.active = true;
+        processToggleButton.visible = getMenu().getExposedFrames().getCompound(
+                getMenu().getSelectedFrame()).getBoolean(FrameData.CHROMATIC);
     }
 
     @Override
@@ -110,7 +153,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
             int progress = getMenu().getData().get(LightroomBlockEntity.CONTAINER_DATA_PROGRESS_ID);
             int time = getMenu().getData().get(LightroomBlockEntity.CONTAINER_DATA_PRINT_TIME_ID);
             int width = progress != 0 && time != 0 ? progress * 24 / time : 0;
-            blit(poseStack, leftPos + 116, topPos + 91, 176, 0, width + 1, 17);
+            blit(poseStack, leftPos + 116, topPos + 91, 176, 0, width, 17);
         }
 
         RenderSystem.setShaderTexture(0, FILM_OVERLAYS_TEXTURE);
@@ -179,37 +222,42 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         int selectedFrame = getMenu().getSelectedFrame();
         List<Component> tooltipLines = new ArrayList<>();
 
+        int hoveredFrameIndex = -1;
+
         if (isOverLeftFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame - 1;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.previous_frame"));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame - 1, tooltipLines);
-            }
         } else if (isOverCenterFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.current_frame", Integer.toString(getMenu().getSelectedFrame() + 1)));
-            tooltipLines.add(Component.translatable("gui.exposure.lightroom.zoom_in.tooltip")
-                    .withStyle(ChatFormatting.GRAY));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame, tooltipLines);
-            }
         } else if (isOverRightFrame(mouseX, mouseY)) {
+            hoveredFrameIndex = selectedFrame + 1;
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.next_frame"));
-            if (advancedTooltips) {
-                addFrameInfoToAdvancedTooltip(selectedFrame + 1, tooltipLines);
-            }
         }
+
+        if (hoveredFrameIndex != -1)
+            addFrameInfoTooltipLines(tooltipLines, hoveredFrameIndex, advancedTooltips);
 
         renderTooltip(poseStack, tooltipLines, Optional.empty(), mouseX, mouseY);
     }
 
-    private void addFrameInfoToAdvancedTooltip(int frameIndex, List<Component> tooltipLines) {
+    private void addFrameInfoTooltipLines(List<Component> tooltipLines, int frameIndex, boolean isAdvancedTooltips) {
         @Nullable CompoundTag frame = getMenu().getFrameIdByIndex(frameIndex);
         if (frame != null) {
-            Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(frame);
-            MutableComponent component = idOrTexture.map(
-                            id -> !id.isEmpty() ? Component.literal("Id: " + id) : Component.empty(),
-                            texture -> Component.literal("Texture: " + texture))
-                    .withStyle(ChatFormatting.DARK_GRAY);
-            tooltipLines.add(component);
+            ColorChannel.fromString(frame.getString(FrameData.CHROMATIC_CHANNEL)).ifPresent(c ->
+                    tooltipLines.add(Component.translatable("gui.exposure.channel." + c.getSerializedName())
+                        .withStyle(Style.EMPTY.withColor(c.getRepresentationColor()))));
+
+            if (isAdvancedTooltips) {
+                Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(frame);
+                MutableComponent component = idOrTexture.map(
+                                id -> !id.isEmpty() ? Component.translatable("gui.exposure.frame.id",
+                                        Component.literal(id).withStyle(ChatFormatting.GRAY)) : Component.empty(),
+                                texture -> Component.translatable("gui.exposure.frame.texture",
+                                        Component.literal(texture.toString()).withStyle(ChatFormatting.GRAY)))
+                        .withStyle(ChatFormatting.DARK_GRAY);
+                tooltipLines.add(component);
+            }
         }
     }
 
@@ -311,17 +359,16 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         Preconditions.checkState(minecraft.gameMode != null);
         int buttonId = navigation == PagingDirection.NEXT ? LightroomMenu.NEXT_FRAME_BUTTON_ID : LightroomMenu.PREVIOUS_FRAME_BUTTON_ID;
         minecraft.gameMode.handleInventoryButtonClick(getMenu().containerId, buttonId);
-        minecraft.player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, minecraft.player.getLevel()
+        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, player.getLevel()
                 .getRandom().nextFloat() * 0.4f + 0.8f);
 
         // Update block entity clientside to faster update advance frame arrows:
-        getMenu().getBlockEntity().setSelectedFrame(getMenu().getBlockEntity().getSelectedFrame() + (navigation == PagingDirection.NEXT ? 1 : -1));
+        getMenu().getBlockEntity().setSelectedFrame(getMenu().getBlockEntity().getSelectedFrameIndex() + (navigation == PagingDirection.NEXT ? 1 : -1));
     }
 
     private void enterFrameInspectMode() {
         Minecraft.getInstance().setScreen(new FilmFrameInspectScreen(this, getMenu()));
-        Objects.requireNonNull(Minecraft.getInstance().player)
-                .playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, 1.3f);
+        player.playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), 1f, 1.3f);
     }
 
     @Override

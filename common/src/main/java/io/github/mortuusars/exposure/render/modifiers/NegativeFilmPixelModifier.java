@@ -12,7 +12,7 @@ public class NegativeFilmPixelModifier implements IPixelModifier {
 
     @Override
     public String getIdSuffix() {
-        return simulateFilmTransparency ? "_negative_transparent" : "_negative";
+        return simulateFilmTransparency ? "_negative_film" : "_negative";
     }
 
     @Override

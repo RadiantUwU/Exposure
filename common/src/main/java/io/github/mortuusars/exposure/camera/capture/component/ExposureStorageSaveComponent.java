@@ -15,6 +15,9 @@ public class ExposureStorageSaveComponent implements ICaptureComponent {
 
     @Override
     public boolean save(byte[] pixels, int width, int height, CompoundTag properties) {
+        long unixTime = System.currentTimeMillis() / 1000L;
+        properties.putLong(ExposureSavedData.TIMESTAMP_PROPERTY, unixTime);
+
         ExposureSavedData exposureSavedData = new ExposureSavedData(width, height, pixels, properties);
 
         ExposureClient.getExposureStorage().put(exposureId, exposureSavedData);

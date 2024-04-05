@@ -9,11 +9,13 @@ import com.mojang.datafixers.util.Either;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
-import io.github.mortuusars.exposure.camera.capture.component.FileSaveComponent;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
+import io.github.mortuusars.exposure.data.storage.ExposureExporter;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
 import io.github.mortuusars.exposure.item.PhotographItem;
+import io.github.mortuusars.exposure.render.PhotographRenderProperties;
 import io.github.mortuusars.exposure.render.PhotographRenderer;
+import io.github.mortuusars.exposure.util.ClientsideWorldNameGetter;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import io.github.mortuusars.exposure.util.PagingDirection;
 import net.minecraft.client.Minecraft;
@@ -120,6 +122,9 @@ public class PhotographScreen extends ZoomableScreen {
             if (mouseX > width - 20 && mouseX < width && mouseY < 20) {
                 List<Component> lines = new ArrayList<>();
 
+                String exposureName = idOrTexture.map(id -> id, ResourceLocation::toString);
+                lines.add(Component.literal(exposureName));
+
                 lines.add(Component.translatable("gui.exposure.photograph_screen.drop_as_item_tooltip", Component.literal("CTRL + I")));
 
                 lines.add(idOrTexture.map(
@@ -136,11 +141,6 @@ public class PhotographScreen extends ZoomableScreen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        return pager.handleKeyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (Screen.hasControlDown() && player != null && player.isCreative()) {
             ItemAndStack<PhotographItem> photograph = photographs.get(pager.getCurrentPage());
@@ -165,6 +165,11 @@ public class PhotographScreen extends ZoomableScreen {
             }
         }
 
+        return pager.handleKeyPressed(keyCode, scanCode, modifiers) || super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
         return pager.handleKeyReleased(keyCode, scanCode, modifiers) || super.keyReleased(keyCode, scanCode, modifiers);
     }
 
@@ -185,13 +190,21 @@ public class PhotographScreen extends ZoomableScreen {
             return;
 
         idOrTexture.ifLeft(id -> {
-            if (savedExposures.contains(id))
+            PhotographRenderProperties properties = PhotographRenderProperties.get(photograph.getStack());
+            String filename = properties != PhotographRenderProperties.DEFAULT ? id + "_" + properties.getId() : id;
+
+            if (savedExposures.contains(filename))
                 return;
 
             ExposureClient.getExposureStorage().getOrQuery(id).ifPresent(exposure -> {
-                savedExposures.add(id);
-                new Thread(() -> FileSaveComponent.withDefaultFolders(id)
-                        .save(exposure.getPixels(), exposure.getWidth(), exposure.getHeight(), exposure.getProperties()), "ExposureSaving").start();
+                savedExposures.add(filename);
+
+                new Thread(() -> new ExposureExporter(filename)
+                        .withDefaultFolder()
+                        .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(), ClientsideWorldNameGetter::getWorldName)
+                        .withModifier(properties.getModifier())
+                        .withSize(Config.Client.EXPOSURE_SAVING_SIZE.get())
+                        .save(exposure), "ExposureSaving").start();
             });
         });
     }

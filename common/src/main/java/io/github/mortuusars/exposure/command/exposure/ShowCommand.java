@@ -3,12 +3,16 @@ package io.github.mortuusars.exposure.command.exposure;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.github.mortuusars.exposure.ExposureServer;
+import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
+import io.github.mortuusars.exposure.command.suggestion.ExposureIdSuggestionProvider;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.ShowExposureS2CP;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
@@ -20,20 +24,21 @@ public class ShowCommand {
                         .executes(context -> latest(context.getSource(), false))
                         .then(Commands.literal("negative")
                                 .executes(context -> latest(context.getSource(), true))))
-                .then(Commands.literal("exposure")
+                .then(Commands.literal("id")
                         .then(Commands.argument("id", StringArgumentType.string())
+                                .suggests(new ExposureIdSuggestionProvider())
                                 .executes(context -> exposureId(context.getSource(),
                                         StringArgumentType.getString(context, "id"), false))
                                 .then(Commands.literal("negative")
                                         .executes(context -> exposureId(context.getSource(),
                                                 StringArgumentType.getString(context, "id"), true)))))
                 .then(Commands.literal("texture")
-                        .then(Commands.argument("path", StringArgumentType.string())
+                        .then(Commands.argument("path", new TextureLocationArgument())
                                 .executes(context -> texture(context.getSource(),
-                                        StringArgumentType.getString(context, "path"), false))
+                                        ResourceLocationArgument.getId(context, "path"), false))
                                 .then(Commands.literal("negative")
                                         .executes(context -> texture(context.getSource(),
-                                                StringArgumentType.getString(context, "path"), true)))));
+                                                ResourceLocationArgument.getId(context, "path"), true)))));
     }
 
     private static int latest(CommandSourceStack stack, boolean negative) {
@@ -67,14 +72,14 @@ public class ShowCommand {
         return 0;
     }
 
-    private static int texture(CommandSourceStack stack, String path, boolean negative) {
+    private static int texture(CommandSourceStack stack, ResourceLocation path, boolean negative) {
         ServerPlayer player = stack.getPlayer();
         if (player == null) {
             stack.sendFailure(Component.translatable("command.exposure.show.error.not_a_player"));
             return 1;
         }
 
-        Packets.sendToClient(ShowExposureS2CP.texture(path, negative), player);
+        Packets.sendToClient(ShowExposureS2CP.texture(path.toString(), negative), player);
 
         return 0;
     }

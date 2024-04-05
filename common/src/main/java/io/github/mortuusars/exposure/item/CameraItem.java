@@ -17,6 +17,7 @@ import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.server.CameraInHandAddFrameC2SP;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.util.CameraInHand;
+import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import io.github.mortuusars.exposure.util.LevelUtil;
 import net.minecraft.ChatFormatting;
@@ -438,6 +439,18 @@ public class CameraItem extends Item {
         tag.putString(FrameData.TIMESTAMP, Util.getFilenameFormattedDateTime());
         tag.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
         tag.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
+
+        // Chromatic only for black and white:
+        Boolean isBW = getAttachment(cameraStack, FILM_ATTACHMENT)
+                .map(f -> f.getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.BLACK_AND_WHITE)
+                .orElse(false);
+        if (isBW) {
+            getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
+                tag.putBoolean(FrameData.CHROMATIC, true);
+                tag.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
+            });
+        }
+
         if (flash)
             tag.putBoolean(FrameData.FLASH, true);
         if (isInSelfieMode(cameraStack))
@@ -546,7 +559,7 @@ public class CameraItem extends Item {
     }
 
     public FocalRange getFocalRange(ItemStack cameraStack) {
-        return getAttachment(cameraStack, LENS_ATTACHMENT).map(FocalRange::fromStack).orElse(getDefaultFocalRange());
+        return getAttachment(cameraStack, LENS_ATTACHMENT).map(FocalRange::ofStack).orElse(getDefaultFocalRange());
     }
 
     public FocalRange getDefaultFocalRange() {
@@ -565,8 +578,12 @@ public class CameraItem extends Item {
             components.add(new FlashComponent());
         if (brightnessStops != 0)
             components.add(new BrightnessComponent(brightnessStops));
-        if (film.getItem().getType() == FilmType.BLACK_AND_WHITE)
-            components.add(new BlackAndWhiteComponent());
+        if (film.getItem().getType() == FilmType.BLACK_AND_WHITE) {
+            Optional<ItemStack> filter = getAttachment(cameraStack, FILTER_ATTACHMENT);
+            filter.flatMap(ColorChannel::fromStack).ifPresentOrElse(
+                    channel -> components.add(new SelectiveChannelBlackAndWhiteComponent(channel)),
+                    () -> components.add(new BlackAndWhiteComponent()));
+        }
 
         components.add(new ExposureStorageSaveComponent(exposureId, true));
 

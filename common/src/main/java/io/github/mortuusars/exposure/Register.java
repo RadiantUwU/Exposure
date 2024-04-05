@@ -1,6 +1,10 @@
 package io.github.mortuusars.exposure;
 
+import com.mojang.brigadier.arguments.ArgumentType;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.sounds.SoundEvent;
@@ -71,6 +75,12 @@ public class Register {
 
     @ExpectPlatform
     public static Supplier<RecipeSerializer<?>> recipeSerializer(String filmDeveloping, Supplier<RecipeSerializer<?>> supplier) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
+    public static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>, I extends ArgumentTypeInfo<A, T>>
+            Supplier<ArgumentTypeInfo<A, T>> commandArgumentType(String id, Class<A> infoClass, I argumentTypeInfo) {
         throw new AssertionError();
     }
 }
