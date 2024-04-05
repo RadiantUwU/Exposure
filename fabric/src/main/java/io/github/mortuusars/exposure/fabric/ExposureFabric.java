@@ -44,7 +44,12 @@ public class ExposureFabric implements ModInitializer {
 
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new FabricLensesDataLoader());
 
-        ServerLifecycleEvents.SERVER_STARTING.register(Exposure::initServer);
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            Exposure.initServer(server);
+            PacketsImpl.onServerStarting(server);
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(PacketsImpl::onServerStopped);
+
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
             if (player.getServer() != null)
                 Lenses.onDatapackSync(player.getServer().getPlayerList(), null);

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -91,6 +92,20 @@ public class ExposureRenderer implements AutoCloseable {
         }
 
         cache.clear();
+    }
+
+    public void clearDataSingle(@NotNull String exposureId, boolean allVariants) {
+        // Using cache.entrySet().removeIf(...) would be simpler, but it wouldn't let us .close() the instance
+        for(Iterator<Map.Entry<String, ExposureInstance>> it = cache.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, ExposureInstance> entry = it.next();
+            if(allVariants ? entry.getKey().startsWith(exposureId) : entry.getKey().equals(exposureId)) {
+                entry.getValue().close();
+                it.remove();
+
+                if (!allVariants)
+                    break;
+            }
+        }
     }
 
     @Override

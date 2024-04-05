@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.network.fabric;
 
+import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.packet.ExposureDataPartPacket;
 import io.github.mortuusars.exposure.network.packet.IPacket;
@@ -11,10 +12,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
 public class PacketsImpl {
+    @Nullable
+    private static MinecraftServer server;
+
     public static void registerC2SPackets() {
         ServerPlayNetworking.registerGlobalReceiver(ExposureDataPartPacket.ID, new ServerHandler(ExposureDataPartPacket::fromBuffer));
 
@@ -41,6 +46,27 @@ public class PacketsImpl {
 
     public static void sendToClient(IPacket packet, ServerPlayer player) {
         ServerPlayNetworking.send(player, packet.getId(), packet.toBuffer(PacketByteBufs.create()));
+    }
+
+    public static void sendToAllClients(IPacket packet) {
+        if (server == null) {
+            LogUtils.getLogger().warn("Cannot send a packet to all players. Server is not present.");
+            return;
+        }
+
+        FriendlyByteBuf packetBuffer = packet.toBuffer(PacketByteBufs.create());
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            ServerPlayNetworking.send(player, packet.getId(), packetBuffer);
+        }
+    }
+
+    public static void onServerStarting(MinecraftServer server) {
+        // Store server to access from static context:
+        PacketsImpl.server = server;
+    }
+
+    public static void onServerStopped(MinecraftServer server) {
+        PacketsImpl.server = null;
     }
 
     private record ServerHandler(Function<FriendlyByteBuf, IPacket> decodeFunction) implements ServerPlayNetworking.PlayChannelHandler {

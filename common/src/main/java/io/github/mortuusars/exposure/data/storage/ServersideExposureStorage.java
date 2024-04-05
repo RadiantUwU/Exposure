@@ -1,6 +1,9 @@
 package io.github.mortuusars.exposure.data.storage;
 
 import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.network.Packets;
+import io.github.mortuusars.exposure.network.packet.client.ExposureChangedS2CP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class ServersideExposureStorage implements IExposureStorage {
+public class ServersideExposureStorage implements IServersideExposureStorage {
     private static final String EXPOSURE_DIR = "exposures";
 
     private final Supplier<DimensionDataStorage> levelStorageSupplier;
@@ -68,6 +71,14 @@ public class ServersideExposureStorage implements IExposureStorage {
     @Override
     public void clear() {
         LogUtils.getLogger().warn("Clearing Server Exposure Storage is not implemented.");
+    }
+
+    /**
+     * When exposure on the server changes we need to notify client to re-query it.
+     * Otherwise, due to caching, client wouldn't know about the change.
+     */
+    public void sendExposureChanged(String exposureId) {
+        Packets.sendToAllClients(new ExposureChangedS2CP(exposureId));
     }
 
     private String getSaveId(String id) {

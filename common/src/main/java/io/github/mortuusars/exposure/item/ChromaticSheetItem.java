@@ -8,6 +8,8 @@ import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
+import io.github.mortuusars.exposure.network.Packets;
+import io.github.mortuusars.exposure.network.packet.client.WaitForExposureChangeS2CP;
 import io.github.mortuusars.exposure.util.ColorChannel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +18,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -160,6 +163,8 @@ public class ChromaticSheetItem extends Item {
 
         photograph.setTag(tag);
 
+        Packets.sendToAllClients(new WaitForExposureChangeS2CP(id));
+
         new Thread(() -> {
             try {
                 processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
@@ -203,5 +208,9 @@ public class ChromaticSheetItem extends Item {
 
         ExposureSavedData resultData = new ExposureSavedData(image.getWidth(), image.getHeight(), mapColorPixels, properties);
         ExposureServer.getExposureStorage().put(id, resultData);
+
+        // Because we save exposure off-thread, and item was already created before chromatic processing has even begun -
+        // we need to update clients, otherwise, client wouldn't know that and will think that the exposure is missing.
+        ExposureServer.getExposureStorage().sendExposureChanged(id);
     }
 }

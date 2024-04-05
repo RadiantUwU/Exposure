@@ -21,6 +21,11 @@ public class Packets {
         throw new AssertionError();
     }
 
+    @ExpectPlatform
+    public static void sendToAllClients(IPacket packet) {
+        throw new AssertionError();
+    }
+
     public static void sendToClients(IPacket packet, PlayerList playerList, @Nullable ServerPlayer excludedPlayer) {
         for (ServerPlayer player : playerList.getPlayers()) {
             if (player != excludedPlayer)

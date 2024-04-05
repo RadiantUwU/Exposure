@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.data.storage.ClientsideExposureStorage;
+import io.github.mortuusars.exposure.data.storage.IClientsideExposureStorage;
 import io.github.mortuusars.exposure.data.storage.IExposureStorage;
 import io.github.mortuusars.exposure.data.transfer.ExposureReceiver;
 import io.github.mortuusars.exposure.data.transfer.ExposureSender;
@@ -26,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public class ExposureClient {
-    private static final IExposureStorage exposureStorage = new ClientsideExposureStorage();
+    private static final IClientsideExposureStorage exposureStorage = new ClientsideExposureStorage();
     private static final ExposureRenderer exposureRenderer = new ExposureRenderer();
 
     private static IExposureSender exposureSender;
@@ -40,7 +41,7 @@ public class ExposureClient {
         exposureReceiver = new ExposureReceiver(exposureStorage);
     }
 
-    public static IExposureStorage getExposureStorage() {
+    public static IClientsideExposureStorage getExposureStorage() {
         return exposureStorage;
     }
 

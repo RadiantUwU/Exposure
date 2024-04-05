@@ -7,6 +7,7 @@ import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
@@ -23,10 +24,9 @@ import io.github.mortuusars.exposure.gui.screen.NegativeExposureScreen;
 import io.github.mortuusars.exposure.gui.screen.PhotographScreen;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.PhotographItem;
-import io.github.mortuusars.exposure.network.packet.client.ApplyShaderS2CP;
-import io.github.mortuusars.exposure.network.packet.client.ShowExposureS2CP;
-import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
-import io.github.mortuusars.exposure.network.packet.client.SyncLensesS2CP;
+import io.github.mortuusars.exposure.network.packet.client.*;
+import io.github.mortuusars.exposure.render.ExposureRenderer;
+import io.github.mortuusars.exposure.render.PhotographRenderer;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.ClientsideWorldNameGetter;
 import io.github.mortuusars.exposure.util.ColorUtils;
@@ -225,6 +225,17 @@ public class ClientPacketsHandler {
 
     public static void syncLenses(SyncLensesS2CP packet) {
         executeOnMainThread(() -> Lenses.reload(packet.lenses()));
+    }
+
+    public static void waitForExposureChange(WaitForExposureChangeS2CP packet) {
+        executeOnMainThread(() -> ExposureClient.getExposureStorage().putOnWaitingList(packet.exposureId()));
+    }
+
+    public static void onExposureChanged(ExposureChangedS2CP packet) {
+        executeOnMainThread(() -> {
+            ExposureClient.getExposureStorage().remove(packet.exposureId());
+            ExposureClient.getExposureRenderer().clearDataSingle(packet.exposureId(), true);
+        });
     }
 
     private static void executeOnMainThread(Runnable runnable) {

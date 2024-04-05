@@ -6,15 +6,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-public class ClientsideExposureStorage implements IExposureStorage {
+public class ClientsideExposureStorage implements IClientsideExposureStorage {
     private final Map<String, @NotNull ExposureSavedData> CACHE = new HashMap<>();
     private final List<String> QUERIED_IDS = new ArrayList<>();
+    private final List<String> WAITING_IDS = new ArrayList<>();
 
     @Override
     public Optional<ExposureSavedData> getOrQuery(String id) {
         ExposureSavedData exposureData = CACHE.get(id);
 
-        if(exposureData == null && !QUERIED_IDS.contains(id)) {
+        if(exposureData == null && !WAITING_IDS.contains(id) && !QUERIED_IDS.contains(id)) {
             Packets.sendToServer(new QueryExposureDataC2SP(id));
             QUERIED_IDS.add(id);
         }
@@ -26,6 +27,13 @@ public class ClientsideExposureStorage implements IExposureStorage {
     public void put(String id, ExposureSavedData data) {
         CACHE.put(id, data);
         QUERIED_IDS.remove(id);
+        WAITING_IDS.remove(id);
+    }
+
+    @Override
+    public void putOnWaitingList(String exposureId) {
+        if (!WAITING_IDS.contains(exposureId))
+            WAITING_IDS.add(exposureId);
     }
 
     @Override
@@ -34,8 +42,16 @@ public class ClientsideExposureStorage implements IExposureStorage {
     }
 
     @Override
+    public void remove(String id) {
+        CACHE.remove(id);
+        QUERIED_IDS.remove(id);
+        WAITING_IDS.remove(id);
+    }
+
+    @Override
     public void clear() {
         CACHE.clear();
         QUERIED_IDS.clear();
+        WAITING_IDS.clear();
     }
 }

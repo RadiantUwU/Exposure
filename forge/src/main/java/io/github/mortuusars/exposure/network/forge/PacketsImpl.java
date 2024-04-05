@@ -124,16 +124,24 @@ public class PacketsImpl {
                 .decoder(StopOnePerPlayerSoundS2CP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
-
         CHANNEL.messageBuilder(ClearRenderingCacheS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(ClearRenderingCacheS2CP::toBuffer)
                 .decoder(ClearRenderingCacheS2CP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
-
         CHANNEL.messageBuilder(SyncLensesS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(SyncLensesS2CP::toBuffer)
                 .decoder(SyncLensesS2CP::fromBuffer)
+                .consumerMainThread(PacketsImpl::handlePacket)
+                .add();
+        CHANNEL.messageBuilder(ExposureChangedS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(ExposureChangedS2CP::toBuffer)
+                .decoder(ExposureChangedS2CP::fromBuffer)
+                .consumerMainThread(PacketsImpl::handlePacket)
+                .add();
+        CHANNEL.messageBuilder(WaitForExposureChangeS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(WaitForExposureChangeS2CP::toBuffer)
+                .decoder(WaitForExposureChangeS2CP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
     }
@@ -144,6 +152,10 @@ public class PacketsImpl {
 
     public static void sendToClient(IPacket packet, ServerPlayer player) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), packet);
+    }
+
+    public static void sendToAllClients(IPacket packet) {
+        CHANNEL.send(PacketDistributor.ALL.noArg(), packet);
     }
 
     private static <T extends IPacket> void handlePacket(T packet, Supplier<NetworkEvent.Context> contextSupplier) {
