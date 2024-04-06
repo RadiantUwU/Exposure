@@ -3,6 +3,8 @@
   "advancement.exposure.exposure.title": "Експозиція",
   "advancement.exposure.flash.description": "Використайте спалах під час фотографування в темряві",
   "advancement.exposure.flash.title": "Засвітись!",
+  "advancement.exposure.get_chromatic_photograph.description": "Отримайте фотографію зроблену за допомогою барвистого процесу",
+  "advancement.exposure.get_chromatic_photograph.title": "Суміш з’єднаних сполук",
   "advancement.exposure.get_photograph.description": "Отримайте фотографію",
   "advancement.exposure.get_photograph.title": "Момент у часі",
   "advancement.exposure.take_selfie.description": "Зробіть селфі використовуючи вид від третьої особи",

@@ -6,18 +6,8 @@
         "items": [
           {
             "items": [
-              "exposure:photograph"
-            ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "get_stacked_photographs": {
-      "conditions": {
-        "items": [
-          {
-            "items": [
+              "exposure:photograph",
+              "exposure:aged_photograph",
               "exposure:stacked_photographs"
             ]
           }
@@ -43,8 +33,7 @@
   },
   "requirements": [
     [
-      "get_photograph",
-      "get_stacked_photographs"
+      "get_photograph"
     ]
   ],
   "sends_telemetry_event": true

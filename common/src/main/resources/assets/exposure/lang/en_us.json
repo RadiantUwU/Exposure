@@ -3,6 +3,8 @@
   "advancement.exposure.exposure.title": "Exposure",
   "advancement.exposure.flash.description": "Use flash when taking a photograph in the dark",
   "advancement.exposure.flash.title": "Lights Up!",
+  "advancement.exposure.get_chromatic_photograph.description": "Get a Photograph created with Chromatic process",
+  "advancement.exposure.get_chromatic_photograph.title": "Composite Confounded Compound",
   "advancement.exposure.get_photograph.description": "Get a Photograph",
   "advancement.exposure.get_photograph.title": "A Moment in Time",
   "advancement.exposure.take_selfie.description": "Take a selfie using third-person view",

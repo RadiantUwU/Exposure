@@ -1,0 +1,41 @@
+{
+  "parent": "exposure:adventure/get_photograph",
+  "criteria": {
+    "get_chromatic_photograph": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "exposure:photograph",
+              "exposure:aged_photograph"
+            ],
+            "nbt": "{Chromatic:true}"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.exposure.get_chromatic_photograph.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "exposure:chromatic_sheet",
+      "nbt": "{Exposures:[{Id:\"1\"},{Id:\"2\"},{Id:\"3\"}]}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.exposure.get_chromatic_photograph.title"
+    }
+  },
+  "requirements": [
+    [
+      "get_chromatic_photograph"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
