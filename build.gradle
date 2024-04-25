@@ -27,8 +27,8 @@ subprojects {
             parchment("org.parchmentmc.data:parchment-${parchment_version}@zip")
         }
 
-        // compile against the JEI API but do not include it at runtime
         modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
+        modCompileOnlyApi("curse.maven:jade-324717:${forge_jade_id}")
     }
 }
 

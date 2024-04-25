@@ -116,6 +116,13 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         stopPrintingProcess();
     }
 
+    public float getProgressPercentage() {
+        if (progress < 1 || printTime < 1)
+            return 0f;
+
+        return progress / (float)printTime;
+    }
+
     protected void onFramePrinted() {
         if (advanceFrame)
             advanceFrame();
