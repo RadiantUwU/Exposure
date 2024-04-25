@@ -128,6 +128,7 @@ public class Config {
         public static final ForgeConfigSpec.ConfigValue<String> VIEWFINDER_BACKGROUND_COLOR;
         public static final ForgeConfigSpec.ConfigValue<String> VIEWFINDER_FONT_MAIN_COLOR;
         public static final ForgeConfigSpec.ConfigValue<String> VIEWFINDER_FONT_SECONDARY_COLOR;
+        public static final ForgeConfigSpec.BooleanValue VIEWFINDER_MIDDLE_CLICK_CONTROLS;
 
         // IMAGE SAVING
         public static final ForgeConfigSpec.BooleanValue SAVE_EXPOSURE_TO_FILE_WHEN_VIEWED;
@@ -174,6 +175,11 @@ public class Config {
                     VIEWFINDER_BACKGROUND_COLOR = builder.define("BackgroundColorHex", "FA1F1D1B");
                     VIEWFINDER_FONT_MAIN_COLOR = builder.define("FontMainColorHex", "FF2B2622");
                     VIEWFINDER_FONT_SECONDARY_COLOR = builder.define("FontSecondaryColorHex", "FF7A736C");
+                    VIEWFINDER_MIDDLE_CLICK_CONTROLS = builder
+                            .comment("Clicking middle mouse button will open Viewfinder Controls. This is independent of Open Camera Controls keybind.",
+                                    "Allows opening camera controls without dismounting from a vehicle - and keeping controls on sneak as well.",
+                                    "Default: true")
+                            .define("MiddleClickOpensControls", true);
                     builder.pop();
                 }
 

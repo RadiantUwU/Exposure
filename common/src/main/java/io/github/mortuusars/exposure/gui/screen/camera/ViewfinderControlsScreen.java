@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.gui.screen.camera;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
@@ -127,7 +128,7 @@ public class ViewfinderControlsScreen extends Screen {
             }
         };
 
-        update.accept(ExposureClient.getViewfinderControlsKey());
+        update.accept(ExposureClient.getCameraControlsKey());
         Options opt = Minecraft.getInstance().options;
         update.accept(opt.keyUp);
         update.accept(opt.keyDown);
@@ -177,9 +178,10 @@ public class ViewfinderControlsScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean handled = super.mouseClicked(mouseX, mouseY, button);
+        if (super.mouseClicked(mouseX, mouseY, button))
+            return true;
 
-        if (!handled && button == 1 && Minecraft.getInstance().gameMode != null) {
+        if (button == InputConstants.MOUSE_BUTTON_RIGHT && Minecraft.getInstance().gameMode != null) {
             InteractionHand activeHand = CameraInHand.getActiveHand(player);
             if (activeHand != null) {
                 ItemStack itemInHand = player.getItemInHand(activeHand);
@@ -188,15 +190,16 @@ public class ViewfinderControlsScreen extends Screen {
                 }
             }
 
-            handled = true;
+            return true;
         }
 
-        return handled;
+        return false;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (ExposureClient.getViewfinderControlsKey().matchesMouse(button)) {
+        if (ExposureClient.getCameraControlsKey().matchesMouse(button)
+                || (Config.Client.VIEWFINDER_MIDDLE_CLICK_CONTROLS.get() && button == InputConstants.MOUSE_BUTTON_MIDDLE)) {
             if (level.getGameTime() - openedAtTimestamp >= 5)
                 this.onClose();
 
@@ -208,7 +211,7 @@ public class ViewfinderControlsScreen extends Screen {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        if (ExposureClient.getViewfinderControlsKey().matches(keyCode, scanCode)) {
+        if (ExposureClient.getCameraControlsKey().matches(keyCode, scanCode)) {
             if (level.getGameTime() - openedAtTimestamp >= 5)
                 this.onClose();
 

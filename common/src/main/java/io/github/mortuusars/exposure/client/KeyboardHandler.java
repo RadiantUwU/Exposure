@@ -53,7 +53,7 @@ public class KeyboardHandler {
             return false;
 
         if (!(minecraft.screen instanceof ViewfinderControlsScreen)) {
-            if (ExposureClient.getViewfinderControlsKey().matches(key, scanCode)) {
+            if (ExposureClient.getCameraControlsKey().matches(key, scanCode)) {
                 ClientGUI.openViewfinderControlsScreen();
                 return false; // Do not handle to keep sneaking
             }

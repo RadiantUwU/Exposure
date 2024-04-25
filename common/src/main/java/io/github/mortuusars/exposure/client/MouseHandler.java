@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.gui.ClientGUI;
 import io.github.mortuusars.exposure.gui.screen.camera.ViewfinderControlsScreen;
@@ -15,10 +16,16 @@ public class MouseHandler {
             heldMouseButtons[button] = action == InputConstants.PRESS;
 
         if (Minecraft.getInstance().player != null && CameraInHand.isActive(Minecraft.getInstance().player)
-                && ExposureClient.getViewfinderControlsKey().matchesMouse(button)
                 && !(Minecraft.getInstance().screen instanceof ViewfinderControlsScreen)) {
-            ClientGUI.openViewfinderControlsScreen();
-            // Do not cancel the event to keep sneaking
+
+            if (ExposureClient.getCameraControlsKey().matchesMouse(button)) {
+                ClientGUI.openViewfinderControlsScreen();
+                // Do not cancel the event to keep sneaking
+            }
+            else if (Config.Client.VIEWFINDER_MIDDLE_CLICK_CONTROLS.get() && button == InputConstants.MOUSE_BUTTON_MIDDLE) {
+                ClientGUI.openViewfinderControlsScreen();
+                return true;
+            }
         }
 
         return false;
