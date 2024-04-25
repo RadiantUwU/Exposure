@@ -68,10 +68,7 @@ public class ExposureFabric implements ModInitializer {
         });
         ServerLifecycleEvents.SERVER_STOPPED.register(PacketsImpl::onServerStopped);
 
-        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> {
-            if (player.getServer() != null)
-                Lenses.onDatapackSync(player.getServer().getPlayerList(), null);
-        });
+        ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> Lenses.onDatapackSync(player));
 
         PacketsImpl.registerC2SPackets();
     }
