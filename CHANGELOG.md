@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+- Fixed custom Lenses not syncing to the player when they join a server.  
+
+---
+
 ## 1.5.1 - 2024-04-06
 
 - Added advancement for getting a Photograph create with Chromatic process.

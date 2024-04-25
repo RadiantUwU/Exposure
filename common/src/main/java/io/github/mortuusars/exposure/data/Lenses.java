@@ -35,8 +35,12 @@ public class Lenses {
         return new SyncLensesS2CP(new ConcurrentHashMap<>(lenses));
     }
 
-    public static void onDatapackSync(PlayerList playerList, @Nullable ServerPlayer excludePlayer) {
+    public static void onDatapackSync(@Nullable ServerPlayer joiningPlayer) {
         IPacket packet = getSyncToClientPacket();
-        Packets.sendToClients(packet, playerList, excludePlayer);
+
+        if (joiningPlayer != null)
+            Packets.sendToClient(packet, joiningPlayer);
+        else
+            Packets.sendToAllClients(packet);
     }
 }

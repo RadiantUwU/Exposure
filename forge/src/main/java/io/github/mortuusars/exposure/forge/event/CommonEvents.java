@@ -39,7 +39,7 @@ public class CommonEvents {
 
         @SubscribeEvent
         public static void onDatapackSync(OnDatapackSyncEvent event) {
-            Lenses.onDatapackSync(event.getPlayerList(), event.getPlayer());
+            Lenses.onDatapackSync(event.getPlayer());
         }
 
         @SubscribeEvent
