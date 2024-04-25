@@ -58,6 +58,14 @@
     ],
     "subtitle": "subtitle.exposure.camera.release_button_click"
   },
+  "item.camera.film_removed": {
+    "sounds": [
+      {
+        "name": "exposure:item/camera/release_button_click",
+        "volume": 0.5
+      }
+    ]
+  },
   "item.camera.shutter_close": {
     "sounds": [
       "exposure:item/camera/shutter_close1",

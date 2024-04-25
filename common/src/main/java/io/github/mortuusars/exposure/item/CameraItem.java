@@ -44,9 +44,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -134,6 +137,50 @@ public class CameraItem extends Item {
         return getAttachment(stack, FILM_ATTACHMENT)
                 .map(f -> f.getItem() instanceof FilmRollItem filmRollItem ? filmRollItem.getBarColor(f) : 0)
                 .orElse(0);
+    }
+
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction action, Player player, SlotAccess access) {
+        if (!Config.Common.CAMERA_GUI_HOTSWAP_ALLOWED.get() || action != ClickAction.SECONDARY)
+            return false;
+
+        if (otherStack.isEmpty()) {
+            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
+            if (filmAttachment.isEmpty())
+                return false;
+
+            setAttachment(stack, FILM_ATTACHMENT, ItemStack.EMPTY);
+            ItemStack film = filmAttachment.get();
+            access.set(film);
+
+            if (player.level().isClientSide)
+                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.6f, 1f);
+
+            return true;
+        }
+
+        if (FILM_ATTACHMENT.stackValidator().test(otherStack)) {
+            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
+
+            if (otherStack.getCount() > 1) {
+                if (filmAttachment.isPresent())
+                    return false; // Can't swap when holding stack of films
+
+                setAttachment(stack, FILM_ATTACHMENT, otherStack.split(1));
+                access.set(otherStack);
+            }
+            else {
+                setAttachment(stack, FILM_ATTACHMENT, otherStack);
+                access.set(filmAttachment.orElse(ItemStack.EMPTY));
+            }
+
+            if (player.level().isClientSide)
+                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE.get(), SoundSource.PLAYERS, 0.9f, 1f);
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
