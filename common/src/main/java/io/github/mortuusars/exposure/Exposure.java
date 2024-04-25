@@ -198,6 +198,7 @@ public class Exposure {
         public static final Supplier<SoundEvent> SHUTTER_TICKING = register("item", "camera.shutter_ticking");
         public static final Supplier<SoundEvent> FILM_ADVANCE = register("item", "camera.film_advance");
         public static final Supplier<SoundEvent> FILM_ADVANCE_LAST = register("item", "camera.film_advance_last");
+        public static final Supplier<SoundEvent> FILM_REMOVED = register("item", "camera.film_removed");
         public static final Supplier<SoundEvent> CAMERA_BUTTON_CLICK = register("item", "camera.button_click");
         public static final Supplier<SoundEvent> CAMERA_RELEASE_BUTTON_CLICK = register("item", "camera.release_button_click");
         public static final Supplier<SoundEvent> CAMERA_DIAL_CLICK = register("item", "camera.dial_click");

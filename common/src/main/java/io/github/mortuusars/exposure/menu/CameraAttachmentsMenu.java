@@ -34,7 +34,6 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         player = playerInventory.player;
         level = playerInventory.player.level();
         camera = new ItemAndStack<>(cameraStack);
-        List<CameraItem.AttachmentType> attachmentTypes = camera.getItem().getAttachmentTypes(camera.getStack());
 
         SimpleContainer container = new SimpleContainer(getCameraAttachments(camera).toArray(ItemStack[]::new)) {
             @Override
@@ -118,6 +117,8 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         if (slotId == CameraItem.FILM_ATTACHMENT.slot()) {
             if (!newStack.isEmpty())
                 OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE.get(), SoundSource.PLAYERS, 0.9f, 1f);
+            else
+                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.7f, 1f);
         } else if (slotId == CameraItem.FLASH_ATTACHMENT.slot()) {
             if (!newStack.isEmpty())
                 OnePerPlayerSounds.play(player, Exposure.SoundEvents.CAMERA_BUTTON_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);

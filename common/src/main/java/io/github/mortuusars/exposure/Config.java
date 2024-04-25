@@ -17,6 +17,7 @@ public class Config {
 
         // Camera
         public static final ForgeConfigSpec.ConfigValue<String> CAMERA_DEFAULT_FOCAL_RANGE;
+        public static final ForgeConfigSpec.BooleanValue CAMERA_GUI_HOTSWAP_ALLOWED;
 
         // Lightroom
         public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_PRINT_TIME;
@@ -44,6 +45,11 @@ public class Config {
                                 "Allowed range: " + FocalRange.ALLOWED_MIN + "-" + FocalRange.ALLOWED_MAX,
                                 "Default: 18-55")
                         .define("DefaultFocalRange", "18-55");
+
+                CAMERA_GUI_HOTSWAP_ALLOWED = builder
+                        .comment("Item can be clicked on the Camera item in GUI to quickly insert it (same as Bundles). And extract.",
+                                "Default: true")
+                        .define("GuiHotswap", true);
             }
             builder.pop();
 
