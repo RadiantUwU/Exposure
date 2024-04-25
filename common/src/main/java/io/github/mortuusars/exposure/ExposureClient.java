@@ -5,7 +5,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.data.storage.ClientsideExposureStorage;
 import io.github.mortuusars.exposure.data.storage.IClientsideExposureStorage;
-import io.github.mortuusars.exposure.data.storage.IExposureStorage;
 import io.github.mortuusars.exposure.data.transfer.ExposureReceiver;
 import io.github.mortuusars.exposure.data.transfer.ExposureSender;
 import io.github.mortuusars.exposure.data.transfer.IExposureReceiver;
@@ -34,7 +33,7 @@ public class ExposureClient {
     private static IExposureReceiver exposureReceiver;
 
     @Nullable
-    private static KeyMapping openViewfinderControlsKey = null;
+    private static KeyMapping openCameraControlsKey = null;
 
     public static void init() {
         exposureSender = new ExposureSender((packet, player) -> Packets.sendToServer(packet));
@@ -61,7 +60,7 @@ public class ExposureClient {
         KeyMapping keyMapping = new KeyMapping("key.exposure.camera_controls",
                 InputConstants.UNKNOWN.getValue(), "category.exposure");
 
-        openViewfinderControlsKey = registerFunction.apply(keyMapping);
+        openCameraControlsKey = registerFunction.apply(keyMapping);
     }
 
     public static void onScreenAdded(Screen screen) {
@@ -72,10 +71,10 @@ public class ExposureClient {
         }
     }
 
-    public static KeyMapping getViewfinderControlsKey() {
-        Preconditions.checkState(openViewfinderControlsKey != null,
+    public static KeyMapping getCameraControlsKey() {
+        Preconditions.checkState(openCameraControlsKey != null,
                 "Viewfinder Controls key mapping was not registered");
 
-        return openViewfinderControlsKey.isUnbound() ? Minecraft.getInstance().options.keyShift : openViewfinderControlsKey;
+        return openCameraControlsKey.isUnbound() ? Minecraft.getInstance().options.keyShift : openCameraControlsKey;
     }
 }
