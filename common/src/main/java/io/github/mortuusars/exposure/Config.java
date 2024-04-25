@@ -119,6 +119,7 @@ public class Config {
         // UI
         public static final ForgeConfigSpec.BooleanValue RECIPE_TOOLTIPS_WITHOUT_JEI;
         public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP;
+        public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP;
         public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_FILM_BAR_ON_ITEM;
         public static final ForgeConfigSpec.BooleanValue PHOTOGRAPH_SHOW_PHOTOGRAPHER_IN_TOOLTIP;
         public static final ForgeConfigSpec.BooleanValue PHOTOGRAPH_IN_HAND_HIDE_CROSSHAIR;
@@ -154,6 +155,11 @@ public class Config {
                 CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP = builder
                         .comment("'Use while sneaking to open' message will be shown in Camera item tooltip.")
                         .define("CameraSneakOpenTooltip", true);
+
+                CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP = builder
+                        .comment("Film Roll Frames will be shown in the camera tooltip.",
+                                "Default: true")
+                        .define("CameraFilmFramesTooltip", true);
 
                 CAMERA_SHOW_FILM_BAR_ON_ITEM = builder
                         .comment("Film Roll fullness bar will be shown on the Camera item. Same as it does on Film Roll item.",

@@ -81,6 +81,7 @@
   "item.exposure.camera": "Camera",
   "item.exposure.camera.camera_attachments.fail.shutter_open": "Cannot disassemble the camera while shutter is open.",
   "item.exposure.camera.sneak_to_open_tooltip": "Use while sneaking to configure",
+  "item.exposure.camera.tooltip.film_roll_frames": "§7Film: §f%s/%s",
   "item.exposure.chromatic_sheet": "Chromatic Sheet",
   "item.exposure.chromatic_sheet.use_tooltip": "Use to combine three channels into a Photograph",
   "item.exposure.color_film": "Color Film",

@@ -138,6 +138,16 @@ public class CameraItem extends Item {
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> components, @NotNull TooltipFlag isAdvanced) {
+        if (Config.Client.CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP.get()) {
+            getAttachment(stack, FILM_ATTACHMENT).ifPresent(f -> {
+                if (f.getItem() instanceof FilmRollItem filmRollItem) {
+                    int exposed = filmRollItem.getExposedFramesCount(f);
+                    int max = filmRollItem.getMaxFrameCount(f);
+                    components.add(Component.translatable("item.exposure.camera.tooltip.film_roll_frames", exposed, max));
+                }
+            });
+        }
+
         if (Config.Client.CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP.get()) {
             components.add(Component.translatable("item.exposure.camera.sneak_to_open_tooltip").withStyle(ChatFormatting.GRAY));
         }
@@ -269,8 +279,7 @@ public class CameraItem extends Item {
                     ticks--;
                     stack.getTag().putInt("ShutterTicks", ticks);
                 }
-            }
-            else {
+            } else {
                 closeShutter(player, stack);
             }
         }
@@ -620,7 +629,7 @@ public class CameraItem extends Item {
     }
 
     /**
-     * This method is called after we take a screenshot (or immediately if not capturing but should show effects). Otherwise, due to the delays (flash, etc.) - particles would be captured as well.
+     * This method is called after we take a screenshot (or immediately if not capturing but should show effects). Otherwise, due to the delays (flash, etc) - particles would be captured as well.
      */
     @SuppressWarnings("unused")
     public void spawnClientsideFlashEffects(@NotNull Player player, ItemStack cameraStack) {
