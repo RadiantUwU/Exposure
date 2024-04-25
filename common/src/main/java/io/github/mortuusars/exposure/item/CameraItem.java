@@ -138,6 +138,16 @@ public class CameraItem extends Item {
 
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> components, @NotNull TooltipFlag isAdvanced) {
+        if (Config.Client.CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP.get()) {
+            getAttachment(stack, FILM_ATTACHMENT).ifPresent(f -> {
+                if (f.getItem() instanceof FilmRollItem filmRollItem) {
+                    int exposed = filmRollItem.getExposedFramesCount(f);
+                    int max = filmRollItem.getMaxFrameCount(f);
+                    components.add(Component.translatable("item.exposure.camera.tooltip.film_roll_frames", exposed, max));
+                }
+            });
+        }
+
         if (Config.Client.CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP.get()) {
             components.add(Component.translatable("item.exposure.camera.sneak_to_open_tooltip").withStyle(ChatFormatting.GRAY));
         }
@@ -178,7 +188,7 @@ public class CameraItem extends Item {
 
     public void setSelfieModeWithEffects(Player player, ItemStack stack, boolean selfie) {
         setSelfieMode(stack, selfie);
-        player.level().playSound(player, player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(),  SoundSource.PLAYERS, 1f, 1.5f);
+        player.level().playSound(player, player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 1f, 1.5f);
     }
 
     public boolean isShutterOpen(ItemStack stack) {
@@ -269,8 +279,7 @@ public class CameraItem extends Item {
                     ticks--;
                     stack.getTag().putInt("ShutterTicks", ticks);
                 }
-            }
-            else {
+            } else {
                 closeShutter(player, stack);
             }
         }
@@ -500,7 +509,7 @@ public class CameraItem extends Item {
 
         if (player.getBlockY() < surfaceHeight && skyLight < 4)
             tag.putBoolean(FrameData.IN_CAVE, true);
-        else if (!player.isUnderWater()){
+        else if (!player.isUnderWater()) {
             Biome.Precipitation precipitation = level.getBiome(player.blockPosition()).value().getPrecipitationAt(player.blockPosition());
             if (level.isThundering() && precipitation != Biome.Precipitation.NONE)
                 tag.putString(FrameData.WEATHER, precipitation == Biome.Precipitation.SNOW ? "Snowstorm" : "Thunder");

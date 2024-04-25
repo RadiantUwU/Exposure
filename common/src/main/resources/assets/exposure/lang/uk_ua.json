@@ -81,6 +81,7 @@
   "item.exposure.camera": "Фотокамера",
   "item.exposure.camera.camera_attachments.fail.shutter_open": "Неможливо розібрати фотокамеру, коли затвор відкритий.",
   "item.exposure.camera.sneak_to_open_tooltip": "Використайте крадучись, щоб відкрити меню налаштувань",
+  "item.exposure.camera.tooltip.film_roll_frames": "§7Плівка: §f%s/%s",
   "item.exposure.chromatic_sheet": "Барвистий лист",
   "item.exposure.chromatic_sheet.use_tooltip": "Використайте щоб об’єднати три канали у Фотографію",
   "item.exposure.color_film": "Кольорова плівка",
