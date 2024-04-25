@@ -112,6 +112,30 @@ public class CameraItem extends Item {
         return 1000;
     }
 
+    public boolean isBarVisible(@NotNull ItemStack stack) {
+        if (!Config.Client.CAMERA_SHOW_FILM_BAR_ON_ITEM.get())
+            return false;
+        return getAttachment(stack, FILM_ATTACHMENT)
+                .map(f -> f.getItem() instanceof FilmRollItem filmRollItem && filmRollItem.isBarVisible(f))
+                .orElse(false);
+    }
+
+    public int getBarWidth(@NotNull ItemStack stack) {
+        if (!Config.Client.CAMERA_SHOW_FILM_BAR_ON_ITEM.get())
+            return 0;
+        return getAttachment(stack, FILM_ATTACHMENT)
+                .map(f -> f.getItem() instanceof FilmRollItem filmRollItem ? filmRollItem.getBarWidth(f) : 0)
+                .orElse(0);
+    }
+
+    public int getBarColor(@NotNull ItemStack stack) {
+        if (!Config.Client.CAMERA_SHOW_FILM_BAR_ON_ITEM.get())
+            return 0;
+        return getAttachment(stack, FILM_ATTACHMENT)
+                .map(f -> f.getItem() instanceof FilmRollItem filmRollItem ? filmRollItem.getBarColor(f) : 0)
+                .orElse(0);
+    }
+
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> components, @NotNull TooltipFlag isAdvanced) {
         if (Config.Client.CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP.get()) {
