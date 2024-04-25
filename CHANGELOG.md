@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+- Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.   
+
 - Fixed custom Lenses not syncing to the player when they join a server.  
 
 ---

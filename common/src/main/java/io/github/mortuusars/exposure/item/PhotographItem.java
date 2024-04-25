@@ -155,8 +155,8 @@ public class PhotographItem extends Item {
 
             stackedPhotographsItem.addPhotographOnTop(stackedPhotographsStack, stack);
             stackedPhotographsItem.addPhotographOnTop(stackedPhotographsStack, other);
-            slot.set(ItemStack.EMPTY);
-            access.set(stackedPhotographsStack);
+            slot.set(stackedPhotographsStack);
+            access.set(ItemStack.EMPTY);
 
             StackedPhotographsItem.playAddSoundClientside(player);
 
