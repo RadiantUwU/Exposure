@@ -43,6 +43,9 @@ dependencies {
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_version}"
 
+    modCompileOnlyApi("curse.maven:jade-324717:${fabric_jade_id}")
+    modRuntimeOnly("curse.maven:jade-324717:${fabric_jade_id}") { transitive = false }
+
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
 //    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
