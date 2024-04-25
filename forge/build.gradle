@@ -68,6 +68,9 @@ dependencies {
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}") { transitive = false }
 
+    modCompileOnlyApi("curse.maven:jade-324717:${forge_jade_id}")
+    modRuntimeOnly("curse.maven:jade-324717:${forge_jade_id}") { transitive = false }
+
     modCompileOnly("com.simibubi.create:create-${create_forge_version}") { transitive = false }
     modCompileOnly("com.jozufozu.flywheel:flywheel-forge-${flywheel_forge_version}")
     modCompileOnly("com.tterrag.registrate:Registrate:${registrate_forge_version}")
