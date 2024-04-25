@@ -5,8 +5,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class Lightroom {
     public enum Process implements StringRepresentable {
-        REGULAR,
-        CHROMATIC;
+        REGULAR("regular"),
+        CHROMATIC("chromatic");
+
+        private final String name;
+
+        Process(String name) {
+            this.name = name;
+        }
 
         public static Process fromStringOrDefault(String serializedName, Process defaultValue) {
             for (Process value : values()) {
@@ -18,7 +24,7 @@ public class Lightroom {
 
         @Override
         public @NotNull String getSerializedName() {
-            return name().toLowerCase();
+            return name;
         }
     }
 
