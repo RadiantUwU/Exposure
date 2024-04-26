@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.SelfieClient;
@@ -20,6 +21,12 @@ public class KeyboardHandler {
 
         if (player == null || !CameraInHand.isActive(player))
             return false;
+
+        if (!Config.Common.CAMERA_VIEWFINDER_ATTACK.get()
+                && Minecraft.getInstance().options.keyAttack.matches(key, scanCode)
+                && !(Minecraft.getInstance().screen instanceof ViewfinderControlsScreen)) {
+            return true; // Block attacks
+        }
 
         if (minecraft.options.keyTogglePerspective.matches(key, scanCode)) {
             if (action == InputConstants.PRESS)

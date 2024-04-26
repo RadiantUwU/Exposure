@@ -5,7 +5,8 @@
 - Middle mouse button can now be used to open Camera controls.
   - Allows opening controls without dismounting from a horse. Or jumping off a plane mid-flight. (Without rebinding sneak) 
   - This is independent of the main hotkey, and will work alongside it. Can be disabled in config.
-- Added Jade integration to Lightroom: it now shows printing progress arrow.  
+- Added Jade integration to Lightroom: it now shows printing progress arrow. 
+- Added config option to disable attacking while looking through Viewfinder.
 - Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.
 - Camera tooltip now shows exposed/available frames of the inserted Film Roll. 
 
