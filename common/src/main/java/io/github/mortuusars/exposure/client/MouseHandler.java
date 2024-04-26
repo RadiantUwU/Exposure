@@ -18,6 +18,9 @@ public class MouseHandler {
         if (Minecraft.getInstance().player != null && CameraInHand.isActive(Minecraft.getInstance().player)
                 && !(Minecraft.getInstance().screen instanceof ViewfinderControlsScreen)) {
 
+            if (!Config.Common.CAMERA_VIEWFINDER_ATTACK.get() && Minecraft.getInstance().options.keyAttack.matchesMouse(button))
+                return true; // Block attacks
+
             if (ExposureClient.getCameraControlsKey().matchesMouse(button)) {
                 ClientGUI.openViewfinderControlsScreen();
                 // Do not cancel the event to keep sneaking
