@@ -10,7 +10,10 @@
 - Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.
 - Camera tooltip now shows exposed/available frames of the inserted Film Roll. 
 
+
 - Fixed custom Lenses not syncing to the player when they join a server.  
+- Adjusted 'No Film' icon position with different GUI scales.
+- Adjusted Viewfinder 'catching-up' movement for different GUI scales. 
 
 ---
 

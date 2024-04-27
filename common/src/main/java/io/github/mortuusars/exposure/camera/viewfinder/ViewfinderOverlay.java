@@ -77,13 +77,18 @@ public class ViewfinderOverlay {
             xRot0 = xRot;
             yRot0 = yRot;
         }
-        float delta = Math.min(0.75f * minecraft.getDeltaFrameTime(), 0.75f);
+        float delta = Math.min(0.7f * minecraft.getDeltaFrameTime(), 0.8f);
         xRot0 = Mth.lerp(delta, xRot0, xRot);
         yRot0 = Mth.lerp(delta, yRot0, yRot);
         xRot = player.getXRot();
         yRot = player.getYRot();
-        float xDelay = xRot - xRot0;
-        float yDelay = yRot - yRot0;
+        float xDelay = (xRot - xRot0);
+        float yDelay = (yRot - yRot0);
+        // Adjust for gui scale:
+        xDelay *= width / (float)Minecraft.getInstance().getWindow().getWidth();
+        yDelay *= height / (float)Minecraft.getInstance().getWindow().getHeight();
+        xDelay *= 3.5f;
+        yDelay *= 3.5f;
 
         PoseStack poseStack = POSE_STACK;
         poseStack.pushPose();
@@ -135,9 +140,7 @@ public class ViewfinderOverlay {
             Optional<ItemAndStack<FilmRollItem>> film = camera.getItem().getFilm(camera.getStack());
             if (film.isEmpty() || !film.get().getItem().canAddFrame(film.get().getStack())) {
                 RenderSystem.setShaderTexture(0, Exposure.resource("textures/gui/viewfinder/icon/no_film.png"));
-                float cropFactor = Exposure.CROP_FACTOR;
-                float fromEdge = (opening.height - (opening.height / (cropFactor))) / 2f;
-                GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 12), (opening.y + opening.height - ((fromEdge / 2 + 10))),
+                GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 12), opening.y + opening.height - 19,
                         24, 19, 0, 0, 24, 19, 0);
             }
         }
