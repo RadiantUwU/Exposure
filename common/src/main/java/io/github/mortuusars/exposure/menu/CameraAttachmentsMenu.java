@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.menu;
 
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.AttachmentType;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.util.ItemAndStack;
@@ -66,12 +67,12 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         };
 
         for (int[] slot : slots) {
-            Optional<CameraItem.AttachmentType> attachment = camera.getItem()
+            Optional<AttachmentType> attachment = camera.getItem()
                     .getAttachmentTypeForSlot(camera.getStack(), slot[0]);
 
             if (attachment.isPresent()) {
                 addSlot(new FilteredSlot(container, slot[0], slot[1], slot[2], slot[3],
-                        this::onItemInSlotChanged, attachment.get().stackValidator()));
+                        this::onItemInSlotChanged, attachment.get().itemPredicate()));
                 attachmentSlots++;
             }
         }
@@ -114,32 +115,36 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         ItemStack oldStack = args.oldStack();
         ItemStack newStack = args.newStack();
 
-        if (slotId == CameraItem.FILM_ATTACHMENT.slot()) {
-            if (!newStack.isEmpty())
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE.get(), SoundSource.PLAYERS, 0.9f, 1f);
-            else
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.7f, 1f);
-        } else if (slotId == CameraItem.FLASH_ATTACHMENT.slot()) {
-            if (!newStack.isEmpty())
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.CAMERA_BUTTON_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
-        } else if (slotId == CameraItem.LENS_ATTACHMENT.slot()) {
-            if (!oldStack.is(newStack.getItem())) {
-                OnePerPlayerSounds.play(player, newStack.isEmpty() ?
-                        SoundEvents.SPYGLASS_STOP_USING : SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 0.9f, 1f);
-            }
-        } else if (slotId == CameraItem.FILTER_ATTACHMENT.slot()) {
-            if (!newStack.isEmpty() && !oldStack.is(newStack.getItem())) {
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILTER_PLACE.get(), SoundSource.PLAYERS, 0.8f,
-                        level.getRandom().nextFloat() * 0.2f + 0.9f);
-            }
-        }
+        camera.getItem().getAttachmentTypeForSlot(camera.getStack(), slotId).ifPresent(type -> {
+            type.sound().playOnePerPlayer(player, newStack.isEmpty());
+        });
+
+//        if (slotId == CameraItem.FILM_ATTACHMENT.slot()) {
+//            if (!newStack.isEmpty())
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS, 0.9f, 1f);
+//            else
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.7f, 1f);
+//        } else if (slotId == CameraItem.FLASH_ATTACHMENT.slot()) {
+//            if (!newStack.isEmpty())
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.CAMERA_BUTTON_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
+//        } else if (slotId == CameraItem.LENS_ATTACHMENT.slot()) {
+//            if (!oldStack.is(newStack.getItem())) {
+//                OnePerPlayerSounds.play(player, newStack.isEmpty() ?
+//                        SoundEvents.SPYGLASS_STOP_USING : SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 0.9f, 1f);
+//            }
+//        } else if (slotId == CameraItem.FILTER_ATTACHMENT.slot()) {
+//            if (!newStack.isEmpty() && !oldStack.is(newStack.getItem())) {
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILTER_PLACE.get(), SoundSource.PLAYERS, 0.8f,
+//                        level.getRandom().nextFloat() * 0.2f + 0.9f);
+//            }
+//        }
     }
 
     private static NonNullList<ItemStack> getCameraAttachments(ItemAndStack<CameraItem> camera) {
         NonNullList<ItemStack> items = NonNullList.create();
 
-        List<CameraItem.AttachmentType> attachmentTypes = camera.getItem().getAttachmentTypes(camera.getStack());
-        for (CameraItem.AttachmentType attachmentType : attachmentTypes) {
+        List<AttachmentType> attachmentTypes = camera.getItem().getAttachmentTypes(camera.getStack());
+        for (AttachmentType attachmentType : attachmentTypes) {
             items.add(camera.getItem().getAttachment(camera.getStack(), attachmentType).orElse(ItemStack.EMPTY));
         }
 

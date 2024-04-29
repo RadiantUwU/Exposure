@@ -85,10 +85,9 @@ public class ChromaticSheetItem extends Item {
             tooltipComponents.add(component);
 
             if (exposures.size() >= 3) {
-                component.append(Component.translatable("item.exposure.chromatic_sheet.use_tooltip").withStyle(ChatFormatting.GRAY));
+                tooltipComponents.add(Component.translatable("item.exposure.chromatic_sheet.use_tooltip").withStyle(ChatFormatting.GRAY));
             }
         }
-
     }
 
     @Override
