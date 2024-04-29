@@ -17,7 +17,6 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.IElement;
 import snownee.jade.api.ui.IElementHelper;
 import snownee.jade.api.view.IServerExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
@@ -63,11 +62,6 @@ public enum LightroomComponentProvider implements IBlockComponentProvider, IServ
             if (!stack.isEmpty())
                 tooltip.append(helper.item(stack));
         }
-
-//        tooltip.append(helper.item(ItemStack.of(tag.getCompound("Cyan"))));
-//        tooltip.append(helper.item(ItemStack.of(tag.getCompound("Yellow"))));
-//        tooltip.append(helper.item(ItemStack.of(tag.getCompound("Magenta"))));
-//        tooltip.append(helper.item(ItemStack.of(tag.getCompound("Black"))));
 
         tooltip.append(new ProgressArrowElement(tag.getFloat("Progress")));
 

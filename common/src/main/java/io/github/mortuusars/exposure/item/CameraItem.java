@@ -5,6 +5,8 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.block.FlashBlock;
+import io.github.mortuusars.exposure.camera.AttachmentSound;
+import io.github.mortuusars.exposure.camera.AttachmentType;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.component.*;
@@ -16,6 +18,7 @@ import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.server.CameraInHandAddFrameC2SP;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
+import io.github.mortuusars.exposure.sound.OnePerPlayerSoundsClient;
 import io.github.mortuusars.exposure.util.CameraInHand;
 import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.ItemAndStack;
@@ -66,23 +69,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class CameraItem extends Item {
-    public record AttachmentType(String id, int slot, Predicate<ItemStack> stackValidator) {
-        @Override
-        public String toString() {
-            return "AttachmentType{" +
-                    "id='" + id + '\'' +
-                    ", slot=" + slot +
-                    '}';
-        }
-    }
+    public static final AttachmentType FILM_ATTACHMENT = new AttachmentType("Film", 0,
+            stack -> stack.getItem() instanceof FilmRollItem, AttachmentSound.FILM);
+    public static final AttachmentType FLASH_ATTACHMENT = new AttachmentType("Flash", 1,
+            stack -> stack.is(Exposure.Tags.Items.FLASHES), AttachmentSound.FLASH);
+    public static final AttachmentType LENS_ATTACHMENT = new AttachmentType("Lens", 2,
+            stack -> stack.is(Exposure.Tags.Items.LENSES), AttachmentSound.LENS);
+    public static final AttachmentType FILTER_ATTACHMENT = new AttachmentType("Filter", 3,
+            stack -> stack.is(Exposure.Tags.Items.FILTERS), AttachmentSound.FILTER);
 
-    public static final AttachmentType FILM_ATTACHMENT = new AttachmentType("Film", 0, stack -> stack.getItem() instanceof FilmRollItem);
-    public static final AttachmentType FLASH_ATTACHMENT = new AttachmentType("Flash", 1, stack -> stack.is(Exposure.Tags.Items.FLASHES));
-    public static final AttachmentType LENS_ATTACHMENT = new AttachmentType("Lens", 2, stack -> stack.is(Exposure.Tags.Items.LENSES));
-    public static final AttachmentType FILTER_ATTACHMENT = new AttachmentType("Filter", 3, stack -> stack.is(Exposure.Tags.Items.FILTERS));
     public static final List<AttachmentType> ATTACHMENTS = List.of(
             FILM_ATTACHMENT,
             FLASH_ATTACHMENT,
@@ -144,41 +141,62 @@ public class CameraItem extends Item {
         if (!Config.Common.CAMERA_GUI_HOTSWAP_ALLOWED.get() || action != ClickAction.SECONDARY)
             return false;
 
-        if (otherStack.isEmpty()) {
-            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
-            if (filmAttachment.isEmpty())
-                return false;
+        if (otherStack.isEmpty())
+            return false;
 
-            setAttachment(stack, FILM_ATTACHMENT, ItemStack.EMPTY);
-            ItemStack film = filmAttachment.get();
-            access.set(film);
+        for (AttachmentType attachmentType : getAttachmentTypes(stack)) {
+            if (attachmentType.matches(otherStack)) {
+                Optional<ItemStack> current = getAttachment(stack, attachmentType);
 
-            if (player.level().isClientSide)
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.6f, 1f);
+                if (otherStack.getCount() > 1 && current.isPresent()) {
+                    if (player.level().isClientSide())
+                        OnePerPlayerSoundsClient.play(player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
+                    return true; // Cannot swap when holding more than one item
+                }
 
-            return true;
+                setAttachment(stack, attachmentType, otherStack.split(1));
+                access.set(current.orElse(otherStack));
+                attachmentType.sound().playOnePerPlayer(player, false);
+                return true;
+            }
         }
 
-        if (FILM_ATTACHMENT.stackValidator().test(otherStack)) {
-            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
 
-            if (otherStack.getCount() > 1) {
-                if (filmAttachment.isPresent())
-                    return false; // Can't swap when holding stack of films
-
-                setAttachment(stack, FILM_ATTACHMENT, otherStack.split(1));
-                access.set(otherStack);
-            }
-            else {
-                setAttachment(stack, FILM_ATTACHMENT, otherStack);
-                access.set(filmAttachment.orElse(ItemStack.EMPTY));
-            }
-
-            if (player.level().isClientSide)
-                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE.get(), SoundSource.PLAYERS, 0.9f, 1f);
-
-            return true;
-        }
+//        if (otherStack.isEmpty()) {
+//            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
+//            if (filmAttachment.isEmpty())
+//                return false;
+//
+//            setAttachment(stack, FILM_ATTACHMENT, ItemStack.EMPTY);
+//            ItemStack film = filmAttachment.get();
+//            access.set(film);
+//
+//            if (player.level().isClientSide)
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.6f, 1f);
+//
+//            return true;
+//        }
+//
+//        if (FILM_ATTACHMENT.itemPredicate().test(otherStack)) {
+//            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
+//
+//            if (otherStack.getCount() > 1) {
+//                if (filmAttachment.isPresent())
+//                    return false; // Can't swap when holding stack of films
+//
+//                setAttachment(stack, FILM_ATTACHMENT, otherStack.split(1));
+//                access.set(otherStack);
+//            }
+//            else {
+//                setAttachment(stack, FILM_ATTACHMENT, otherStack);
+//                access.set(filmAttachment.orElse(ItemStack.EMPTY));
+//            }
+//
+//            if (player.level().isClientSide)
+//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS, 0.9f, 1f);
+//
+//            return true;
+//        }
 
         return false;
     }
@@ -294,7 +312,7 @@ public class CameraItem extends Item {
                 if (lastFrame)
                     OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE_LAST.get(), SoundSource.PLAYERS, 1f, 1f);
                 else {
-                    OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCE.get(), SoundSource.PLAYERS,
+                    OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS,
                             1f, 0.9f + 0.1f * fullness);
                 }
             }
@@ -708,7 +726,7 @@ public class CameraItem extends Item {
     public Optional<AttachmentType> getAttachmentTypeForSlot(ItemStack cameraStack, int slot) {
         List<AttachmentType> attachmentTypes = getAttachmentTypes(cameraStack);
         for (AttachmentType attachmentType : attachmentTypes) {
-            if (attachmentType.slot == slot)
+            if (attachmentType.slot() == slot)
                 return Optional.of(attachmentType);
         }
         return Optional.empty();
@@ -723,8 +741,8 @@ public class CameraItem extends Item {
     }
 
     public Optional<ItemStack> getAttachment(ItemStack cameraStack, AttachmentType attachmentType) {
-        if (cameraStack.getTag() != null && cameraStack.getTag().contains(attachmentType.id, Tag.TAG_COMPOUND)) {
-            ItemStack itemStack = ItemStack.of(cameraStack.getTag().getCompound(attachmentType.id));
+        if (cameraStack.getTag() != null && cameraStack.getTag().contains(attachmentType.id(), Tag.TAG_COMPOUND)) {
+            ItemStack itemStack = ItemStack.of(cameraStack.getTag().getCompound(attachmentType.id()));
             if (!itemStack.isEmpty())
                 return Optional.of(itemStack);
         }
@@ -734,12 +752,12 @@ public class CameraItem extends Item {
     public void setAttachment(ItemStack cameraStack, AttachmentType attachmentType, ItemStack attachmentStack) {
         if (attachmentStack.isEmpty()) {
             if (cameraStack.getTag() != null)
-                cameraStack.getOrCreateTag().remove(attachmentType.id);
+                cameraStack.getOrCreateTag().remove(attachmentType.id());
         } else {
-            Preconditions.checkState(attachmentType.stackValidator.test(attachmentStack),
+            Preconditions.checkState(attachmentType.matches(attachmentStack),
                     attachmentStack + " is not valid for the '" + attachmentType + "' attachment type.");
 
-            cameraStack.getOrCreateTag().put(attachmentType.id, attachmentStack.save(new CompoundTag()));
+            cameraStack.getOrCreateTag().put(attachmentType.id(), attachmentStack.save(new CompoundTag()));
         }
 
         if (attachmentType == LENS_ATTACHMENT)
