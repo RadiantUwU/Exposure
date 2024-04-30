@@ -3,12 +3,9 @@ package io.github.mortuusars.exposure.menu;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.AttachmentType;
 import io.github.mortuusars.exposure.item.CameraItem;
-import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,24 +13,21 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Optional;
 
 public class CameraAttachmentsMenu extends AbstractContainerMenu {
-    private final int attachmentSlots;
+    private final int attachmentSlotsCount;
     private final Player player;
-    private final Level level;
     private final ItemAndStack<CameraItem> camera;
 
-    private boolean contentsInitialized;
+    private boolean clientContentsInitialized;
 
     public CameraAttachmentsMenu(int containerId, Inventory playerInventory, ItemStack cameraStack) {
         super(Exposure.MenuTypes.CAMERA.get(), containerId);
         player = playerInventory.player;
-        level = playerInventory.player.getLevel();
         camera = new ItemAndStack<>(cameraStack);
 
         SimpleContainer container = new SimpleContainer(getCameraAttachments(camera).toArray(ItemStack[]::new)) {
@@ -43,16 +37,19 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
             }
         };
 
-        this.attachmentSlots = addSlotsForAttachments(container);
+        this.attachmentSlotsCount = addSlotsForAttachments(container);
 
         addPlayerSlots(playerInventory);
     }
 
+    /**
+     * Only called client-side.
+     */
     @Override
     public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
-        contentsInitialized = false;
+        clientContentsInitialized = false;
         super.initializeContents(stateId, items, carried);
-        contentsInitialized = true;
+        clientContentsInitialized = true;
     }
 
     protected int addSlotsForAttachments(Container container) {
@@ -101,43 +98,15 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
     }
 
     protected void onItemInSlotChanged(FilteredSlot.SlotChangedArgs args) {
-        if (!level.isClientSide) {
-            camera.getItem().getAttachmentTypeForSlot(camera.getStack(), args.slot().getSlotId())
-                    .ifPresent(attachmentType -> camera.getItem()
-                            .setAttachment(camera.getStack(), attachmentType, args.newStack()));
-            return;
-        }
-
-        if (!contentsInitialized)
-            return;
-
         int slotId = args.slot().getSlotId();
-        ItemStack oldStack = args.oldStack();
         ItemStack newStack = args.newStack();
 
         camera.getItem().getAttachmentTypeForSlot(camera.getStack(), slotId).ifPresent(type -> {
-            type.sound().playOnePerPlayer(player, newStack.isEmpty());
-        });
+            camera.getItem().setAttachment(camera.getStack(), type, newStack);
 
-//        if (slotId == CameraItem.FILM_ATTACHMENT.slot()) {
-//            if (!newStack.isEmpty())
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS, 0.9f, 1f);
-//            else
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.7f, 1f);
-//        } else if (slotId == CameraItem.FLASH_ATTACHMENT.slot()) {
-//            if (!newStack.isEmpty())
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.CAMERA_BUTTON_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
-//        } else if (slotId == CameraItem.LENS_ATTACHMENT.slot()) {
-//            if (!oldStack.is(newStack.getItem())) {
-//                OnePerPlayerSounds.play(player, newStack.isEmpty() ?
-//                        SoundEvents.SPYGLASS_STOP_USING : SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 0.9f, 1f);
-//            }
-//        } else if (slotId == CameraItem.FILTER_ATTACHMENT.slot()) {
-//            if (!newStack.isEmpty() && !oldStack.is(newStack.getItem())) {
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILTER_PLACE.get(), SoundSource.PLAYERS, 0.8f,
-//                        level.getRandom().nextFloat() * 0.2f + 0.9f);
-//            }
-//        }
+            if (player.getLevel().isClientSide() && clientContentsInitialized)
+                type.sound().playOnePerPlayer(player, newStack.isEmpty());
+        });
     }
 
     private static NonNullList<ItemStack> getCameraAttachments(ItemAndStack<CameraItem> camera) {
@@ -158,11 +127,11 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         if (clickedSlot.hasItem()) {
             ItemStack slotStack = clickedSlot.getItem();
             itemstack = slotStack.copy();
-            if (slotIndex < attachmentSlots) {
-                if (!this.moveItemStackTo(slotStack, attachmentSlots, this.slots.size(), true))
+            if (slotIndex < attachmentSlotsCount) {
+                if (!this.moveItemStackTo(slotStack, attachmentSlotsCount, this.slots.size(), true))
                     return ItemStack.EMPTY;
             } else {
-                if (!this.moveItemStackTo(slotStack, 0, attachmentSlots, false))
+                if (!this.moveItemStackTo(slotStack, 0, attachmentSlotsCount, false))
                     return ItemStack.EMPTY;
             }
 
