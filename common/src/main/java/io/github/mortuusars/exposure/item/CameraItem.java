@@ -405,7 +405,7 @@ public class CameraItem extends Item {
             player.getCooldowns().addCooldown(this, 4);
 
             if (player.level().isClientSide) {
-                // Release use key after activating. Otherwise, right click will be still held and camera will take a shot
+                // Release use key after activating. Otherwise, if right click is still held - camera will take a shot
                 CameraItemClientExtensions.releaseUseButton();
             }
 
