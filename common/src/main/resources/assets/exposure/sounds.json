@@ -9,6 +9,25 @@
     ],
     "subtitle": "subtitle.exposure.lightroom.print"
   },
+  "item.camera.generic_click": {
+    "sounds": [
+      {
+        "name": "exposure:item/camera/button_click",
+        "volume": 0.8,
+        "pitch": 0.95
+      },
+      {
+        "name": "exposure:item/camera/button_click",
+        "volume": 0.8,
+        "pitch": 1.05
+      },
+      {
+        "name": "exposure:item/camera/button_click",
+        "volume": 0.8,
+        "pitch": 1.2
+      }
+    ]
+  },
   "item.camera.button_click": {
     "sounds": [
       "exposure:item/camera/button_click"
@@ -34,9 +53,79 @@
     ],
     "subtitle": "subtitle.exposure.camera.film_advance_last"
   },
-  "item.camera.filter_place": {
+  "item.camera.filter_insert": {
     "sounds": [
-      "exposure:item/camera/filter_place"
+      {
+        "name": "exposure:item/camera/filter_place",
+        "volume": 0.8,
+        "pitch": 1
+      },
+      {
+        "name": "exposure:item/camera/filter_place",
+        "volume": 0.8,
+        "pitch": 1.05
+      },
+      {
+        "name": "exposure:item/camera/filter_place",
+        "volume": 0.8,
+        "pitch": 1.15
+      }
+    ]
+  },
+  "item.camera.filter_remove": {
+    "sounds": [
+      {
+        "name": "exposure:item/camera/filter_place",
+        "volume": 0.35,
+        "pitch": 0.8
+      },
+      {
+        "name": "exposure:item/camera/filter_place",
+        "volume": 0.35,
+        "pitch": 0.75
+      }
+    ]
+  },
+  "item.camera.lens_insert": {
+    "sounds": [
+      {
+        "name": "minecraft:item/spyglass/use",
+        "volume": 0.65,
+        "pitch": 1.15
+      },
+      {
+        "name": "minecraft:item/spyglass/use",
+        "volume": 0.65,
+        "pitch": 1.33
+      },
+      {
+        "name": "minecraft:item/spyglass/use",
+        "volume": 0.65,
+        "pitch": 1.4
+      },
+      {
+        "name": "minecraft:item/spyglass/use",
+        "volume": 0.65,
+        "pitch": 1.55
+      }
+    ]
+  },
+  "item.camera.lens_remove": {
+    "sounds": [
+      {
+        "name": "minecraft:item/spyglass/stop",
+        "volume": 0.5
+      },
+      {
+        "name": "minecraft:item/spyglass/stop",
+        "volume": 0.5,
+        "pitch": 0.9
+      },
+      {
+        "name": "minecraft:item/spyglass/stop",
+        "volume": 0.5,
+        "pitch": 1.1
+      }
     ]
   },
   "item.camera.flash": {

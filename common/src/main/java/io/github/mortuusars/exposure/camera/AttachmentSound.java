@@ -3,7 +3,6 @@ package io.github.mortuusars.exposure.camera;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
@@ -14,11 +13,12 @@ public class AttachmentSound {
     public static final AttachmentSound NONE = new AttachmentSound(null, 0f, 0f, null, 0f, 0f);
     public static final AttachmentSound FILM = new AttachmentSound(Exposure.SoundEvents.FILM_ADVANCING, 0.9f, 1f,
             Exposure.SoundEvents.FILM_REMOVED, 0.7f, 1f);
-    public static final AttachmentSound FLASH = new AttachmentSound(Exposure.SoundEvents.CAMERA_BUTTON_CLICK, 0.8f, 1.1f,
-            Exposure.SoundEvents.CAMERA_BUTTON_CLICK, 0.6f, 0.7f);
-    public static final AttachmentSound LENS = new AttachmentSound(() -> SoundEvents.SPYGLASS_USE, 1f, 1f,
-            () -> SoundEvents.SPYGLASS_STOP_USING, 0.9f, 1f);
-    public static final AttachmentSound FILTER = new AttachmentSound(Exposure.SoundEvents.FILTER_PLACE, 0.8f, 1f);
+    public static final AttachmentSound FLASH = new AttachmentSound(Exposure.SoundEvents.CAMERA_GENERIC_CLICK, 0.6f, 1.15f,
+            Exposure.SoundEvents.CAMERA_GENERIC_CLICK, 0.35f, 0.95f);
+    public static final AttachmentSound LENS = new AttachmentSound(Exposure.SoundEvents.LENS_INSERT, 1f, 1f,
+            Exposure.SoundEvents.LENS_REMOVE, 1f, 1f);
+    public static final AttachmentSound FILTER = new AttachmentSound(Exposure.SoundEvents.FILTER_INSERT, 0.8f, 1f,
+            Exposure.SoundEvents.FILTER_REMOVE, 0.5f, 1f);
 
     @Nullable
     private final Supplier<SoundEvent> inserted;

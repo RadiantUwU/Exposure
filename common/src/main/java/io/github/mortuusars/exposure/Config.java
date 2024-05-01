@@ -22,7 +22,8 @@ public class Config {
         // Camera
         public static final ForgeConfigSpec.ConfigValue<String> CAMERA_DEFAULT_FOCAL_RANGE;
         public static final ForgeConfigSpec.BooleanValue CAMERA_VIEWFINDER_ATTACK;
-        public static final ForgeConfigSpec.BooleanValue CAMERA_GUI_HOTSWAP_ALLOWED;
+        public static final ForgeConfigSpec.BooleanValue CAMERA_GUI_RIGHT_CLICK_ATTACHMENTS_SCREEN;
+        public static final ForgeConfigSpec.BooleanValue CAMERA_GUI_RIGHT_CLICK_HOTSWAP;
 
         // Lightroom
         public static final ForgeConfigSpec.IntValue LIGHTROOM_BW_PRINT_TIME;
@@ -56,10 +57,15 @@ public class Config {
                                 "Default: true")
                         .define("ViewfinderAttacking", true);
 
-                CAMERA_GUI_HOTSWAP_ALLOWED = builder
-                        .comment("Item can be clicked on the Camera item in GUI to quickly insert it (same as Bundles). And extract.",
+                CAMERA_GUI_RIGHT_CLICK_ATTACHMENTS_SCREEN = builder
+                        .comment("Right-clicking Camera in GUI will open Camera attachments screen. Only in player inventory.",
                                 "Default: true")
-                        .define("GuiHotswap", true);
+                        .define("RightClickAttachmentsScreen", true);
+
+                CAMERA_GUI_RIGHT_CLICK_HOTSWAP = builder
+                        .comment("Right-clicking Camera in GUI with attachment item will insert/swap it.",
+                                "Default: true")
+                        .define("RightClickHotswap", true);
             }
             builder.pop();
 
@@ -130,7 +136,7 @@ public class Config {
 
         // UI
         public static final ForgeConfigSpec.BooleanValue RECIPE_TOOLTIPS_WITHOUT_JEI;
-        public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP;
+        public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_TOOLTIP_DETAILS;
         public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP;
         public static final ForgeConfigSpec.BooleanValue CAMERA_SHOW_FILM_BAR_ON_ITEM;
         public static final ForgeConfigSpec.BooleanValue PHOTOGRAPH_SHOW_PHOTOGRAPHER_IN_TOOLTIP;
@@ -164,9 +170,9 @@ public class Config {
                                 "Only when JEI is not installed. (Only JEI shows these recipes, not REI or EMI)")
                         .define("RecipeTooltipsWithoutJei", true);
 
-                CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP = builder
-                        .comment("'Use while sneaking to open' message will be shown in Camera item tooltip.")
-                        .define("CameraSneakOpenTooltip", true);
+                CAMERA_SHOW_TOOLTIP_DETAILS = builder
+                        .comment("Details about Camera configuring will be shown in Camera item tooltip.")
+                        .define("CameraDetailsInTooltip", true);
 
                 CAMERA_SHOW_FILM_FRAMES_IN_TOOLTIP = builder
                         .comment("Film Roll Frames will be shown in the camera tooltip.",
