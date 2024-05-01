@@ -199,11 +199,15 @@ public class Exposure {
         public static final Supplier<SoundEvent> FILM_ADVANCING = register("item", "camera.film_advance");
         public static final Supplier<SoundEvent> FILM_ADVANCE_LAST = register("item", "camera.film_advance_last");
         public static final Supplier<SoundEvent> FILM_REMOVED = register("item", "camera.film_removed");
+        public static final Supplier<SoundEvent> CAMERA_GENERIC_CLICK = register("item", "camera.generic_click");
         public static final Supplier<SoundEvent> CAMERA_BUTTON_CLICK = register("item", "camera.button_click");
         public static final Supplier<SoundEvent> CAMERA_RELEASE_BUTTON_CLICK = register("item", "camera.release_button_click");
         public static final Supplier<SoundEvent> CAMERA_DIAL_CLICK = register("item", "camera.dial_click");
         public static final Supplier<SoundEvent> CAMERA_LENS_RING_CLICK = register("item", "camera.lens_ring_click");
-        public static final Supplier<SoundEvent> FILTER_PLACE = register("item", "camera.filter_place");
+        public static final Supplier<SoundEvent> LENS_INSERT = register("item", "camera.lens_insert");
+        public static final Supplier<SoundEvent> LENS_REMOVE = register("item", "camera.lens_remove");
+        public static final Supplier<SoundEvent> FILTER_INSERT = register("item", "camera.filter_insert");
+        public static final Supplier<SoundEvent> FILTER_REMOVE = register("item", "camera.filter_remove");
         public static final Supplier<SoundEvent> FLASH = register("item", "camera.flash");
 
         public static final Supplier<SoundEvent> PHOTOGRAPH_PLACE = register("item", "photograph.place");

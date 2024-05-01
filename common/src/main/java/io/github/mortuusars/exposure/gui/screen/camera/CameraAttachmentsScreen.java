@@ -5,13 +5,16 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
+import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -30,6 +33,13 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
     }
 
     @Override
+    public void added() {
+        if (Minecraft.getInstance().player != null)
+            OnePerPlayerSounds.play(Minecraft.getInstance().player, Exposure.SoundEvents.CAMERA_GENERIC_CLICK.get(),
+                    SoundSource.PLAYERS, 0.9f, 0.9f);
+    }
+
+    @Override
     protected void init() {
         this.imageHeight = 185;
         inventoryLabelY = this.imageHeight - 94;
@@ -40,6 +50,20 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        if (Minecraft.getInstance().player != null) {
+            for (Slot slot : getMenu().slots) {
+                if (!slot.mayPickup(Minecraft.getInstance().player)) {
+                    guiGraphics.renderItem(slot.getItem(), leftPos + slot.x, topPos + slot.y);
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().translate(0, 0, 350);
+                    guiGraphics.fill(leftPos + slot.x - 1, topPos + slot.y - 1,
+                            leftPos + slot.x + 17, topPos + slot.y + 17, 0x66c8c8c8);
+                    guiGraphics.pose().popPose();
+                }
+            }
+        }
+
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -90,7 +114,7 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
             RenderSystem.setShaderColor(r, g, b, 1f);
 
             if (!filterSlot.getItem().is(Items.GLASS_PANE))
-                guiGraphics.blit(TEXTURE, leftPos + x, topPos + y, 55, 185, 15, 23); // Opaque part
+                guiGraphics.blit(TEXTURE, leftPos + x, topPos + y, 55, 185, 15, 23); // Glass part
 
             guiGraphics.blit(TEXTURE, leftPos + x, topPos + y, 70, 185, 15, 23); // Glares
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -99,6 +123,11 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
         }
 
         RenderSystem.disableBlend();
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        super.renderTooltip(guiGraphics, x, y);
     }
 
     @Override

@@ -35,6 +35,11 @@ public class PacketsImpl {
                 .add();
 
         // SERVER
+        CHANNEL.messageBuilder(OpenCameraAttachmentsPacketC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(OpenCameraAttachmentsPacketC2SP::toBuffer)
+                .decoder(OpenCameraAttachmentsPacketC2SP::fromBuffer)
+                .consumerMainThread(PacketsImpl::handlePacket)
+                .add();
         CHANNEL.messageBuilder(DeactivateCamerasInHandC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
                 .encoder(DeactivateCamerasInHandC2SP::toBuffer)
                 .decoder(DeactivateCamerasInHandC2SP::fromBuffer)

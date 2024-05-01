@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.menu;
 
+import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.AttachmentType;
 import io.github.mortuusars.exposure.item.CameraItem;
@@ -20,15 +21,22 @@ import java.util.Optional;
 
 public class CameraAttachmentsMenu extends AbstractContainerMenu {
     private final int attachmentSlotsCount;
+    private final int cameraSlotIndex;
     private final Player player;
     private final ItemAndStack<CameraItem> camera;
 
     private boolean clientContentsInitialized;
 
-    public CameraAttachmentsMenu(int containerId, Inventory playerInventory, ItemStack cameraStack) {
+    public CameraAttachmentsMenu(int containerId, Inventory playerInventory, int cameraSlotIndex) {
         super(Exposure.MenuTypes.CAMERA.get(), containerId);
-        player = playerInventory.player;
-        camera = new ItemAndStack<>(cameraStack);
+
+        ItemStack cameraStack = playerInventory.items.get(cameraSlotIndex);
+        Preconditions.checkState(cameraStack.getItem() instanceof CameraItem,
+                "Failed to open Camera Attachments. " + cameraStack + " is not a CameraItem.");
+
+        this.player = playerInventory.player;
+        this.cameraSlotIndex = cameraSlotIndex;
+        this.camera = new ItemAndStack<>(cameraStack);
 
         SimpleContainer container = new SimpleContainer(getCameraAttachments(camera).toArray(ItemStack[]::new)) {
             @Override
@@ -37,9 +45,12 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
             }
         };
 
-        this.attachmentSlotsCount = addSlotsForAttachments(container);
-
+        this.attachmentSlotsCount = addAttachmentSlots(container);
         addPlayerSlots(playerInventory);
+    }
+
+    public ItemAndStack<CameraItem> getCamera() {
+        return camera;
     }
 
     /**
@@ -52,7 +63,7 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         clientContentsInitialized = true;
     }
 
-    protected int addSlotsForAttachments(Container container) {
+    protected int addAttachmentSlots(Container container) {
         int attachmentSlots = 0;
 
         int[][] slots = new int[][]{
@@ -81,7 +92,22 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
         //Player Inventory
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                addSlot(new Slot(playerInventory, (column + row * 9) + 9, column * 18 + 8, 103 + row * 18));
+                addSlot(new Slot(playerInventory, (column + row * 9) + 9, column * 18 + 8, 103 + row * 18){
+                    @Override
+                    public boolean mayPickup(@NotNull Player player) {
+                        return super.mayPickup(player) && getContainerSlot() != cameraSlotIndex;
+                    }
+
+                    @Override
+                    public boolean isActive() {
+                        return getContainerSlot() != cameraSlotIndex;
+                    }
+
+                    @Override
+                    public boolean isHighlightable() {
+                        return getContainerSlot() != cameraSlotIndex;
+                    }
+                });
             }
         }
 
@@ -91,7 +117,17 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
             addSlot(new Slot(playerInventory, finalSlot, slot * 18 + 8, 161) {
                 @Override
                 public boolean mayPickup(@NotNull Player player) {
-                    return super.mayPickup(player) && player.getInventory().selected != finalSlot;
+                    return super.mayPickup(player) && getContainerSlot() != cameraSlotIndex;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return getContainerSlot() != cameraSlotIndex;
+                }
+
+                @Override
+                public boolean isHighlightable() {
+                    return getContainerSlot() != cameraSlotIndex;
                 }
             });
         }
@@ -206,12 +242,21 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public void removed(Player player) {
+        super.removed(player);
+
+        camera.getItem().setDisassembled(camera.getStack(), false);
+
+        // Without this, client inventory is syncing properly when menu is closed. (only when opened by r-click in GUI)
+        player.inventoryMenu.resumeRemoteUpdates();
+    }
+
+    @Override
     public boolean stillValid(@NotNull Player player) {
-        return player.getMainHandItem().getItem() instanceof CameraItem
-                || player.getOffhandItem().getItem() instanceof CameraItem;
+        return player.getInventory().getItem(cameraSlotIndex).equals(camera.getStack());
     }
 
     public static CameraAttachmentsMenu fromBuffer(int containerId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        return new CameraAttachmentsMenu(containerId, playerInventory, buffer.readItem());
+        return new CameraAttachmentsMenu(containerId, playerInventory, buffer.readInt());
     }
 }

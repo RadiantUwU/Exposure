@@ -5,6 +5,8 @@
 - Middle mouse button can now be used to open Camera controls.
   - Allows opening controls without dismounting from a horse. Or jumping off a plane mid-flight. (Without rebinding sneak) 
   - This is independent of the main hotkey, and will work alongside it. Can be disabled in config.
+- Right-clicking on the Camera in inventory will open Camera configuration screen.
+  - Right-click with item install/swap an attachment.
 - Added Jade integration to Lightroom: it now shows printing progress arrow. 
 - Added config option to disable attacking while looking through Viewfinder.
 - Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.

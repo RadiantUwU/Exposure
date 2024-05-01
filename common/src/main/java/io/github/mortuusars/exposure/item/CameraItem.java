@@ -17,6 +17,7 @@ import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.server.CameraInHandAddFrameC2SP;
+import io.github.mortuusars.exposure.network.packet.server.OpenCameraAttachmentsPacketC2SP;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSoundsClient;
 import io.github.mortuusars.exposure.util.CameraInHand;
@@ -25,6 +26,7 @@ import io.github.mortuusars.exposure.util.ItemAndStack;
 import io.github.mortuusars.exposure.util.LevelUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -40,6 +42,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
@@ -138,65 +141,64 @@ public class CameraItem extends Item {
 
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction action, Player player, SlotAccess access) {
-        if (!Config.Common.CAMERA_GUI_HOTSWAP_ALLOWED.get() || action != ClickAction.SECONDARY)
+        if (action != ClickAction.SECONDARY)
             return false;
 
-        if (otherStack.isEmpty())
-            return false;
+        if (otherStack.isEmpty() && Config.Common.CAMERA_GUI_RIGHT_CLICK_ATTACHMENTS_SCREEN.get()) {
+            if (!(slot.container instanceof Inventory)) {
+                return false; // Cannot open when not in player's inventory
+            }
 
-        for (AttachmentType attachmentType : getAttachmentTypes(stack)) {
-            if (attachmentType.matches(otherStack)) {
-                Optional<ItemStack> current = getAttachment(stack, attachmentType);
-
-                if (otherStack.getCount() > 1 && current.isPresent()) {
-                    if (player.level().isClientSide())
-                        OnePerPlayerSoundsClient.play(player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
-                    return true; // Cannot swap when holding more than one item
-                }
-
-                setAttachment(stack, attachmentType, otherStack.split(1));
-                access.set(current.orElse(otherStack));
-                attachmentType.sound().playOnePerPlayer(player, false);
+            if (player.isCreative() && player.level().isClientSide()/* && CameraItemClientExtensions.isInCreativeModeInventory()*/) {
+                Packets.sendToServer(new OpenCameraAttachmentsPacketC2SP(slot.getContainerSlot()));
                 return true;
             }
+
+            openCameraAttachmentsMenu(player, slot.getContainerSlot());
+            return true;
         }
 
+        if (PlatformHelper.canShear(otherStack) && !isTooltipRemoved(stack)) {
+            if (otherStack.isDamageableItem()) {
+                // broadcasting break event is expecting item to be in hand,
+                // but making it work for carried items would be too much work for such small feature.
+                // No one will ever notice it anyway.
+                otherStack.hurtAndBreak(1, player, pl -> pl.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+            }
 
-//        if (otherStack.isEmpty()) {
-//            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
-//            if (filmAttachment.isEmpty())
-//                return false;
-//
-//            setAttachment(stack, FILM_ATTACHMENT, ItemStack.EMPTY);
-//            ItemStack film = filmAttachment.get();
-//            access.set(film);
-//
-//            if (player.level().isClientSide)
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_REMOVED.get(), SoundSource.PLAYERS, 0.6f, 1f);
-//
-//            return true;
-//        }
-//
-//        if (FILM_ATTACHMENT.itemPredicate().test(otherStack)) {
-//            Optional<ItemStack> filmAttachment = getAttachment(stack, FILM_ATTACHMENT);
-//
-//            if (otherStack.getCount() > 1) {
-//                if (filmAttachment.isPresent())
-//                    return false; // Can't swap when holding stack of films
-//
-//                setAttachment(stack, FILM_ATTACHMENT, otherStack.split(1));
-//                access.set(otherStack);
-//            }
-//            else {
-//                setAttachment(stack, FILM_ATTACHMENT, otherStack);
-//                access.set(filmAttachment.orElse(ItemStack.EMPTY));
-//            }
-//
-//            if (player.level().isClientSide)
-//                OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS, 0.9f, 1f);
-//
-//            return true;
-//        }
+            if (player.level().isClientSide)
+                player.playSound(SoundEvents.SHEEP_SHEAR);
+
+            setTooltipRemoved(stack, true);
+            return true;
+        }
+
+        if (isTooltipRemoved(stack) && (otherStack.getItem() instanceof BookItem || otherStack.getItem() instanceof WritableBookItem
+                || otherStack.getItem() instanceof WrittenBookItem || otherStack.getItem() instanceof KnowledgeBookItem)) {
+            setTooltipRemoved(stack, false);
+            if (player.level().isClientSide)
+                player.playSound(SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT);
+            return true;
+        }
+
+        if (Config.Common.CAMERA_GUI_RIGHT_CLICK_HOTSWAP.get()) {
+            for (AttachmentType attachmentType : getAttachmentTypes(stack)) {
+                if (attachmentType.matches(otherStack)) {
+                    Optional<ItemStack> current = getAttachment(stack, attachmentType);
+
+                    if (otherStack.getCount() > 1 && current.isPresent()) {
+                        if (player.level().isClientSide())
+                            OnePerPlayerSoundsClient.play(player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 0.9f, 1f);
+                        return true; // Cannot swap when holding more than one item
+                    }
+
+                    setAttachment(stack, attachmentType, otherStack.split(1));
+                    access.set(current.orElse(otherStack));
+                    attachmentType.sound().playOnePerPlayer(player, false);
+                    return true;
+                }
+            }
+        }
 
         return false;
     }
@@ -213,8 +215,21 @@ public class CameraItem extends Item {
             });
         }
 
-        if (Config.Client.CAMERA_SHOW_OPEN_WITH_SNEAK_IN_TOOLTIP.get()) {
-            components.add(Component.translatable("item.exposure.camera.sneak_to_open_tooltip").withStyle(ChatFormatting.GRAY));
+        if (!isTooltipRemoved(stack) && Config.Client.CAMERA_SHOW_TOOLTIP_DETAILS.get()) {
+            boolean rClickAttachments = Config.Common.CAMERA_GUI_RIGHT_CLICK_ATTACHMENTS_SCREEN.get();
+            boolean rClickHotswap = Config.Common.CAMERA_GUI_RIGHT_CLICK_HOTSWAP.get();
+
+            if (rClickAttachments || rClickHotswap) {
+                if (Screen.hasShiftDown()) {
+                    if (rClickAttachments)
+                        components.add(Component.translatable("item.exposure.camera.tooltip.details_attachments_screen"));
+                    if (rClickHotswap)
+                        components.add(Component.translatable("item.exposure.camera.tooltip.details_hotswap"));
+                    components.add(Component.translatable("item.exposure.camera.tooltip.details_remove_tooltip"));
+                }
+                else
+                    components.add(Component.translatable("tooltip.exposure.hold_for_details"));
+            }
         }
     }
 
@@ -229,6 +244,7 @@ public class CameraItem extends Item {
 
     public void activate(Player player, ItemStack stack) {
         if (!isActive(stack)) {
+            setDisassembled(stack, false);
             setActive(stack, true);
             player.gameEvent(GameEvent.EQUIP); // Sends skulk vibrations
             playCameraSound(player, Exposure.SoundEvents.VIEWFINDER_OPEN.get(), 0.35f, 0.9f, 0.2f);
@@ -249,6 +265,22 @@ public class CameraItem extends Item {
 
     public void setSelfieMode(ItemStack stack, boolean selfie) {
         stack.getOrCreateTag().putBoolean("Selfie", selfie);
+    }
+
+    public boolean isDisassembled(ItemStack stack) {
+        return stack.getTag() != null && stack.getTag().getBoolean("Disassembled");
+    }
+
+    public void setDisassembled(ItemStack stack, boolean disassembled) {
+        stack.getOrCreateTag().putBoolean("Disassembled", disassembled);
+    }
+
+    public boolean isTooltipRemoved(ItemStack stack) {
+        return stack.getTag() != null && stack.getTag().getBoolean("TooltipRemoved");
+    }
+
+    public void setTooltipRemoved(ItemStack stack, boolean removed) {
+        stack.getOrCreateTag().putBoolean("TooltipRemoved", removed);
     }
 
     public void setSelfieModeWithEffects(Player player, ItemStack stack, boolean selfie) {
@@ -396,7 +428,11 @@ public class CameraItem extends Item {
                 return InteractionResult.FAIL;
             }
 
-            openCameraAttachmentsMenu(player, hand);
+            int cameraSlot = getMatchingSlotInInventory(player.getInventory(), stack);
+            if (cameraSlot < 0)
+                return InteractionResult.FAIL;
+
+            openCameraAttachmentsMenu(player, cameraSlot);
             return InteractionResult.SUCCESS;
         }
 
@@ -630,24 +666,37 @@ public class CameraItem extends Item {
         return tag;
     }
 
-    protected void openCameraAttachmentsMenu(Player player, InteractionHand hand) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            ItemStack cameraStack = player.getItemInHand(hand);
+    public void openCameraAttachmentsMenu(Player player, int cameraSlotIndex) {
+        ItemStack stack = player.getInventory().getItem(cameraSlotIndex);
+        Preconditions.checkState(stack.getItem() instanceof CameraItem,
+                "Cannot open Camera Attachments UI: " + stack + " is not a CameraItem.");
 
+        setDisassembled(stack, true);
+
+        if (player instanceof ServerPlayer serverPlayer) {
             MenuProvider menuProvider = new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return cameraStack.getHoverName();
+                    return stack.getHoverName();
                 }
 
                 @Override
                 public @NotNull AbstractContainerMenu createMenu(int containerId, @NotNull Inventory playerInventory, @NotNull Player player) {
-                    return new CameraAttachmentsMenu(containerId, playerInventory, cameraStack);
+                    return new CameraAttachmentsMenu(containerId, playerInventory, cameraSlotIndex);
                 }
             };
 
-            PlatformHelper.openMenu(serverPlayer, menuProvider, buffer -> buffer.writeItem(cameraStack));
+            PlatformHelper.openMenu(serverPlayer, menuProvider, buffer -> buffer.writeInt(cameraSlotIndex));
         }
+    }
+
+    protected int getMatchingSlotInInventory(Inventory inventory, ItemStack stack) {
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            if (inventory.getItem(i).equals(stack)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     protected String createExposureId(Player player) {
