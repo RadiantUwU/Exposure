@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PhotographRenderer {
     public static void render(ItemStack stack, boolean renderPaper, boolean renderBackside, PoseStack poseStack,
@@ -33,15 +34,30 @@ public class PhotographRenderer {
                                         int packedLight, int r, int g, int b, int a) {
         PhotographRenderProperties properties = PhotographRenderProperties.get(stack);
         int size = ExposureClient.getExposureRenderer().getSize();
+        float rotateOffset = size / 2f;
+
+        @Nullable Either<String, ResourceLocation> idOrTexture = photographItem.getIdOrTexture(stack);
+        int rotation = idOrTexture != null ? idOrTexture.map(Objects::hashCode, Objects::hashCode) % 4 : 0;
 
         if (renderPaper) {
+            poseStack.pushPose();
+            poseStack.translate(rotateOffset, rotateOffset, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
+            poseStack.translate(-rotateOffset, -rotateOffset, 0);
+
             renderTexture(properties.getPaperTexture(), poseStack, bufferSource, 0, 0,
                     size, size, packedLight, r, g, b, a);
+
+            poseStack.popPose();
 
             if (renderBackside) {
                 poseStack.pushPose();
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 poseStack.translate(-size, 0, -0.5);
+
+                poseStack.translate(rotateOffset, rotateOffset, 0);
+                poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
+                poseStack.translate(-rotateOffset, -rotateOffset, 0);
 
                 renderTexture(properties.getPaperTexture(), poseStack, bufferSource,
                         packedLight, (int) (r * 0.85f), (int) (g * 0.85f), (int) (b * 0.85f), a);
@@ -49,8 +65,6 @@ public class PhotographRenderer {
                 poseStack.popPose();
             }
         }
-
-        @Nullable Either<String, ResourceLocation> idOrTexture = photographItem.getIdOrTexture(stack);
 
         if (idOrTexture != null) {
             if (renderPaper) {
@@ -68,7 +82,12 @@ public class PhotographRenderer {
 
             if (renderPaper && properties.hasPaperOverlayTexture()) {
                 poseStack.pushPose();
-                poseStack.translate(-0.01, 0, 2); // Slight offset to the left to fix weird lines in PhotographTooltip
+
+                poseStack.translate(rotateOffset, rotateOffset, 0);
+                poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
+                poseStack.translate(-rotateOffset, -rotateOffset, 0);
+
+                poseStack.translate(0, 0, 2);
                 renderTexture(properties.getPaperOverlayTexture(), poseStack, bufferSource, packedLight, r, g, b, a);
                 poseStack.popPose();
             }
@@ -105,6 +124,9 @@ public class PhotographRenderer {
                 break;
             }
 
+            @Nullable Either<String, ResourceLocation> idOrTexture = photograph.getItem().getIdOrTexture(photograph.getStack());
+            int rotation = idOrTexture != null ? idOrTexture.map(Objects::hashCode, Objects::hashCode) % 4 : 0;
+
             // Photographs below (only paper)
             float posOffset = getStackedPhotographOffset() * i;
             float rotateOffset = ExposureClient.getExposureRenderer().getSize() / 2f;
@@ -113,7 +135,7 @@ public class PhotographRenderer {
             poseStack.translate(posOffset, posOffset, 2 - i);
 
             poseStack.translate(rotateOffset, rotateOffset, 0);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(i * 90 + 90));
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
             poseStack.translate(-rotateOffset, -rotateOffset, 0);
 
             float brightnessMul = 1f - (getStackedBrightnessStep() * i);
