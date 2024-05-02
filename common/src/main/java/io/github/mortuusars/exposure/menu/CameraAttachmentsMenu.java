@@ -245,15 +245,13 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
 
-        camera.getItem().setDisassembled(camera.getStack(), false);
-
         // Without this, client inventory is syncing properly when menu is closed. (only when opened by r-click in GUI)
         player.inventoryMenu.resumeRemoteUpdates();
     }
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return player.getInventory().getItem(cameraSlotIndex).equals(camera.getStack());
+        return ItemStack.isSameItemSameTags(player.getInventory().getItem(cameraSlotIndex), camera.getStack());
     }
 
     public static CameraAttachmentsMenu fromBuffer(int containerId, Inventory playerInventory, FriendlyByteBuf buffer) {
