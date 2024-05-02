@@ -2,7 +2,9 @@ package io.github.mortuusars.exposure.item;
 
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -30,6 +32,13 @@ public class DevelopedFilmItem extends Item implements IFilmItem {
         int exposedFrames = getExposedFramesCount(stack);
         if (exposedFrames > 0) {
             tooltipComponents.add(Component.translatable("item.exposure.developed_film.tooltip.frame_count", exposedFrames)
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
+        int frameSize = getFrameSize(stack);
+        if (frameSize != getDefaultFrameSize()) {
+            tooltipComponents.add(Component.translatable("item.exposure.film_roll.tooltip.frame_size",
+                            Component.literal(String.format("%.1f", frameSize / 10f)))
                     .withStyle(ChatFormatting.GRAY));
         }
     }
