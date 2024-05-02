@@ -68,7 +68,7 @@ public class PhotographRenderer {
 
             if (renderPaper && properties.hasPaperOverlayTexture()) {
                 poseStack.pushPose();
-                poseStack.translate(0, 0, 2);
+                poseStack.translate(-0.01, 0, 2); // Slight offset to the left to fix weird lines in PhotographTooltip
                 renderTexture(properties.getPaperOverlayTexture(), poseStack, bufferSource, packedLight, r, g, b, a);
                 poseStack.popPose();
             }
