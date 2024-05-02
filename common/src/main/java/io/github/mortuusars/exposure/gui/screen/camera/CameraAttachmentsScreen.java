@@ -53,14 +53,18 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
         this.renderBackground(poseStack);
         super.render(poseStack, mouseX, mouseY, partialTick);
 
+        RenderSystem.setShaderTexture(0, TEXTURE);
+
         if (Minecraft.getInstance().player != null) {
             for (Slot slot : getMenu().slots) {
                 if (!slot.mayPickup(Minecraft.getInstance().player)) {
                     renderItem(slot.getItem(), leftPos + slot.x, topPos + slot.y);
                     poseStack.pushPose();
                     poseStack.translate(0, 0, 350);
-                    Screen.fill(poseStack, leftPos + slot.x - 1, topPos + slot.y - 1,
-                            leftPos + slot.x + 17, topPos + slot.y + 17, 0x66c8c8c8);
+                    RenderSystem.enableBlend();
+                    RenderSystem.defaultBlendFunc();
+                    blit(poseStack, leftPos + slot.x + 1, topPos + slot.y + 1, 176, 20, 16, 16);
+                    RenderSystem.disableBlend();
                     poseStack.popPose();
                 }
             }
@@ -123,6 +127,14 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         } else {
             blit(poseStack, leftPos + filterSlot.x - 1, topPos + filterSlot.y - 1, 238, 54, 18, 18);
+        }
+
+        if (Minecraft.getInstance().player != null) {
+            for (Slot slot : getMenu().slots) {
+                if (!slot.mayPickup(Minecraft.getInstance().player)) {
+                    blit(poseStack, leftPos + slot.x - 2, topPos + slot.y - 2, 176, 0, 20, 20);
+                }
+            }
         }
 
         RenderSystem.disableBlend();
