@@ -244,7 +244,6 @@ public class CameraItem extends Item {
 
     public void activate(Player player, ItemStack stack) {
         if (!isActive(stack)) {
-            setDisassembled(stack, false);
             setActive(stack, true);
             player.gameEvent(GameEvent.EQUIP); // Sends skulk vibrations
             playCameraSound(player, Exposure.SoundEvents.VIEWFINDER_OPEN.get(), 0.35f, 0.9f, 0.2f);
@@ -265,14 +264,6 @@ public class CameraItem extends Item {
 
     public void setSelfieMode(ItemStack stack, boolean selfie) {
         stack.getOrCreateTag().putBoolean("Selfie", selfie);
-    }
-
-    public boolean isDisassembled(ItemStack stack) {
-        return stack.getTag() != null && stack.getTag().getBoolean("Disassembled");
-    }
-
-    public void setDisassembled(ItemStack stack, boolean disassembled) {
-        stack.getOrCreateTag().putBoolean("Disassembled", disassembled);
     }
 
     public boolean isTooltipRemoved(ItemStack stack) {
@@ -670,8 +661,6 @@ public class CameraItem extends Item {
         ItemStack stack = player.getInventory().getItem(cameraSlotIndex);
         Preconditions.checkState(stack.getItem() instanceof CameraItem,
                 "Cannot open Camera Attachments UI: " + stack + " is not a CameraItem.");
-
-        setDisassembled(stack, true);
 
         if (player instanceof ServerPlayer serverPlayer) {
             MenuProvider menuProvider = new MenuProvider() {
