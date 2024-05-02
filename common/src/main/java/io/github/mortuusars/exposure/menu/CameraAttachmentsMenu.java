@@ -142,6 +142,11 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
 
             if (player.getLevel().isClientSide() && clientContentsInitialized)
                 type.sound().playOnePerPlayer(player, newStack.isEmpty());
+
+            if (!player.level().isClientSide() && player.isCreative()) {
+                // Fixes item not updating properly when not in "Inventory" tab of creative inventory
+                player.getInventory().setItem(cameraSlotIndex, camera.getStack());
+            }
         });
     }
 
@@ -251,7 +256,8 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        return ItemStack.isSameItemSameTags(player.getInventory().getItem(cameraSlotIndex), camera.getStack());
+        boolean sameItemSameTags = ItemStack.isSameItemSameTags(player.getInventory().getItem(cameraSlotIndex), camera.getStack());
+        return sameItemSameTags;
     }
 
     public static CameraAttachmentsMenu fromBuffer(int containerId, Inventory playerInventory, FriendlyByteBuf buffer) {
