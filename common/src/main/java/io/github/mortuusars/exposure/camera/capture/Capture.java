@@ -27,7 +27,7 @@ public class Capture {
     private final String exposureId;
     private final CompoundTag frameData;
     private FilmType type = FilmType.COLOR;
-    private int size = Exposure.DEFAULT_FILM_SIZE;
+    private int size = 320;
     private float cropFactor = Exposure.CROP_FACTOR;
     private float brightnessStops = 0f;
     private boolean asyncProcessing = true;
@@ -225,13 +225,13 @@ public class Capture {
 
         int sourceSize = Math.min(sWidth, sHeight);
         float crop = sourceSize - (sourceSize / getCropFactor());
-        sourceSize -= crop;
+        sourceSize -= (int) crop;
 
         int sourceXStart = sWidth > sHeight ? (sWidth - sHeight) / 2 : 0;
         int sourceYStart = sHeight > sWidth ? (sHeight - sWidth) / 2 : 0;
 
-        sourceXStart += crop / 2;
-        sourceYStart += crop / 2;
+        sourceXStart += (int) (crop / 2);
+        sourceYStart += (int) (crop / 2);
 
         int size = getSize();
 
