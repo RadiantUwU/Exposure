@@ -11,16 +11,17 @@
 
 - Added Jade integration to Lightroom: it now shows printing progress arrow. 
 - Added config option to disable attacking while looking through Viewfinder.
-
 - Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.
 - Camera tooltip now shows exposed/available frames of the inserted Film Roll.
-- Developed rolls now show frame size (if custom) in tooltip, same as undeveloped rolls. 
+- Developed rolls now show frame size (if custom) in tooltip, same as undeveloped rolls.
+- Photograph paper texture is now randomly rotated to have more variation.  
+- Adjusted 'No Film' icon position with different GUI scales.
+- Adjusted Viewfinder 'catching-up' movement for different GUI scales.
+- Slightly modified Aged Photograph texture to have less rounded corners.
 
 
 - Fixed custom Lenses not syncing to the player when they join a server.  
-- Adjusted 'No Film' icon position with different GUI scales.
-- Adjusted Viewfinder 'catching-up' movement for different GUI scales. 
-- Slightly modified Aged Photograph texture to have less rounded corners.
+
 
 ---
 
