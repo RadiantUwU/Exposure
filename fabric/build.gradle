@@ -43,6 +43,9 @@ dependencies {
 
     modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${forge_config_api_version}"
 
+    modCompileOnlyApi("dev.latvian.mods:kubejs-fabric:${kubejs_version}")
+    modRuntimeOnly("dev.latvian.mods:kubejs-fabric:${kubejs_version}")
+
     modCompileOnlyApi("curse.maven:jade-324717:${fabric_jade_id}")
     modRuntimeOnly("curse.maven:jade-324717:${fabric_jade_id}") { transitive = false }
 
