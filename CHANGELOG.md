@@ -7,15 +7,20 @@
   - This is independent of the main hotkey, and will work alongside it. Can be disabled in config.
 - Right-clicking on the Camera in inventory will open Camera configuration screen.
   - Right-click with item install/swap an attachment.
+
+
 - Added Jade integration to Lightroom: it now shows printing progress arrow. 
 - Added config option to disable attacking while looking through Viewfinder.
+
 - Stacking two Photographs (by right-clicking in GUI) will keep the resulted item in slot instead of picking it up.
-- Camera tooltip now shows exposed/available frames of the inserted Film Roll. 
+- Camera tooltip now shows exposed/available frames of the inserted Film Roll.
+- Developed rolls now show frame size (if custom) in tooltip, same as undeveloped rolls. 
 
 
 - Fixed custom Lenses not syncing to the player when they join a server.  
 - Adjusted 'No Film' icon position with different GUI scales.
 - Adjusted Viewfinder 'catching-up' movement for different GUI scales. 
+- Slightly modified Aged Photograph texture to have less rounded corners.
 
 ---
 
