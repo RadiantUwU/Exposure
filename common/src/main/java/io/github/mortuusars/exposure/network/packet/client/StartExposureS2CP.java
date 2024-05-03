@@ -22,7 +22,7 @@ public record StartExposureS2CP(@NotNull String exposureId, @NotNull Interaction
     }
 
     public FriendlyByteBuf toBuffer(FriendlyByteBuf buffer) {
-        Preconditions.checkState(exposureId.length() > 0, "path cannot be empty.");
+        Preconditions.checkState(!exposureId.isEmpty(), "path cannot be empty.");
         buffer.writeUtf(exposureId);
         buffer.writeEnum(activeHand);
         buffer.writeBoolean(flashHasFired);

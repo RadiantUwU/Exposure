@@ -1,8 +1,8 @@
 package io.github.mortuusars.exposure.fabric;
 
+import io.github.mortuusars.exposure.fabric.api.event.ShutterOpeningCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,5 +59,9 @@ public class PlatformHelperImpl {
 
     public static boolean isModLoaded(String modId) {
         return FabricLoader.getInstance().isModLoaded(modId);
+    }
+
+    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+        return ShutterOpeningCallback.EVENT.invoker().onShutterOpening(player, cameraStack, lightLevel, shouldFlashFire);
     }
 }

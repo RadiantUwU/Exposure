@@ -24,6 +24,7 @@ dependencies {
 
 //    modCompileOnlyApi("me.shedaniel:RoughlyEnoughItems-api:${rei_version}")
 //    modCompileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin:${rei_version}")
+    modCompileOnlyApi "dev.latvian.mods:kubejs:${kubejs_version}"
 
 //    modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
 //        exclude group: 'net.fabricmc.fabric-api'
