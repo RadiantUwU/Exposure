@@ -18,9 +18,9 @@
 - Adjusted Viewfinder 'catching-up' movement for different GUI scales.
 - Photograph paper texture is now randomly rotated to have more variation.  
 - Slightly modified Aged Photograph texture to have less rounded corners.
+- GUI titles now have a separate lang entries instead of using corresponding block/item entries. 
 
-
-- Fixed custom Lenses not syncing to the player when they join a server.  
+- Fixed custom Lenses not syncing to the player when they join a server.
 
 
 ---

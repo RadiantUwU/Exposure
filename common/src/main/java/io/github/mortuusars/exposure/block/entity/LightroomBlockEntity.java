@@ -527,7 +527,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
     @Override
     protected @NotNull Component getDefaultName() {
-        return Component.translatable("block.exposure.lightroom");
+        return Component.translatable("container.exposure.lightroom");
     }
 
     @Override

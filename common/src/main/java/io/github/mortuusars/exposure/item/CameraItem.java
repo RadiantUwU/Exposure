@@ -665,7 +665,7 @@ public class CameraItem extends Item {
             MenuProvider menuProvider = new MenuProvider() {
                 @Override
                 public @NotNull Component getDisplayName() {
-                    return stack.getHoverName();
+                    return stack.hasCustomHoverName() ? stack.getHoverName() : Component.translatable("container.exposure.camera");
                 }
 
                 @Override
