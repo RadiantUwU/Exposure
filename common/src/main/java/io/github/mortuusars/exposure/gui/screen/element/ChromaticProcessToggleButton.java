@@ -1,8 +1,11 @@
-package io.github.mortuusars.exposure.gui.screen;
+package io.github.mortuusars.exposure.gui.screen.element;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.mortuusars.exposure.block.entity.Lightroom;
+import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
