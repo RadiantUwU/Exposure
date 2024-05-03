@@ -1,9 +1,12 @@
 package io.github.mortuusars.exposure.forge;
 
+import io.github.mortuusars.exposure.forge.api.event.ShutterOpeningEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.NetworkHooks;
@@ -34,5 +37,10 @@ public class PlatformHelperImpl {
 
     public static boolean isModLoaded(String modId) {
         return ModList.get().isLoaded(modId);
+    }
+
+    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+        ShutterOpeningEvent event = new ShutterOpeningEvent(player, cameraStack, lightLevel, shouldFlashFire);
+        return MinecraftForge.EVENT_BUS.post(event);
     }
 }

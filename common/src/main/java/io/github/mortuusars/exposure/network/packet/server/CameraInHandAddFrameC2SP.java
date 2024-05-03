@@ -60,8 +60,13 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) 
 
         addStructuresInfo(serverPlayer);
 
+        // Frame adding event
+
         cameraItem.addFrameToFilm(itemInHand, frame);
+
+        player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
         Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(serverPlayer, new ItemAndStack<>(itemInHand), frame);
+
         return true;
     }
 
@@ -86,7 +91,7 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) 
                 structuresTag.add(StringTag.valueOf(key.toString()));
         }
 
-        if (structuresTag.size() > 0) {
+        if (!structuresTag.isEmpty()) {
             frame.put("Structures", structuresTag);
         }
     }

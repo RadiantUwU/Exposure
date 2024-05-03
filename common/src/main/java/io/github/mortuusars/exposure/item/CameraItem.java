@@ -406,20 +406,20 @@ public class CameraItem extends Item {
         if (player.getCooldowns().isOnCooldown(this))
             return InteractionResult.FAIL;
 
-        ItemStack stack = player.getItemInHand(hand);
-        if (stack.isEmpty() || stack.getItem() != this)
+        ItemStack cameraStack = player.getItemInHand(hand);
+        if (cameraStack.isEmpty() || cameraStack.getItem() != this)
             return InteractionResult.PASS;
 
-        boolean active = isActive(stack);
+        boolean active = isActive(cameraStack);
 
         if (!active && player.isSecondaryUseActive()) {
-            if (isShutterOpen(stack)) {
+            if (isShutterOpen(cameraStack)) {
                 player.displayClientMessage(Component.translatable("item.exposure.camera.camera_attachments.fail.shutter_open")
                         .withStyle(ChatFormatting.RED), true);
                 return InteractionResult.FAIL;
             }
 
-            int cameraSlot = getMatchingSlotInInventory(player.getInventory(), stack);
+            int cameraSlot = getMatchingSlotInInventory(player.getInventory(), cameraStack);
             if (cameraSlot < 0)
                 return InteractionResult.FAIL;
 
@@ -428,7 +428,7 @@ public class CameraItem extends Item {
         }
 
         if (!active) {
-            activate(player, stack);
+            activate(player, cameraStack);
             player.getCooldowns().addCooldown(this, 4);
 
             if (player.level().isClientSide) {
@@ -441,7 +441,7 @@ public class CameraItem extends Item {
 
         playCameraSound(player, Exposure.SoundEvents.CAMERA_RELEASE_BUTTON_CLICK.get(), 0.3f, 1f, 0.1f);
 
-        Optional<ItemAndStack<FilmRollItem>> filmAttachment = getFilm(stack);
+        Optional<ItemAndStack<FilmRollItem>> filmAttachment = getFilm(cameraStack);
 
         if (filmAttachment.isEmpty())
             return InteractionResult.FAIL;
@@ -452,18 +452,19 @@ public class CameraItem extends Item {
         if (!exposingFilm)
             return InteractionResult.FAIL;
 
-        if (isShutterOpen(stack))
+        if (isShutterOpen(cameraStack))
             return InteractionResult.FAIL;
 
         int lightLevel = LevelUtil.getLightLevelAt(player.level(), player.blockPosition());
+        boolean shouldFlashFire = shouldFlashFire(player, cameraStack);
+        ShutterSpeed shutterSpeed = getShutterSpeed(cameraStack);
 
-        boolean flashHasFired = shouldFlashFire(player, stack) && tryUseFlash(player, stack);
+        if (PlatformHelper.onShutterOpening(player, cameraStack, lightLevel, shouldFlashFire))
+            return InteractionResult.FAIL; // Canceled
 
-        ShutterSpeed shutterSpeed = getShutterSpeed(stack);
+        boolean flashHasFired = shouldFlashFire && tryUseFlash(player, cameraStack);
 
-        openShutter(player, stack, shutterSpeed, true, flashHasFired);
-
-        player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
+        openShutter(player, cameraStack, shutterSpeed, true, flashHasFired);
 
         if (player instanceof ServerPlayer serverPlayer) {
             Packets.sendToClient(new StartExposureS2CP(createExposureId(player), hand, flashHasFired, lightLevel), serverPlayer);
@@ -482,14 +483,12 @@ public class CameraItem extends Item {
         Capture capture = createCapture(player, cameraStack, exposureId, frame, flashHasFired);
         CaptureManager.enqueue(capture);
 
-        addFrameToFilm(cameraStack, frame);
-
         Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame));
     }
 
     public void addFrameToFilm(ItemStack cameraStack, CompoundTag frame) {
         ItemAndStack<FilmRollItem> film = getFilm(cameraStack)
-                .orElseThrow(() -> new IllegalStateException("Camera should have film inserted."));
+                .orElseThrow(() -> new IllegalStateException("Camera should have film inserted. " + cameraStack));
 
         film.getItem().addFrame(film.getStack(), frame);
         setFilm(cameraStack, film.getStack());

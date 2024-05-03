@@ -1,0 +1,1 @@
+io.github.mortuusars.exposure.integration.kubejs.ExposureJSPlugin
