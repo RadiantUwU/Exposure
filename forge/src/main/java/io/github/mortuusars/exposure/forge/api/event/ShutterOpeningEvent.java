@@ -5,6 +5,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
+/**
+ * Fired on the server-side when Camera tries to take a photo.
+ * All checks are passed at this point, and if this event is not canceled - photo will be taken.
+ */
 @Cancelable
 public class ShutterOpeningEvent extends Event {
     public final Player player;

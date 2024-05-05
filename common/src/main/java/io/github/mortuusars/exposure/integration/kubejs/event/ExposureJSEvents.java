@@ -8,6 +8,8 @@ public interface ExposureJSEvents {
 
     EventHandler SHUTTER_OPENING = GROUP.server("shutterOpening", () -> ShutterOpeningEventJS.class).hasResult();
 
+    EventHandler START_EXPOSING_FRAME = GROUP.client("startExposingFrame", () -> ShutterOpeningEventJS.class);
+
     static void register() {
         GROUP.register();
     }

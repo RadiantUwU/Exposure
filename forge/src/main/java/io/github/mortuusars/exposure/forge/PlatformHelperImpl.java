@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.forge;
 
 import io.github.mortuusars.exposure.forge.api.event.ShutterOpeningEvent;
+import io.github.mortuusars.exposure.forge.api.event.StartExposingFrameClientsideEvent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
@@ -42,5 +43,10 @@ public class PlatformHelperImpl {
     public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         ShutterOpeningEvent event = new ShutterOpeningEvent(player, cameraStack, lightLevel, shouldFlashFire);
         return MinecraftForge.EVENT_BUS.post(event);
+    }
+
+    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
+        StartExposingFrameClientsideEvent event = new StartExposingFrameClientsideEvent(player, cameraStack, exposureId, lightLevel, flashHasFired);
+        MinecraftForge.EVENT_BUS.post(event);
     }
 }

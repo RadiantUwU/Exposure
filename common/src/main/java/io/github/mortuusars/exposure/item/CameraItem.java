@@ -488,6 +488,8 @@ public class CameraItem extends Item {
 
         ItemStack cameraStack = player.getItemInHand(hand);
 
+        PlatformHelper.onExposeFrameClientside(player, cameraStack, exposureId, lightLevel, flashHasFired);
+
         CompoundTag frame = createFrameTag(player, cameraStack, exposureId, flashHasFired, lightLevel);
 
         Capture capture = createCapture(player, cameraStack, exposureId, frame, flashHasFired);

@@ -5,20 +5,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Fired on the server-side when Camera tries to take a photo.
- * All checks are passed at this point, and if this event is not canceled - photo will be taken.
+ * Fired before capturing a frame. Client-side only.
+ * This event is not cancellable. To cancel a capture - use {@link ShutterOpeningEventJS}.
  */
-public class ShutterOpeningEventJS extends PlayerEventJS {
+public class StartExposingFrameEventJS extends PlayerEventJS {
     private final Player player;
     private final ItemStack cameraStack;
+    private final String exposureId;
     private final int lightLevel;
-    private final boolean shouldFlashFire;
+    private final boolean flashHasFired;
 
-    public ShutterOpeningEventJS(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+    public StartExposingFrameEventJS(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
         this.player = player;
         this.cameraStack = cameraStack;
+        this.exposureId = exposureId;
         this.lightLevel = lightLevel;
-        this.shouldFlashFire = shouldFlashFire;
+        this.flashHasFired = flashHasFired;
     }
 
     @Override
@@ -30,11 +32,15 @@ public class ShutterOpeningEventJS extends PlayerEventJS {
         return cameraStack;
     }
 
+    public String getExposureId() {
+        return exposureId;
+    }
+
     public int getLightLevel() {
         return lightLevel;
     }
 
     public boolean shouldFlashFire() {
-        return shouldFlashFire;
+        return flashHasFired;
     }
 }

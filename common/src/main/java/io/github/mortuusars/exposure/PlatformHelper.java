@@ -41,4 +41,9 @@ public class PlatformHelper {
     public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
+        throw new AssertionError();
+    }
 }
