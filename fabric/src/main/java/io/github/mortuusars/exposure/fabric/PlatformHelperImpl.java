@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.fabric;
 
+import io.github.mortuusars.exposure.fabric.api.event.StartExposingFrameClientsideCallback;
 import io.github.mortuusars.exposure.fabric.api.event.ShutterOpeningCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
@@ -63,5 +64,9 @@ public class PlatformHelperImpl {
 
     public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         return ShutterOpeningCallback.EVENT.invoker().onShutterOpening(player, cameraStack, lightLevel, shouldFlashFire);
+    }
+
+    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
+        StartExposingFrameClientsideCallback.EVENT.invoker().onExposeFrameClientside(player, cameraStack, exposureId, lightLevel, flashHasFired);
     }
 }
