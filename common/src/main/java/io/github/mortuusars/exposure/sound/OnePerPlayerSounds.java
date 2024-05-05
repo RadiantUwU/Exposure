@@ -15,7 +15,7 @@ public class OnePerPlayerSounds {
         }
         else if (sourcePlayer instanceof ServerPlayer serverSourcePlayer) {
             Packets.sendToOtherClients(new PlayOnePerPlayerSoundS2CP(serverSourcePlayer.getUUID(),
-                            soundEvent,source, volume, pitch),
+                            soundEvent, source, volume, pitch),
                     serverSourcePlayer,
                     serverPlayer -> serverSourcePlayer.distanceTo(serverPlayer) < soundEvent.getRange(1f));
         }
@@ -29,5 +29,10 @@ public class OnePerPlayerSounds {
             Packets.sendToOtherClients(new StopOnePerPlayerSoundS2CP(serverSourcePlayer.getUUID(), soundEvent),
                     serverSourcePlayer, serverPlayer -> serverSourcePlayer.distanceTo(serverPlayer) < soundEvent.getRange(1f));
         }
+    }
+
+    public static void playForAllClients(Player player, SoundEvent soundEvent, SoundSource source, float volume, float pitch) {
+        if (!player.level().isClientSide)
+            Packets.sendToAllClients(new PlayOnePerPlayerSoundS2CP(player.getUUID(), soundEvent, source, volume, pitch));
     }
 }

@@ -51,7 +51,7 @@ public class PacketsImpl {
 
     public static void sendToAllClients(IPacket packet) {
         if (server == null) {
-            LogUtils.getLogger().warn("Cannot send a packet to all players. Server is not present.");
+            LogUtils.getLogger().error("Cannot send a packet to all players. Server is not present.");
             return;
         }
 
