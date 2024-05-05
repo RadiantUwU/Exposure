@@ -6,7 +6,7 @@ import dev.latvian.mods.kubejs.event.EventHandler;
 public interface ExposureJSEvents {
     EventGroup GROUP = EventGroup.of("ExposureEvents");
 
-    EventHandler SHUTTER_OPENING = GROUP.common("shutterOpening", () -> ShutterOpeningEventJS.class).hasResult();
+    EventHandler SHUTTER_OPENING = GROUP.server("shutterOpening", () -> ShutterOpeningEventJS.class).hasResult();
 
     static void register() {
         GROUP.register();

@@ -305,14 +305,14 @@ public class CameraItem extends Item {
         }
     }
 
-    public void openShutter(Player player, ItemStack stack, ShutterSpeed shutterSpeed, boolean exposingFrame, boolean flashHasFired) {
+    public void openShutter(Player player, Level level, ItemStack stack, ShutterSpeed shutterSpeed, boolean exposingFrame, boolean flashHasFired) {
         setShutterOpen(player.level(), stack, shutterSpeed, exposingFrame, flashHasFired);
 
         player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-        playCameraSound(player, Exposure.SoundEvents.SHUTTER_OPEN.get(), exposingFrame ? 0.7f : 0.5f,
+        playCameraSound(null, player, Exposure.SoundEvents.SHUTTER_OPEN.get(), exposingFrame ? 0.7f : 0.5f,
                 exposingFrame ? 1.1f : 1.25f, 0.2f);
         if (shutterSpeed.getMilliseconds() > 500) // More than 1/2
-            OnePerPlayerSounds.play(player, Exposure.SoundEvents.SHUTTER_TICKING.get(), SoundSource.PLAYERS, 1f, 1f);
+            OnePerPlayerSounds.playForAllClients(player, Exposure.SoundEvents.SHUTTER_TICKING.get(), SoundSource.PLAYERS, 1f, 1f);
     }
 
     public void closeShutter(Player player, ItemStack stack) {
@@ -322,10 +322,10 @@ public class CameraItem extends Item {
 
         setShutterClosed(stack);
 
-        if (player.level().getGameTime() - closedAtTimestamp < 50) { // Skip effects if shutter "was closed" long ago
+        if (player.level().getGameTime() - closedAtTimestamp < 60) { // Skip effects if shutter "was closed" long ago
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
             player.getCooldowns().addCooldown(this, flashHasFired ? 10 : 2);
-            playCameraSound(player, Exposure.SoundEvents.SHUTTER_CLOSE.get(), 0.7f, 1.1f, 0.2f);
+            playCameraSound(player, player, Exposure.SoundEvents.SHUTTER_CLOSE.get(), 0.7f, 1.1f, 0.2f);
             if (exposingFrame) {
                 ItemAndStack<FilmRollItem> film = getFilm(stack).orElseThrow();
 
@@ -343,14 +343,18 @@ public class CameraItem extends Item {
     }
 
     @SuppressWarnings("unused")
-    public void playCameraSound(Player player, SoundEvent sound, float volume, float pitch) {
+    public void playCameraSound(@NotNull Player player, SoundEvent sound, float volume, float pitch) {
         playCameraSound(player, sound, volume, pitch, 0f);
     }
 
-    public void playCameraSound(Player player, SoundEvent sound, float volume, float pitch, float pitchVariety) {
+    public void playCameraSound(@NotNull Player player, SoundEvent sound, float volume, float pitch, float pitchVariety) {
+        playCameraSound(player, player, sound, volume, pitch, pitchVariety);
+    }
+
+    public void playCameraSound(@Nullable Player player, @NotNull Player originPlayer, SoundEvent sound, float volume, float pitch, float pitchVariety) {
         if (pitchVariety > 0f)
-            pitch = pitch - (pitchVariety / 2f) + (player.getRandom().nextFloat() * pitchVariety);
-        player.level().playSound(player, player, sound, SoundSource.PLAYERS, volume, pitch);
+            pitch = pitch - (pitchVariety / 2f) + (originPlayer.getRandom().nextFloat() * pitchVariety);
+        originPlayer.level().playSound(player, originPlayer, sound, SoundSource.PLAYERS, volume, pitch);
     }
 
     @Override
@@ -439,7 +443,13 @@ public class CameraItem extends Item {
             return InteractionResult.CONSUME; // Consume to not play animation
         }
 
-        playCameraSound(player, Exposure.SoundEvents.CAMERA_RELEASE_BUTTON_CLICK.get(), 0.3f, 1f, 0.1f);
+
+        // Taking a shot:
+
+        if (!(player instanceof ServerPlayer))
+            return InteractionResult.CONSUME;
+
+        playCameraSound(null, player, Exposure.SoundEvents.CAMERA_RELEASE_BUTTON_CLICK.get(), 0.3f, 1f, 0.1f);
 
         Optional<ItemAndStack<FilmRollItem>> filmAttachment = getFilm(cameraStack);
 
@@ -464,7 +474,7 @@ public class CameraItem extends Item {
 
         boolean flashHasFired = shouldFlashFire && tryUseFlash(player, cameraStack);
 
-        openShutter(player, cameraStack, shutterSpeed, true, flashHasFired);
+        openShutter(player, player.level(), cameraStack, shutterSpeed, true, flashHasFired);
 
         if (player instanceof ServerPlayer serverPlayer) {
             Packets.sendToClient(new StartExposureS2CP(createExposureId(player), hand, flashHasFired, lightLevel), serverPlayer);
