@@ -492,7 +492,7 @@ public class CameraItem extends Item {
 
         CompoundTag frame = createFrameTag(player, cameraStack, exposureId, flashHasFired, lightLevel);
 
-        Capture capture = createCapture(player, cameraStack, exposureId, frame, flashHasFired);
+        Capture capture = createCapture(player, cameraStack, exposureId, flashHasFired);
         CaptureManager.enqueue(capture);
 
         Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame));
@@ -713,8 +713,7 @@ public class CameraItem extends Item {
         return FocalRange.getDefault();
     }
 
-    @SuppressWarnings("unused")
-    protected Capture createCapture(Player player, ItemStack cameraStack, String exposureId, CompoundTag frameData, boolean flash) {
+    protected Capture createCapture(Player player, ItemStack cameraStack, String exposureId, boolean flash) {
         ItemAndStack<FilmRollItem> film = getFilm(cameraStack).orElseThrow();
         int frameSize = film.getItem().getFrameSize(film.getStack());
         float brightnessStops = getShutterSpeed(cameraStack).getStopsDifference(ShutterSpeed.DEFAULT);
@@ -734,12 +733,12 @@ public class CameraItem extends Item {
 
         components.add(new ExposureStorageSaveComponent(exposureId, true));
 
-        return new Capture(exposureId, frameData)
+        return new Capture()
                 .setFilmType(film.getItem().getType())
-                .size(frameSize)
-                .brightnessStops(brightnessStops)
-                .components(components)
-                .converter(new DitheringColorConverter());
+                .setSize(frameSize)
+                .setBrightnessStops(brightnessStops)
+                .addComponents(components)
+                .setConverter(new DitheringColorConverter());
     }
 
     /**

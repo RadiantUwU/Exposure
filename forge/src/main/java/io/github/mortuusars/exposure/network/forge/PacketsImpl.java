@@ -149,6 +149,11 @@ public class PacketsImpl {
                 .decoder(WaitForExposureChangeS2CP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
+        CHANNEL.messageBuilder(OnFrameAddedS2CP.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(OnFrameAddedS2CP::toBuffer)
+                .decoder(OnFrameAddedS2CP::fromBuffer)
+                .consumerMainThread(PacketsImpl::handlePacket)
+                .add();
     }
 
     public static void sendToServer(IPacket packet) {

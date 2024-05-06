@@ -4,7 +4,9 @@ import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.network.PacketDirection;
+import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.IPacket;
+import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.core.Registry;
@@ -63,6 +65,8 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) 
         // Frame adding event
 
         cameraItem.addFrameToFilm(itemInHand, frame);
+
+        Packets.sendToClient(new OnFrameAddedS2CP(frame), serverPlayer);
 
         player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
         Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(serverPlayer, new ItemAndStack<>(itemInHand), frame);
