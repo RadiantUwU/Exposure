@@ -16,8 +16,10 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -28,8 +30,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
-public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) implements IPacket {
+public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, List<UUID> entitiesInFrameIds) implements IPacket {
     public static final ResourceLocation ID = Exposure.resource("camera_in_hand_add_frame");
 
     @Override
@@ -40,6 +43,10 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) 
     public FriendlyByteBuf toBuffer(FriendlyByteBuf buffer) {
         buffer.writeEnum(hand);
         buffer.writeNbt(frame);
+        buffer.writeInt(entitiesInFrameIds.size());
+        for (UUID uuid : entitiesInFrameIds) {
+            buffer.writeUUID(uuid);
+        }
         return buffer;
     }
 
@@ -48,55 +55,72 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame) 
         @Nullable CompoundTag frame = buffer.readAnySizeNbt();
         if (frame == null)
             frame = new CompoundTag();
-        return new CameraInHandAddFrameC2SP(hand, frame);
+
+        int entitiesCount = buffer.readInt();
+        List<UUID> entities = new ArrayList<>();
+        for (int i = 0; i < entitiesCount; i++) {
+            entities.add(buffer.readUUID());
+        }
+
+        return new CameraInHandAddFrameC2SP(hand, frame, entities);
     }
 
     @Override
     public boolean handle(PacketDirection direction, @Nullable Player player) {
         Preconditions.checkState(player != null, "Cannot handle packet: Player was null");
         ServerPlayer serverPlayer = ((ServerPlayer) player);
+        ServerLevel serverLevel = (ServerLevel) player.level();
 
-        ItemStack itemInHand = player.getItemInHand(hand);
-        if (!(itemInHand.getItem() instanceof CameraItem cameraItem))
+        ItemStack cameraStack = player.getItemInHand(hand);
+        if (!(cameraStack.getItem() instanceof CameraItem cameraItem))
             throw new IllegalStateException("Item in hand in not a Camera.");
-
-        addStructuresInfo(serverPlayer);
 
         // Frame adding event
 
-        cameraItem.addFrameToFilm(itemInHand, frame);
-
-        Packets.sendToClient(new OnFrameAddedS2CP(frame), serverPlayer);
+        cameraItem.addFrameData(serverPlayer, cameraStack, frame, getEntities(serverLevel));
+        cameraItem.addFrameToFilm(cameraStack, frame);
 
         player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
-        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(serverPlayer, new ItemAndStack<>(itemInHand), frame);
+        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(serverPlayer, new ItemAndStack<>(cameraStack), frame);
+
+        Packets.sendToClient(new OnFrameAddedS2CP(frame), serverPlayer);
 
         return true;
     }
 
-    private void addStructuresInfo(@NotNull ServerPlayer player) {
-        Map<Structure, LongSet> allStructuresAt = player.serverLevel().structureManager().getAllStructuresAt(player.blockPosition());
-
-        List<Structure> inside = new ArrayList<>();
-
-        for (Structure structure : allStructuresAt.keySet()) {
-            StructureStart structureAt = player.serverLevel().structureManager().getStructureAt(player.blockPosition(), structure);
-            if (structureAt.isValid()) {
-                inside.add(structure);
-            }
+    private List<Entity> getEntities(ServerLevel level) {
+        List<Entity> entitiesInFrame = new ArrayList<>();
+        for (UUID uuid : entitiesInFrameIds) {
+            @Nullable Entity entity = level.getEntity(uuid);
+            if (entity != null)
+                entitiesInFrame.add(entity);
         }
-
-        Registry<Structure> structures = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
-        ListTag structuresTag = new ListTag();
-
-        for (Structure structure : inside) {
-            ResourceLocation key = structures.getKey(structure);
-            if (key != null)
-                structuresTag.add(StringTag.valueOf(key.toString()));
-        }
-
-        if (!structuresTag.isEmpty()) {
-            frame.put("Structures", structuresTag);
-        }
+        return entitiesInFrame;
     }
+
+//    private void addStructuresInfo(@NotNull ServerPlayer player) {
+//        Map<Structure, LongSet> allStructuresAt = player.serverLevel().structureManager().getAllStructuresAt(player.blockPosition());
+//
+//        List<Structure> inside = new ArrayList<>();
+//
+//        for (Structure structure : allStructuresAt.keySet()) {
+//            StructureStart structureAt = player.serverLevel().structureManager().getStructureAt(player.blockPosition(), structure);
+//            if (structureAt.isValid()) {
+//                inside.add(structure);
+//            }
+//        }
+//
+//        Registry<Structure> structures = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
+//        ListTag structuresTag = new ListTag();
+//
+//        for (Structure structure : inside) {
+//            ResourceLocation key = structures.getKey(structure);
+//            if (key != null)
+//                structuresTag.add(StringTag.valueOf(key.toString()));
+//        }
+//
+//        if (!structuresTag.isEmpty()) {
+//            frame.put("Structures", structuresTag);
+//        }
+//    }
 }

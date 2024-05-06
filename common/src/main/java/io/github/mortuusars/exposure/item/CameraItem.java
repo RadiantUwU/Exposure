@@ -24,17 +24,17 @@ import io.github.mortuusars.exposure.util.CameraInHand;
 import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import io.github.mortuusars.exposure.util.LevelUtil;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.IntTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
 import net.minecraft.resources.ResourceKey;
@@ -64,14 +64,14 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class CameraItem extends Item {
     public static final AttachmentType FILM_ATTACHMENT = new AttachmentType("Film", 0,
@@ -490,12 +490,29 @@ public class CameraItem extends Item {
 
         PlatformHelper.onExposeFrameClientside(player, cameraStack, exposureId, lightLevel, flashHasFired);
 
-        CompoundTag frame = createFrameTag(player, cameraStack, exposureId, flashHasFired, lightLevel);
+        CompoundTag frame = new CompoundTag();
+
+        // Base properties. It's easier to add them client-side.
+        frame.putString(FrameData.ID, exposureId);
+        frame.putString(FrameData.TIMESTAMP, Util.getFilenameFormattedDateTime());
+        frame.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
+        frame.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
+        frame.putInt(FrameData.LIGHT_LEVEL, lightLevel);
+        frame.putFloat(FrameData.SUN_ANGLE, player.level().getSunAngle(0));
+        if (flashHasFired)
+            frame.putBoolean(FrameData.FLASH, true);
+        if (isInSelfieMode(cameraStack))
+            frame.putBoolean(FrameData.SELFIE, true);
 
         Capture capture = createCapture(player, cameraStack, exposureId, flashHasFired);
         CaptureManager.enqueue(capture);
 
-        Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame));
+        List<UUID> entities = EntitiesInFrame.get(player, ViewfinderClient.getCurrentFov(), 12, isInSelfieMode(cameraStack))
+                .stream()
+                .map(Entity::getUUID)
+                .toList();
+
+        Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame, entities));
     }
 
     public void addFrameToFilm(ItemStack cameraStack, CompoundTag frame) {
@@ -565,16 +582,8 @@ public class CameraItem extends Item {
         }
         return true;
     }
-
-    protected CompoundTag createFrameTag(Player player, ItemStack cameraStack, String exposureId, boolean flash, int lightLevel) {
+    public void addFrameData(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         Level level = player.level();
-
-        CompoundTag tag = new CompoundTag();
-
-        tag.putString(FrameData.ID, exposureId);
-        tag.putString(FrameData.TIMESTAMP, Util.getFilenameFormattedDateTime());
-        tag.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
-        tag.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
 
         // Chromatic only for black and white:
         Boolean isBW = getAttachment(cameraStack, FILM_ATTACHMENT)
@@ -582,50 +591,43 @@ public class CameraItem extends Item {
                 .orElse(false);
         if (isBW) {
             getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
-                tag.putBoolean(FrameData.CHROMATIC, true);
-                tag.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
+                frame.putBoolean(FrameData.CHROMATIC, true);
+                frame.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
             });
         }
-
-        if (flash)
-            tag.putBoolean(FrameData.FLASH, true);
-        if (isInSelfieMode(cameraStack))
-            tag.putBoolean(FrameData.SELFIE, true);
 
         ListTag pos = new ListTag();
         pos.add(IntTag.valueOf(player.blockPosition().getX()));
         pos.add(IntTag.valueOf(player.blockPosition().getY()));
         pos.add(IntTag.valueOf(player.blockPosition().getZ()));
-        tag.put(FrameData.POSITION, pos);
+        frame.put(FrameData.POSITION, pos);
 
-        tag.putString(FrameData.DIMENSION, player.level().dimension().location().toString());
+        frame.putString(FrameData.DIMENSION, player.level().dimension().location().toString());
 
         player.level().getBiome(player.blockPosition()).unwrapKey().map(ResourceKey::location)
-                .ifPresent(biome -> tag.putString(FrameData.BIOME, biome.toString()));
+                .ifPresent(biome -> frame.putString(FrameData.BIOME, biome.toString()));
 
         int surfaceHeight = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, player.getBlockX(), player.getBlockZ());
         level.updateSkyBrightness();
         int skyLight = level.getBrightness(LightLayer.SKY, player.blockPosition());
 
         if (player.isUnderWater())
-            tag.putBoolean(FrameData.UNDERWATER, true);
+            frame.putBoolean(FrameData.UNDERWATER, true);
 
-        if (player.getBlockY() < surfaceHeight && skyLight < 4)
-            tag.putBoolean(FrameData.IN_CAVE, true);
+        if (player.getBlockY() < surfaceHeight && skyLight < 2)
+            frame.putBoolean(FrameData.IN_CAVE, true);
         else if (!player.isUnderWater()) {
             Biome.Precipitation precipitation = level.getBiome(player.blockPosition()).value().getPrecipitationAt(player.blockPosition());
             if (level.isThundering() && precipitation != Biome.Precipitation.NONE)
-                tag.putString(FrameData.WEATHER, precipitation == Biome.Precipitation.SNOW ? "Snowstorm" : "Thunder");
+                frame.putString(FrameData.WEATHER, precipitation == Biome.Precipitation.SNOW ? "Snowstorm" : "Thunder");
             else if (level.isRaining() && precipitation != Biome.Precipitation.NONE)
-                tag.putString(FrameData.WEATHER, precipitation == Biome.Precipitation.SNOW ? "Snow" : "Rain");
+                frame.putString(FrameData.WEATHER, precipitation == Biome.Precipitation.SNOW ? "Snow" : "Rain");
             else
-                tag.putString(FrameData.WEATHER, "Clear");
+                frame.putString(FrameData.WEATHER, "Clear");
         }
 
-        tag.putInt(FrameData.LIGHT_LEVEL, lightLevel);
-        tag.putFloat(FrameData.SUN_ANGLE, level.getSunAngle(0));
+        addStructuresInfo(player, frame);
 
-        List<Entity> entitiesInFrame = EntitiesInFrame.get(player, ViewfinderClient.getCurrentFov(), 12, isInSelfieMode(cameraStack));
         if (!entitiesInFrame.isEmpty()) {
             ListTag entities = new ListTag();
 
@@ -638,14 +640,38 @@ public class CameraItem extends Item {
 
                 // Duplicate entity id as a separate field in the tag.
                 // Can then be used by FTBQuests nbt matching (it's hard to match from a list), for example.
-                tag.putBoolean(entityInfoTag.getString(FrameData.ENTITY_ID), true);
+                frame.putBoolean(entityInfoTag.getString(FrameData.ENTITY_ID), true);
             }
 
             if (!entities.isEmpty())
-                tag.put(FrameData.ENTITIES_IN_FRAME, entities);
+                frame.put(FrameData.ENTITIES_IN_FRAME, entities);
+        }
+    }
+
+    protected void addStructuresInfo(@NotNull ServerPlayer player, CompoundTag frame) {
+        Map<Structure, LongSet> allStructuresAt = player.serverLevel().structureManager().getAllStructuresAt(player.blockPosition());
+
+        List<Structure> inside = new ArrayList<>();
+
+        for (Structure structure : allStructuresAt.keySet()) {
+            StructureStart structureAt = player.serverLevel().structureManager().getStructureAt(player.blockPosition(), structure);
+            if (structureAt.isValid()) {
+                inside.add(structure);
+            }
         }
 
-        return tag;
+        Registry<Structure> structures = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
+        ListTag structuresTag = new ListTag();
+
+        for (Structure structure : inside) {
+            ResourceLocation key = structures.getKey(structure);
+            if (key != null)
+                structuresTag.add(StringTag.valueOf(key.toString()));
+        }
+
+        if (!structuresTag.isEmpty()) {
+            frame.put("Structures", structuresTag);
+        }
     }
 
     protected CompoundTag createEntityInFrameInfo(Entity entity, Player photographer, ItemStack cameraStack) {
