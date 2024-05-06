@@ -24,8 +24,6 @@ import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class Capture {
-    private final String exposureId;
-    private final CompoundTag frameData;
     private FilmType type = FilmType.COLOR;
     private int size = 320;
     private float cropFactor = Exposure.CROP_FACTOR;
@@ -39,11 +37,6 @@ public class Capture {
     private long captureTick;
     private boolean completed = false;
     private long currentTick;
-
-    public Capture(String exposureId, CompoundTag frameData) {
-        this.exposureId = exposureId;
-        this.frameData = frameData;
-    }
 
     public boolean isCompleted() {
         return completed;
@@ -70,7 +63,7 @@ public class Capture {
         return size;
     }
 
-    public Capture size(int size) {
+    public Capture setSize(int size) {
         Preconditions.checkArgument(size > 0, "'size' cannot be less or equal to 0.");
         this.size = size;
         return this;
@@ -90,7 +83,7 @@ public class Capture {
         return brightnessStops;
     }
 
-    public Capture brightnessStops(float brightnessStops) {
+    public Capture setBrightnessStops(float brightnessStops) {
         this.brightnessStops = brightnessStops;
         return this;
     }
@@ -100,17 +93,17 @@ public class Capture {
         return this;
     }
 
-    public Capture components(ICaptureComponent... components) {
+    public Capture addComponents(ICaptureComponent... components) {
         this.components = List.of(components);
         return this;
     }
 
-    public Capture components(Collection<ICaptureComponent> components) {
+    public Capture addComponents(Collection<ICaptureComponent> components) {
         this.components = components;
         return this;
     }
 
-    public Capture converter(IImageToMapColorsConverter converter) {
+    public Capture setConverter(IImageToMapColorsConverter converter) {
         this.converter = converter;
         return this;
     }
@@ -202,8 +195,6 @@ public class Capture {
             for (ICaptureComponent component : components) {
                 component.save(pixels, image.getWidth(), image.getHeight(), properties);
             }
-
-            CapturedFramesHistory.add(frameData);
         }
         catch (Exception e) {
             LogUtils.getLogger().error(e.toString());

@@ -7,7 +7,6 @@ import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
-import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
@@ -25,8 +24,6 @@ import io.github.mortuusars.exposure.gui.screen.PhotographScreen;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.network.packet.client.*;
-import io.github.mortuusars.exposure.render.ExposureRenderer;
-import io.github.mortuusars.exposure.render.PhotographRenderer;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.ClientsideWorldNameGetter;
 import io.github.mortuusars.exposure.util.ColorUtils;
@@ -74,10 +71,10 @@ public class ClientPacketsHandler {
             String filename = Util.getFilenameFormattedDateTime();
             CompoundTag frameData = new CompoundTag();
             frameData.putString(FrameData.ID, filename);
-            Capture capture = new Capture(filename, frameData)
-                    .size(finalSize)
+            Capture capture = new Capture()
+                    .setSize(finalSize)
                     .cropFactor(1f)
-                    .components(
+                    .addComponents(
                             new BaseComponent(true),
                             new ExposureExporterComponent(filename)
                                     .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(),
@@ -90,7 +87,7 @@ public class ClientPacketsHandler {
                                     LogUtils.getLogger().info("Saved exposure screenshot: " + filename);
                                 }
                             })
-                    .converter(new DitheringColorConverter());
+                    .setConverter(new DitheringColorConverter());
             CaptureManager.enqueue(capture);
         });
     }
@@ -116,15 +113,17 @@ public class ClientPacketsHandler {
                     }
                 }
 
+                Capture capture = new Capture()
+                        .setSize(size)
+                        .cropFactor(1f)
+                        .addComponents(new ExposureStorageSaveComponent(finalExposureId, true))
+                        .setConverter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
+                capture.processImage(image);
+
                 CompoundTag frameData = new CompoundTag();
                 frameData.putString(FrameData.ID, finalExposureId);
 
-                Capture capture = new Capture(finalExposureId, frameData)
-                        .size(size)
-                        .cropFactor(1f)
-                        .components(new ExposureStorageSaveComponent(finalExposureId, true))
-                        .converter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
-                capture.processImage(image);
+                CapturedFramesHistory.add(frameData);
 
                 LogUtils.getLogger()
                         .info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
@@ -238,7 +237,12 @@ public class ClientPacketsHandler {
         });
     }
 
+    public static void onFrameAdded(OnFrameAddedS2CP packet) {
+        executeOnMainThread(() -> CapturedFramesHistory.add(packet.frame()));
+    }
+
     private static void executeOnMainThread(Runnable runnable) {
         Minecraft.getInstance().execute(runnable);
     }
+
 }
