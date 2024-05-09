@@ -69,22 +69,12 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
     public boolean handle(PacketDirection direction, @Nullable Player player) {
         Preconditions.checkState(player != null, "Cannot handle packet: Player was null");
         ServerPlayer serverPlayer = ((ServerPlayer) player);
-        ServerLevel serverLevel = (ServerLevel) player.level();
 
         ItemStack cameraStack = player.getItemInHand(hand);
         if (!(cameraStack.getItem() instanceof CameraItem cameraItem))
             throw new IllegalStateException("Item in hand in not a Camera.");
 
-        // Frame adding event
-
-        cameraItem.addFrameData(serverPlayer, cameraStack, frame, getEntities(serverLevel));
-        cameraItem.addFrameToFilm(cameraStack, frame);
-
-        player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
-        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(serverPlayer, new ItemAndStack<>(cameraStack), frame);
-
-        Packets.sendToClient(new OnFrameAddedS2CP(frame), serverPlayer);
-
+        cameraItem.addFrame(serverPlayer, cameraStack, hand, frame, getEntities(serverPlayer.serverLevel()));
         return true;
     }
 
@@ -97,30 +87,4 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
         }
         return entitiesInFrame;
     }
-
-//    private void addStructuresInfo(@NotNull ServerPlayer player) {
-//        Map<Structure, LongSet> allStructuresAt = player.serverLevel().structureManager().getAllStructuresAt(player.blockPosition());
-//
-//        List<Structure> inside = new ArrayList<>();
-//
-//        for (Structure structure : allStructuresAt.keySet()) {
-//            StructureStart structureAt = player.serverLevel().structureManager().getStructureAt(player.blockPosition(), structure);
-//            if (structureAt.isValid()) {
-//                inside.add(structure);
-//            }
-//        }
-//
-//        Registry<Structure> structures = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
-//        ListTag structuresTag = new ListTag();
-//
-//        for (Structure structure : inside) {
-//            ResourceLocation key = structures.getKey(structure);
-//            if (key != null)
-//                structuresTag.add(StringTag.valueOf(key.toString()));
-//        }
-//
-//        if (!structuresTag.isEmpty()) {
-//            frame.put("Structures", structuresTag);
-//        }
-//    }
 }

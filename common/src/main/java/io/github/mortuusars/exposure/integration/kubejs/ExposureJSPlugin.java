@@ -1,15 +1,19 @@
 package io.github.mortuusars.exposure.integration.kubejs;
 
-import com.google.common.base.Preconditions;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.event.EventResult;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import io.github.mortuusars.exposure.integration.kubejs.event.ExposureJSEvents;
+import io.github.mortuusars.exposure.integration.kubejs.event.ModifyFrameDataEventJS;
 import io.github.mortuusars.exposure.integration.kubejs.event.ShutterOpeningEventJS;
-import io.github.mortuusars.exposure.integration.kubejs.event.StartExposingFrameEventJS;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public class ExposureJSPlugin extends KubeJSPlugin {
     @Override
@@ -27,15 +31,13 @@ public class ExposureJSPlugin extends KubeJSPlugin {
         ExposureJSEvents.register();
     }
 
-    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
-        Preconditions.checkState(!player.level().isClientSide, "Shutter Opening event shouldn't be called on the client.");
-        EventResult result = ExposureJSEvents.SHUTTER_OPENING.post(ScriptType.SERVER,
+    public static boolean fireShutterOpeningEvent(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+        EventResult result = ExposureJSEvents.SHUTTER_OPENING.post(player.level().isClientSide ? ScriptType.CLIENT : ScriptType.SERVER,
                 new ShutterOpeningEventJS(player, cameraStack, lightLevel, shouldFlashFire));
         return result.interruptTrue() || result.interruptFalse() || result.interruptDefault();
     }
 
-    public static void onStartExposingFrame(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
-        ExposureJSEvents.START_EXPOSING_FRAME.post(ScriptType.CLIENT,
-                new StartExposingFrameEventJS(player, cameraStack, exposureId, lightLevel, flashHasFired));
+    public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
+        ExposureJSEvents.MODIFY_FRAME_DATA.post(ScriptType.SERVER, new ModifyFrameDataEventJS(player, cameraStack, frame, entitiesInFrame));
     }
 }

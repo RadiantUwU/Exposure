@@ -1,10 +1,12 @@
 package io.github.mortuusars.exposure.forge;
 
+import io.github.mortuusars.exposure.forge.api.event.ModifyFrameDataEvent;
 import io.github.mortuusars.exposure.forge.api.event.ShutterOpeningEvent;
-import io.github.mortuusars.exposure.forge.api.event.StartExposingFrameClientsideEvent;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,13 +42,13 @@ public class PlatformHelperImpl {
         return ModList.get().isLoaded(modId);
     }
 
-    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+    public static boolean fireShutterOpeningEvent(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         ShutterOpeningEvent event = new ShutterOpeningEvent(player, cameraStack, lightLevel, shouldFlashFire);
         return MinecraftForge.EVENT_BUS.post(event);
     }
 
-    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
-        StartExposingFrameClientsideEvent event = new StartExposingFrameClientsideEvent(player, cameraStack, exposureId, lightLevel, flashHasFired);
+    public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
+        ModifyFrameDataEvent event = new ModifyFrameDataEvent(player, cameraStack, frame, entitiesInFrame);
         MinecraftForge.EVENT_BUS.post(event);
     }
 }

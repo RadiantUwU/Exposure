@@ -1,13 +1,15 @@
 package io.github.mortuusars.exposure.fabric;
 
-import io.github.mortuusars.exposure.fabric.api.event.StartExposingFrameClientsideCallback;
+import io.github.mortuusars.exposure.fabric.api.event.ModifyFrameDataCallback;
 import io.github.mortuusars.exposure.fabric.api.event.ShutterOpeningCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -62,11 +64,11 @@ public class PlatformHelperImpl {
         return FabricLoader.getInstance().isModLoaded(modId);
     }
 
-    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+    public static boolean fireShutterOpeningEvent(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         return ShutterOpeningCallback.EVENT.invoker().onShutterOpening(player, cameraStack, lightLevel, shouldFlashFire);
     }
 
-    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
-        StartExposingFrameClientsideCallback.EVENT.invoker().onExposeFrameClientside(player, cameraStack, exposureId, lightLevel, flashHasFired);
+    public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
+        ModifyFrameDataCallback.EVENT.invoker().modifyFrameData(player, cameraStack, frame, entitiesInFrame);
     }
 }

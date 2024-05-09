@@ -15,6 +15,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.*;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.network.Packets;
+import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
 import io.github.mortuusars.exposure.network.packet.server.CameraInHandAddFrameC2SP;
 import io.github.mortuusars.exposure.network.packet.server.OpenCameraAttachmentsPacketC2SP;
@@ -469,7 +470,7 @@ public class CameraItem extends Item {
         boolean shouldFlashFire = shouldFlashFire(player, cameraStack);
         ShutterSpeed shutterSpeed = getShutterSpeed(cameraStack);
 
-        if (PlatformHelper.onShutterOpening(player, cameraStack, lightLevel, shouldFlashFire))
+        if (PlatformHelper.fireShutterOpeningEvent(player, cameraStack, lightLevel, shouldFlashFire))
             return InteractionResult.FAIL; // Canceled
 
         boolean flashHasFired = shouldFlashFire && tryUseFlash(player, cameraStack);
@@ -488,7 +489,8 @@ public class CameraItem extends Item {
 
         ItemStack cameraStack = player.getItemInHand(hand);
 
-        PlatformHelper.onExposeFrameClientside(player, cameraStack, exposureId, lightLevel, flashHasFired);
+        if (PlatformHelper.fireShutterOpeningEvent(player, cameraStack, lightLevel, flashHasFired))
+            return; // Canceled
 
         CompoundTag frame = new CompoundTag();
 
@@ -513,6 +515,19 @@ public class CameraItem extends Item {
                 .toList();
 
         Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame, entities));
+    }
+
+    public void addFrame(ServerPlayer player, ItemStack cameraStack, InteractionHand hand, CompoundTag frame, List<Entity> entities) {
+        addFrameData(player, cameraStack, frame, entities);
+
+        PlatformHelper.fireModifyFrameDataEvent(player, cameraStack, frame, entities);
+
+        addFrameToFilm(cameraStack, frame);
+
+        player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
+        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(player, new ItemAndStack<>(cameraStack), frame);
+
+        Packets.sendToClient(new OnFrameAddedS2CP(frame), player);
     }
 
     public void addFrameToFilm(ItemStack cameraStack, CompoundTag frame) {
@@ -632,7 +647,7 @@ public class CameraItem extends Item {
             ListTag entities = new ListTag();
 
             for (Entity entity : entitiesInFrame) {
-                CompoundTag entityInfoTag = createEntityInFrameInfo(entity, player, cameraStack);
+                CompoundTag entityInfoTag = createEntityInFrameTag(entity, player, cameraStack);
                 if (entityInfoTag.isEmpty())
                     continue;
 
@@ -674,7 +689,7 @@ public class CameraItem extends Item {
         }
     }
 
-    protected CompoundTag createEntityInFrameInfo(Entity entity, Player photographer, ItemStack cameraStack) {
+    protected CompoundTag createEntityInFrameTag(Entity entity, Player photographer, ItemStack cameraStack) {
         CompoundTag tag = new CompoundTag();
         ResourceLocation entityRL = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 
@@ -768,7 +783,7 @@ public class CameraItem extends Item {
     }
 
     /**
-     * This method is called after we take a screenshot (or immediately if not capturing but should show effects). Otherwise, due to the delays (flash, etc) - particles would be captured as well.
+     * This method is called after we take a screenshot. Otherwise, due to the delays (flash, etc) - particles would be captured as well.
      */
     @SuppressWarnings("unused")
     public void spawnClientsideFlashEffects(@NotNull Player player, ItemStack cameraStack) {

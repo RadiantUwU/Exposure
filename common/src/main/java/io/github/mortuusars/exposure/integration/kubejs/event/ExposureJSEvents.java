@@ -6,9 +6,8 @@ import dev.latvian.mods.kubejs.event.EventHandler;
 public interface ExposureJSEvents {
     EventGroup GROUP = EventGroup.of("ExposureEvents");
 
-    EventHandler SHUTTER_OPENING = GROUP.server("shutterOpening", () -> ShutterOpeningEventJS.class).hasResult();
-
-    EventHandler START_EXPOSING_FRAME = GROUP.client("startExposingFrame", () -> ShutterOpeningEventJS.class);
+    EventHandler SHUTTER_OPENING = GROUP.common("shutterOpening", () -> ShutterOpeningEventJS.class).hasResult();
+    EventHandler MODIFY_FRAME_DATA = GROUP.server("modifyFrameData", () -> ModifyFrameDataEventJS.class);
 
     static void register() {
         GROUP.register();
