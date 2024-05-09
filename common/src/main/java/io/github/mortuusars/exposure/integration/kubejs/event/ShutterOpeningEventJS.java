@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Fired when Camera tries to take a photo. Cancelable.
  * Client-side event wouldn't fire if server-side event was canceled.
- * If canceled only on the client - shutter would be opened, but the image would not be taken.
+ * If canceled only on the client - shutter would be opened, but the image would not be captured.
  * All checks are passed at this point, and if this event is not canceled - photo will be taken.
  */
 public class ShutterOpeningEventJS extends PlayerEventJS {
@@ -25,6 +25,11 @@ public class ShutterOpeningEventJS extends PlayerEventJS {
 
     @Override
     public Player getEntity() {
+        return player;
+    }
+
+    @Override
+    public Player getPlayer() {
         return player;
     }
 

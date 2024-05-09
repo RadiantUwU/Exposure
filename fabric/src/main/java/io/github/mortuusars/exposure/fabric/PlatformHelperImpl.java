@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.fabric;
 
+import io.github.mortuusars.exposure.fabric.api.event.FrameAddedCallback;
 import io.github.mortuusars.exposure.fabric.api.event.ModifyFrameDataCallback;
 import io.github.mortuusars.exposure.fabric.api.event.ShutterOpeningCallback;
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
@@ -70,5 +71,9 @@ public class PlatformHelperImpl {
 
     public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         ModifyFrameDataCallback.EVENT.invoker().modifyFrameData(player, cameraStack, frame, entitiesInFrame);
+    }
+
+    public static void fireFrameAddedEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame) {
+        FrameAddedCallback.EVENT.invoker().onFrameAdded(player, cameraStack, frame);
     }
 }
