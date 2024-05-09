@@ -6,7 +6,9 @@ import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * Fired on the server-side when Camera tries to take a photo.
+ * Fired when Camera tries to take a photo. Cancelable.
+ * Client-side event wouldn't fire if server-side event was canceled.
+ * If canceled only on the client - shutter would be opened, but the image would not be taken.
  * All checks are passed at this point, and if this event is not canceled - photo will be taken.
  */
 @Cancelable

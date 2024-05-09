@@ -1,9 +1,11 @@
 package io.github.mortuusars.exposure;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -38,12 +40,12 @@ public class PlatformHelper {
     }
 
     @ExpectPlatform
-    public static boolean onShutterOpening(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
+    public static boolean fireShutterOpeningEvent(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
         throw new AssertionError();
     }
 
     @ExpectPlatform
-    public static void onExposeFrameClientside(Player player, ItemStack cameraStack, String exposureId, int lightLevel, boolean flashHasFired) {
+    public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         throw new AssertionError();
     }
 }
