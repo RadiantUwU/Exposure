@@ -48,4 +48,9 @@ public class PlatformHelper {
     public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         throw new AssertionError();
     }
+
+    @ExpectPlatform
+    public static void fireFrameAddedEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame) {
+        throw new AssertionError();
+    }
 }

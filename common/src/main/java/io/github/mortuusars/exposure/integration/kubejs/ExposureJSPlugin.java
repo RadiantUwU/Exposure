@@ -5,6 +5,7 @@ import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.event.EventResult;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import io.github.mortuusars.exposure.integration.kubejs.event.ExposureJSEvents;
+import io.github.mortuusars.exposure.integration.kubejs.event.FrameAddedEventJS;
 import io.github.mortuusars.exposure.integration.kubejs.event.ModifyFrameDataEventJS;
 import io.github.mortuusars.exposure.integration.kubejs.event.ShutterOpeningEventJS;
 import net.minecraft.nbt.CompoundTag;
@@ -39,5 +40,9 @@ public class ExposureJSPlugin extends KubeJSPlugin {
 
     public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         ExposureJSEvents.MODIFY_FRAME_DATA.post(ScriptType.SERVER, new ModifyFrameDataEventJS(player, cameraStack, frame, entitiesInFrame));
+    }
+
+    public static void fireFrameAddedEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame) {
+        ExposureJSEvents.FRAME_ADDED.post(ScriptType.SERVER, new FrameAddedEventJS(player, cameraStack, frame));
     }
 }

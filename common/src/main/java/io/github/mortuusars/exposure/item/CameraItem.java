@@ -528,6 +528,8 @@ public class CameraItem extends Item {
         Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(player, new ItemAndStack<>(cameraStack), frame);
 
         Packets.sendToClient(new OnFrameAddedS2CP(frame), player);
+
+        PlatformHelper.fireFrameAddedEvent(player, cameraStack, frame);
     }
 
     public void addFrameToFilm(ItemStack cameraStack, CompoundTag frame) {

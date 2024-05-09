@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.forge;
 
+import io.github.mortuusars.exposure.forge.api.event.FrameAddedEvent;
 import io.github.mortuusars.exposure.forge.api.event.ModifyFrameDataEvent;
 import io.github.mortuusars.exposure.forge.api.event.ShutterOpeningEvent;
 import net.minecraft.nbt.CompoundTag;
@@ -49,6 +50,11 @@ public class PlatformHelperImpl {
 
     public static void fireModifyFrameDataEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         ModifyFrameDataEvent event = new ModifyFrameDataEvent(player, cameraStack, frame, entitiesInFrame);
+        MinecraftForge.EVENT_BUS.post(event);
+    }
+
+    public static void fireFrameAddedEvent(ServerPlayer player, ItemStack cameraStack, CompoundTag frame) {
+        FrameAddedEvent event = new FrameAddedEvent(player, cameraStack, frame);
         MinecraftForge.EVENT_BUS.post(event);
     }
 }
