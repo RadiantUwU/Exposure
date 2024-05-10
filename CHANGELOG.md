@@ -21,7 +21,7 @@
 - GUI titles now have a separate lang entries instead of using corresponding block/item entries. 
 
 - Fixed custom Lenses not syncing to the player when they join a server.
-
+- [Fabric] Fixed Sequenced Film Developing (with Create) recipes not showing in EMI
 
 ---
 
