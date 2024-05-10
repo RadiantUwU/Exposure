@@ -141,6 +141,7 @@ public class Config {
         public static final ForgeConfigSpec.BooleanValue ALBUM_SHOW_PHOTOS_COUNT;
 
         // CAPTURE
+        public static final ForgeConfigSpec.IntValue CAPTURE_DELAY_FRAMES;
         public static final ForgeConfigSpec.IntValue FLASH_CAPTURE_DELAY_TICKS;
 
         // VIEWFINDER
@@ -218,6 +219,11 @@ public class Config {
 
             {
                 builder.push("Capture");
+                CAPTURE_DELAY_FRAMES = builder
+                        .comment("Delay in frames before capturing an image.",
+                                "Set to higher value when leftovers of GUI elements (such as nameplates) are visible on the images",
+                                "(some shaders have temporal effects that take several frames to disappear fully)")
+                        .defineInRange("CaptureDelayFrames", 0, 0, 100);
                 FLASH_CAPTURE_DELAY_TICKS = builder
                         .comment("Delay in ticks before capturing an image when shooting with flash." +
                                 "\nIf you experience flash synchronization issues (Flash having no effect on the image) - try increasing the value.")
