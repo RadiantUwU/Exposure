@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.camera.capture.component;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -21,8 +22,13 @@ public class BaseComponent implements ICaptureComponent {
     }
 
     @Override
+    public int getFramesDelay(Capture capture) {
+        return Config.Client.CAPTURE_DELAY_FRAMES.get();
+    }
+
+    @Override
     public void onDelayFrame(Capture capture, int delayFramesLeft) {
-        if (delayFramesLeft == 0) { // Right before capturing
+        if (delayFramesLeft == Math.max(0, Config.Client.CAPTURE_DELAY_FRAMES.get() - 1)) { // Right before capturing
             Minecraft mc = Minecraft.getInstance();
             storedGuiHidden = mc.options.hideGui;
             storedCameraType = mc.options.getCameraType();
