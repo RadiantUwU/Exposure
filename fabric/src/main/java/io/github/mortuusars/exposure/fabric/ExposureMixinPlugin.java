@@ -14,9 +14,9 @@ import java.util.function.Supplier;
 public class ExposureMixinPlugin implements IMixinConfigPlugin {
 
     private static final Map<String, Supplier<Boolean>> CONDITIONS = ImmutableMap.of(
-            "io.github.mortuusars.exposure.fabric.mixin.create.CreateJEICompatMixin", ExposureMixinPlugin::isCorrectCreateVersion,
             "io.github.mortuusars.exposure.fabric.mixin.create.RecipeTypesMixin", ExposureMixinPlugin::isCorrectCreateVersion,
-            "io.github.mortuusars.exposure.fabric.mixin.create.SpoutDevelopingMixin", ExposureMixinPlugin::isCorrectCreateVersion
+            "io.github.mortuusars.exposure.fabric.mixin.create.SpoutDevelopingMixin", ExposureMixinPlugin::isCorrectCreateVersion,
+            "io.github.mortuusars.exposure.fabric.mixin.create.CreateEmiPluginMixin", () -> FabricLoader.getInstance().isModLoaded("emi") && isCorrectCreateVersion()
     );
 
     private static boolean isCorrectCreateVersion() {

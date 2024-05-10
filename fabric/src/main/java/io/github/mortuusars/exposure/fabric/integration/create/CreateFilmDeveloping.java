@@ -3,7 +3,13 @@ package io.github.mortuusars.exposure.fabric.integration.create;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.logging.LogUtils;
 import io.github.fabricators_of_create.porting_lib.util.FluidStack;
+import com.simibubi.create.content.fluids.transfer.FillingRecipe;
+import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipe;
+import com.simibubi.create.content.processing.sequenced.SequencedAssemblyRecipeBuilder;
+import com.simibubi.create.foundation.fluid.FluidIngredient;
+import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
 import io.github.mortuusars.exposure.Config;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.item.FilmRollItem;
 import net.minecraft.nbt.CompoundTag;
@@ -19,6 +25,25 @@ import java.util.Map;
 public class CreateFilmDeveloping {
     public static final String CURRENT_STEP_TAG = "CurrentDevelopingStep";
     private static final Map<FilmType, List<FluidStack>> cache = new HashMap<>();
+
+    /**
+     * Used in JEI/EMI plugins.
+     */
+    public static SequencedAssemblyRecipe createSequencedDevelopingRecipe(FilmType filmType) {
+        List<FluidStack> fillingSteps = CreateFilmDeveloping.getFillingSteps(filmType);
+
+        SequencedAssemblyRecipeBuilder recipeBuilder = new SequencedAssemblyRecipeBuilder(Exposure.resource("sequenced_" + filmType.getSerializedName() + "_film_developing"))
+                .require(filmType.createItemStack().getItem())
+                .transitionTo(filmType.createItemStack().getItem())
+                .loops(1)
+                .addOutput(filmType.createDevelopedItemStack().getItem(), 1);
+
+        for (FluidStack fluidStack : fillingSteps) {
+            recipeBuilder.addStep(FillingRecipe::new, f -> f.require(FluidIngredient.fromFluidStack(fluidStack)));
+        }
+
+        return recipeBuilder.build();
+    }
 
     public static List<FluidStack> getFillingSteps(FilmType filmType) {
         if (cache.containsKey(filmType))

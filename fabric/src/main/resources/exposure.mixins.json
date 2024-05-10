@@ -8,11 +8,11 @@
     "GameRendererFabricMixin",
     "HumanoidModelMixin",
     "ItemFrameRendererFabricMixin",
-    "MouseHandlerFabricMixin",
-    "create.CreateJEICompatMixin"
+    "MouseHandlerFabricMixin"
   ],
   "mixins": [
     "AlbumItemFabricMixin",
+    "create.CreateEmiPluginMixin",
     "create.RecipeTypesMixin",
     "create.SpoutDevelopingMixin"
   ],
