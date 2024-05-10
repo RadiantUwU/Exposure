@@ -29,6 +29,7 @@ subprojects {
 
         modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
         modCompileOnlyApi("curse.maven:jade-324717:${forge_jade_id}")
+        modCompileOnly "dev.emi:emi-xplat-intermediary:${emi_version}:api"
     }
 }
 
@@ -94,6 +95,12 @@ allprojects {
             content {
                 includeGroup "dev.latvian.mods"
             }
+        }
+
+        // EMI
+        maven {
+            name = "TerraformersMC"
+            url = "https://maven.terraformersmc.com/"
         }
     }
 

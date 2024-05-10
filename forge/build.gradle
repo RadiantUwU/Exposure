@@ -68,6 +68,8 @@ dependencies {
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}")
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}-forge:${jei_version}") { transitive = false }
 
+//    modRuntimeOnly("dev.emi:emi-forge:${emi_version}")
+
     modCompileOnlyApi("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     // Not working in dev env:
     // modRuntimeOnly("dev.latvian.mods:kubejs-forge:${kubejs_version}")

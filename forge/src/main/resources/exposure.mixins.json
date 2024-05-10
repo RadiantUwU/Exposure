@@ -5,8 +5,7 @@
   "minVersion": "0.8",
   "plugin": "io.github.mortuusars.exposure.forge.ExposureMixinPlugin",
   "client": [
-    "ToggleKeyMappingForgeMixin",
-    "create.CreateJEICompatMixin"
+    "ToggleKeyMappingForgeMixin"
   ],
   "mixins": [
     "AlbumItemForgeMixin",
