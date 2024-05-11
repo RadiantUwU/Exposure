@@ -149,7 +149,7 @@ public class CameraItem extends Item {
                 Optional<ItemStack> current = getAttachment(stack, attachmentType);
 
                 if (otherStack.getCount() > 1 && current.isPresent()) {
-                    if (player.level().isClientSide())
+                    if (player.getLevel().isClientSide())
                         OnePerPlayerSoundsClient.play(player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 0.8f, 1f);
                     return true; // Cannot swap when holding more than one item
                 }

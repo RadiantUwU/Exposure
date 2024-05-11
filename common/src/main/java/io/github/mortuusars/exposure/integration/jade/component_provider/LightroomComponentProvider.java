@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
 import snownee.jade.api.BlockAccessor;
@@ -24,7 +26,7 @@ import snownee.jade.impl.ui.ProgressArrowElement;
 
 import java.util.List;
 
-public enum LightroomComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor>,
+public enum LightroomComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockEntity>,
         IServerExtensionProvider<LightroomBlockEntity, ItemStack> {
     INSTANCE;
 
@@ -76,8 +78,8 @@ public enum LightroomComponentProvider implements IBlockComponentProvider, IServ
     }
 
     @Override
-    public void appendServerData(CompoundTag tag, BlockAccessor blockAccessor) {
-        if (blockAccessor.getBlockEntity() instanceof LightroomBlockEntity lightroomBlockEntity) {
+    public void appendServerData(CompoundTag tag, ServerPlayer serverPlayer, Level level, BlockEntity be, boolean b) {
+        if (be instanceof LightroomBlockEntity lightroomBlockEntity) {
             if (lightroomBlockEntity.isEmpty()) {
                 tag.putBoolean("Empty", true);
                 return;
@@ -98,12 +100,12 @@ public enum LightroomComponentProvider implements IBlockComponentProvider, IServ
     }
 
     @Override
-    public @Nullable List<ViewGroup<ItemStack>> getGroups(ServerPlayer serverPlayer, ServerLevel serverLevel, LightroomBlockEntity lightroomBlockEntity, boolean b) {
-        return null;
+    public ResourceLocation getUid() {
+        return ExposureJadePlugin.LIGHTROOM;
     }
 
     @Override
-    public ResourceLocation getUid() {
-        return ExposureJadePlugin.LIGHTROOM;
+    public @Nullable List<ViewGroup<ItemStack>> getGroups(ServerPlayer serverPlayer, ServerLevel serverLevel, LightroomBlockEntity lightroomBlockEntity, boolean b) {
+        return null;
     }
 }
