@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.6.0 - 2024-05-11
 
 - Middle mouse button can now be used to open Camera controls.
   - Allows opening controls without dismounting from a horse. Or jumping off a plane mid-flight. (Without rebinding sneak) 
@@ -8,7 +8,8 @@
 - Right-clicking on the Camera in inventory will open Camera configuration screen.
   - Right-click with item install/swap an attachment.
 
-- Added KubeJS integration - <WIKI>
+- Added KubeJS integration - [Wiki](https://github.com/mortuusars/Exposure/wiki/KubeJS-Integration) 
+- Added three java events (same as in KubeJS) for addon developers. 
 - Added Jade integration to Lightroom: it now shows printing progress arrow. 
 - Added config option to disable attacking while looking through Viewfinder.
 - Added config option to delay capture (useful when GUI elements are not hidden fully, which happens with some shaders)
