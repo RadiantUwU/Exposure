@@ -4,9 +4,12 @@ import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.AttachmentType;
 import io.github.mortuusars.exposure.item.CameraItem;
+import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.util.ItemAndStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -47,6 +50,10 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
 
         this.attachmentSlotsCount = addAttachmentSlots(container);
         addPlayerSlots(playerInventory);
+
+        if (player.getLevel().isClientSide) {
+            player.playSound(Exposure.SoundEvents.CAMERA_GENERIC_CLICK.get(), 0.9f, 0.9f);
+        }
     }
 
     public ItemAndStack<CameraItem> getCamera() {
@@ -104,7 +111,7 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
                     }
 
                     @Override
-                    public boolean isHighlightable() {
+                    public boolean allowModification(Player player) {
                         return getContainerSlot() != cameraSlotIndex;
                     }
                 });
@@ -126,7 +133,7 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
                 }
 
                 @Override
-                public boolean isHighlightable() {
+                public boolean allowModification(Player player) {
                     return getContainerSlot() != cameraSlotIndex;
                 }
             });
@@ -143,7 +150,7 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
             if (player.getLevel().isClientSide() && clientContentsInitialized)
                 type.sound().playOnePerPlayer(player, newStack.isEmpty());
 
-            if (!player.level().isClientSide() && player.isCreative()) {
+            if (!player.getLevel().isClientSide() && player.isCreative()) {
                 // Fixes item not updating properly when not in "Inventory" tab of creative inventory
                 player.getInventory().setItem(cameraSlotIndex, camera.getStack());
             }

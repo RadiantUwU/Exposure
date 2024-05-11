@@ -33,7 +33,7 @@ public class ExposureJSPlugin extends KubeJSPlugin {
     }
 
     public static boolean fireShutterOpeningEvent(Player player, ItemStack cameraStack, int lightLevel, boolean shouldFlashFire) {
-        EventResult result = ExposureJSEvents.SHUTTER_OPENING.post(player.level().isClientSide ? ScriptType.CLIENT : ScriptType.SERVER,
+        EventResult result = ExposureJSEvents.SHUTTER_OPENING.post(player.getLevel().isClientSide ? ScriptType.CLIENT : ScriptType.SERVER,
                 new ShutterOpeningEventJS(player, cameraStack, lightLevel, shouldFlashFire));
         return result.interruptTrue() || result.interruptFalse() || result.interruptDefault();
     }

@@ -4,16 +4,8 @@ import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.network.PacketDirection;
-import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.IPacket;
-import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
-import io.github.mortuusars.exposure.util.ItemAndStack;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.core.Registry;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -22,14 +14,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, List<UUID> entitiesInFrameIds) implements IPacket {
@@ -74,7 +62,7 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
         if (!(cameraStack.getItem() instanceof CameraItem cameraItem))
             throw new IllegalStateException("Item in hand in not a Camera.");
 
-        cameraItem.addFrame(serverPlayer, cameraStack, hand, frame, getEntities(serverPlayer.serverLevel()));
+        cameraItem.addFrame(serverPlayer, cameraStack, hand, frame, getEntities(serverPlayer.getLevel()));
         return true;
     }
 

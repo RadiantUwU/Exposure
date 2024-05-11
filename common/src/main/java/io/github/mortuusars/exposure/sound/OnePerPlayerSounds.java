@@ -32,7 +32,7 @@ public class OnePerPlayerSounds {
     }
 
     public static void playForAllClients(Player player, SoundEvent soundEvent, SoundSource source, float volume, float pitch) {
-        if (!player.level().isClientSide)
+        if (!player.getLevel().isClientSide)
             Packets.sendToAllClients(new PlayOnePerPlayerSoundS2CP(player.getUUID(), soundEvent, source, volume, pitch));
     }
 }

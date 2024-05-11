@@ -33,7 +33,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
@@ -474,7 +474,7 @@ public class CameraItem extends Item {
 
         boolean flashHasFired = shouldFlashFire && tryUseFlash(player, cameraStack);
 
-        openShutter(player, player.getLevel(), cameraStack, shutterSpeed, true, flashHasFired);
+        openShutter(player, cameraStack, shutterSpeed, true, flashHasFired);
 
         if (player instanceof ServerPlayer serverPlayer) {
             Packets.sendToClient(new StartExposureS2CP(createExposureId(player), hand, flashHasFired, lightLevel), serverPlayer);
@@ -499,7 +499,7 @@ public class CameraItem extends Item {
         frame.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
         frame.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
         frame.putInt(FrameData.LIGHT_LEVEL, lightLevel);
-        frame.putFloat(FrameData.SUN_ANGLE, player.level().getSunAngle(0));
+        frame.putFloat(FrameData.SUN_ANGLE, player.getLevel().getSunAngle(0));
         if (flashHasFired)
             frame.putBoolean(FrameData.FLASH, true);
         if (isInSelfieMode(cameraStack))
@@ -665,18 +665,18 @@ public class CameraItem extends Item {
     }
 
     protected void addStructuresInfo(@NotNull ServerPlayer player, CompoundTag frame) {
-        Map<Structure, LongSet> allStructuresAt = player.serverLevel().structureManager().getAllStructuresAt(player.blockPosition());
+        Map<Structure, LongSet> allStructuresAt = player.getLevel().structureManager().getAllStructuresAt(player.blockPosition());
 
         List<Structure> inside = new ArrayList<>();
 
         for (Structure structure : allStructuresAt.keySet()) {
-            StructureStart structureAt = player.serverLevel().structureManager().getStructureAt(player.blockPosition(), structure);
+            StructureStart structureAt = player.getLevel().structureManager().getStructureAt(player.blockPosition(), structure);
             if (structureAt.isValid()) {
                 inside.add(structure);
             }
         }
 
-        Registry<Structure> structures = player.serverLevel().registryAccess().registryOrThrow(Registries.STRUCTURE);
+        Registry<Structure> structures = player.getLevel().registryAccess().registryOrThrow(BuiltinRegistries.STRUCTURES.key());
         ListTag structuresTag = new ListTag();
 
         for (Structure structure : inside) {

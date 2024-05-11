@@ -42,7 +42,7 @@ public class PhotographRenderer {
         if (renderPaper) {
             poseStack.pushPose();
             poseStack.translate(rotateOffset, rotateOffset, 0);
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
+            poseStack.mulPose(Vector3f.ZP.rotationDegrees(rotation * 90));
             poseStack.translate(-rotateOffset, -rotateOffset, 0);
 
             renderTexture(properties.getPaperTexture(), poseStack, bufferSource, 0, 0,
