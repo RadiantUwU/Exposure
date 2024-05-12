@@ -45,22 +45,22 @@ dependencies {
 
     modCompileOnlyApi("dev.latvian.mods:kubejs-fabric:${kubejs_version}")
     modRuntimeOnly("dev.latvian.mods:kubejs-fabric:${kubejs_version}")
+    modRuntimeOnly("curse.maven:probejs-585406:${probejs_fabric_id}")
 
-    modCompileOnlyApi("curse.maven:jade-324717:${fabric_jade_id}")
-    modRuntimeOnly("curse.maven:jade-324717:${fabric_jade_id}") { transitive = false }
+    modCompileOnlyApi("curse.maven:jade-324717:${jade_fabric_id}")
+    modRuntimeOnly("curse.maven:jade-324717:${jade_fabric_id}") { transitive = false }
 
     modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}")
     modRuntimeOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}")
-//    modRuntimeOnly "me.shedaniel:RoughlyEnoughItems-fabric:${rei_version}"
 
-//    modRuntimeOnly("dev.emi:emi-fabric:${emi_version}")
+    // modRuntimeOnly("dev.emi:emi-fabric:${emi_version}")
 
-    // Create - dependencies are added transitively
+    // Create
     modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
-//    modRuntimeOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
+    // modRuntimeOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
 
     // C2ME
-//    modImplementation("maven.modrinth:VSNURh3q:0.2.0+alpha.11.0+1.20.1")
+    // modImplementation("maven.modrinth:VSNURh3q:0.2.0+alpha.11.0+1.20.1")
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }

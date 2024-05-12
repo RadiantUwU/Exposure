@@ -28,7 +28,7 @@ subprojects {
         }
 
         modCompileOnlyApi("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}")
-        modCompileOnlyApi("curse.maven:jade-324717:${forge_jade_id}")
+        modCompileOnlyApi("curse.maven:jade-324717:${jade_forge_id}")
         modCompileOnly "dev.emi:emi-xplat-intermediary:${emi_version}:api"
     }
 }
