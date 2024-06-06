@@ -42,19 +42,20 @@ public class ExposureFabric implements ModInitializer {
         });
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(content -> {
-            content.prepend(Exposure.Items.CAMERA.get());
-            content.prepend(Exposure.Items.BLACK_AND_WHITE_FILM.get());
-            content.prepend(Exposure.Items.COLOR_FILM.get());
-            content.prepend(Exposure.Items.DEVELOPED_BLACK_AND_WHITE_FILM.get());
-            content.prepend(Exposure.Items.DEVELOPED_COLOR_FILM.get());
-            content.prepend(Exposure.Items.PHOTOGRAPH.get());
-            content.prepend(Exposure.Items.AGED_PHOTOGRAPH.get());
-            content.prepend(Exposure.Items.STACKED_PHOTOGRAPHS.get());
-            content.prepend(Exposure.Items.ALBUM.get());
+            content.accept(Exposure.Items.CAMERA.get());
+            content.accept(Exposure.Items.BLACK_AND_WHITE_FILM.get());
+            content.accept(Exposure.Items.COLOR_FILM.get());
+            content.accept(Exposure.Items.DEVELOPED_BLACK_AND_WHITE_FILM.get());
+            content.accept(Exposure.Items.DEVELOPED_COLOR_FILM.get());
+            content.accept(Exposure.Items.PHOTOGRAPH.get());
+            content.accept(Exposure.Items.AGED_PHOTOGRAPH.get());
+            content.accept(Exposure.Items.STACKED_PHOTOGRAPHS.get());
+            content.accept(Exposure.Items.PHOTOGRAPH_FRAME.get());
+            content.accept(Exposure.Items.ALBUM.get());
         });
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS).register(content -> {
-            content.prepend(Exposure.Items.LIGHTROOM.get());
+            content.accept(Exposure.Items.LIGHTROOM.get());
         });
 
         Exposure.Advancements.register();

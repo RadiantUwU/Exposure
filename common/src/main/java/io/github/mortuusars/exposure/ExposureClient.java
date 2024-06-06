@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,5 +91,12 @@ public class ExposureClient {
                 "Viewfinder Controls key mapping was not registered");
 
         return openCameraControlsKey.isUnbound() ? Minecraft.getInstance().options.keyShift : openCameraControlsKey;
+    }
+
+    public static class Models {
+        public static final ModelResourceLocation CAMERA_GUI = new ModelResourceLocation(Exposure.ID, "camera_gui", "inventory");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL = new ModelResourceLocation(Exposure.ID, "photograph_frame_small", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM = new ModelResourceLocation(Exposure.ID, "photograph_frame_medium", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE = new ModelResourceLocation(Exposure.ID, "photograph_frame_large", "");
     }
 }

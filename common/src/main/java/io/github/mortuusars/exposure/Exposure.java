@@ -12,6 +12,7 @@ import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
 import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
 import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
 import io.github.mortuusars.exposure.entity.PhotographEntity;
+import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
 import io.github.mortuusars.exposure.item.*;
 import io.github.mortuusars.exposure.menu.AlbumMenu;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
@@ -152,6 +153,9 @@ public class Exposure {
                 () -> new SignedAlbumItem(new Item.Properties()
                         .stacksTo(1)));
 
+        public static final Supplier<PhotographFrameItem> PHOTOGRAPH_FRAME = Register.item("photograph_frame",
+                () -> new PhotographFrameItem(new Item.Properties()));
+
         public static final Supplier<BlockItem> LIGHTROOM = Register.item("lightroom",
                 () -> new BlockItem(Blocks.LIGHTROOM.get(), new Item.Properties()));
 
@@ -162,6 +166,8 @@ public class Exposure {
     public static class EntityTypes {
         public static final Supplier<EntityType<PhotographEntity>> PHOTOGRAPH = Register.entityType("photograph",
                 PhotographEntity::new, MobCategory.MISC, 0.5F, 0.5F, 128, false, Integer.MAX_VALUE);
+        public static final Supplier<EntityType<PhotographFrameEntity>> PHOTOGRAPH_FRAME = Register.entityType("photograph_frame",
+                PhotographFrameEntity::new, MobCategory.MISC, 0.5F, 0.5F, 128, false, Integer.MAX_VALUE);
 
         static void init() {
         }

@@ -15,8 +15,8 @@ import io.github.mortuusars.exposure.gui.screen.camera.CameraAttachmentsScreen;
 import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
 import io.github.mortuusars.exposure.render.ItemFramePhotographRenderer;
 import io.github.mortuusars.exposure.render.PhotographEntityRenderer;
+import io.github.mortuusars.exposure.render.PhotographFrameEntityRenderer;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -39,6 +39,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(Exposure.EntityTypes.PHOTOGRAPH.get(), PhotographEntityRenderer::new);
+            event.registerEntityRenderer(Exposure.EntityTypes.PHOTOGRAPH_FRAME.get(), PhotographFrameEntityRenderer::new);
         }
 
         @SubscribeEvent
@@ -54,7 +55,10 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void registerModels(ModelEvent.RegisterAdditional event) {
-            event.register(new ModelResourceLocation("exposure", "camera_gui", "inventory"));
+            event.register(ExposureClient.Models.CAMERA_GUI);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE);
         }
 
         @SubscribeEvent

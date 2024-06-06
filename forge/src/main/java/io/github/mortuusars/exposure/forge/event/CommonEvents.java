@@ -38,6 +38,7 @@ public class CommonEvents {
                 event.accept(Exposure.Items.PHOTOGRAPH.get());
                 event.accept(Exposure.Items.AGED_PHOTOGRAPH.get());
                 event.accept(Exposure.Items.STACKED_PHOTOGRAPHS.get());
+                event.accept(Exposure.Items.PHOTOGRAPH_FRAME.get());
                 event.accept(Exposure.Items.ALBUM.get());
             }
 
