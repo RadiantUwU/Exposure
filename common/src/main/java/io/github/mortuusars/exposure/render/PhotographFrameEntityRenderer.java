@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -17,8 +18,10 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LightLayer;
 import org.jetbrains.annotations.NotNull;
 
 public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> extends EntityRenderer<T> {
@@ -48,13 +51,11 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
         poseStack.pushPose();
 
         Direction direction = entity.getDirection();
-        double d = 0.46875;
-        poseStack.translate(direction.getStepX() * d, direction.getStepY() * d, direction.getStepZ() * d);
+        double hangOffset = 0.46875; // thickness of the frame is 1px (0.5 - (1/16 * 0.5)) - 0.5 is because we are offsetting from the center.
+        poseStack.translate(direction.getStepX() * hangOffset, direction.getStepY() * hangOffset, direction.getStepZ() * hangOffset);
 
         poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entity.getYRot()));
-        poseStack.mulPose(Axis.ZP.rotationDegrees((entity.getRotation() * 360.0F / 4.0F)));
-//        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
 
         if (!invisible) {
             renderFrame(entity, poseStack, bufferSource, packedLight);
@@ -62,26 +63,50 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
 
         ItemStack item = entity.getItem();
         if (!item.isEmpty()) {
-            poseStack.pushPose();
-            int size = entity.getSize();
-            float scale = (size + 1) / (float)ExposureClient.getExposureRenderer().getSize();
-//
-//            scale *= size + 1;
-//
-            scale = scale * (1f - (4 / 16f));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-            poseStack.translate(-0.5 * (size + 1), -0.5 * (size + 1), 0.48);
-            poseStack.scale(scale, scale, 0);
-//            poseStack.translate(-0.5 * scale, -0.5 * scale, -0.4875);
-
-            if (entity.isGlowing())
-                packedLight = LightTexture.FULL_BRIGHT;
-
-            PhotographRenderer.render(item, false, false, poseStack, bufferSource, packedLight,
-                    240, 240, 240, 255);
-            poseStack.popPose();
+            renderPhotograph(entity, poseStack, bufferSource, packedLight, item);
         }
 
+        poseStack.popPose();
+    }
+
+    private static <T extends PhotographFrameEntity> void renderPhotograph(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, ItemStack item) {
+        poseStack.pushPose();
+        int size = entity.getSize();
+
+        boolean frameInvisible = entity.isInvisible();
+
+        float frameBorderOffset = frameInvisible ? 0f : 0.125f; // (2px / 16px = 0.125)
+        float desiredSize = size + 1 - frameBorderOffset * 2;
+        float scale = desiredSize / (float)ExposureClient.getExposureRenderer().getSize();
+
+        poseStack.mulPose(Axis.ZP.rotationDegrees((entity.getRotation() * 360.0F / 4.0F)));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+        float offsetFromCenter = frameInvisible ? 0.4975f : 0.485f;
+        poseStack.translate(-0.5 * (size + 1) + frameBorderOffset, -0.5 * (size + 1) + frameBorderOffset, offsetFromCenter);
+        poseStack.scale(scale, scale, 1);
+
+        int brightness;
+        if (entity.isGlowing()) {
+            packedLight = LightTexture.FULL_BRIGHT;
+            brightness = 255;
+        }
+        else if (entity.getDirection() == Direction.UP)
+            brightness = 255;
+        else {
+            // Darken the photo same way as the block sides darken,
+            // but not quite as much and allow light sources to brighten it:
+            int lightLevel = entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition());
+            float shadeFactor = entity.level().getShade(entity.getDirection(), true);
+            shadeFactor += (1f - shadeFactor) * 0.2f;
+
+            int shadedBrightness = (int)(255 * shadeFactor);
+            int missingLight = 255 - shadedBrightness;
+            int lightUp = (int)(missingLight * (lightLevel / 15f * 0.5f));
+            brightness = Math.min(255, shadedBrightness + lightUp);
+        }
+
+        PhotographRenderer.render(item, false, false, poseStack, bufferSource, packedLight,
+                brightness, brightness, brightness, 255);
         poseStack.popPose();
     }
 

@@ -42,8 +42,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.List;
-
 public class PhotographFrameEntity extends HangingEntity {
     public static final Logger LOGGER = LogUtils.getLogger();
 
@@ -51,7 +49,7 @@ public class PhotographFrameEntity extends HangingEntity {
     protected static final EntityDataAccessor<ItemStack> DATA_FRAME_ITEM = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.ITEM_STACK);
     protected static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.ITEM_STACK);
     protected static final EntityDataAccessor<Boolean> DATA_GLOWING = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.BOOLEAN);
-    protected static final EntityDataAccessor<Integer> DATA_ROTATION = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> DATA_ITEM_ROTATION = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.INT);
 
     protected int size = 0;
 
@@ -77,7 +75,7 @@ public class PhotographFrameEntity extends HangingEntity {
         this.getEntityData().define(DATA_FRAME_ITEM, ItemStack.EMPTY);
         this.getEntityData().define(DATA_ITEM, ItemStack.EMPTY);
         this.getEntityData().define(DATA_GLOWING, false);
-        this.getEntityData().define(DATA_ROTATION, 0);
+        this.getEntityData().define(DATA_ITEM_ROTATION, 0);
     }
 
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
@@ -98,8 +96,6 @@ public class PhotographFrameEntity extends HangingEntity {
         int direction = packedData & 0xFF;
         setSize(size);
         setDirection(Direction.from3DDataValue(direction));
-        LOGGER.info("Size: " + size);
-        LOGGER.info("Direction: " + direction);
     }
 
     @Override
@@ -188,137 +184,43 @@ public class PhotographFrameEntity extends HangingEntity {
         if (this.direction == null)
             return;
 
+        double x = (double)this.pos.getX() + 0.5;
+        double y = (double)this.pos.getY() + 0.5;
+        double z = (double)this.pos.getZ() + 0.5;
+
+        double widthOffset = getWidth() % 32 == 0 ? 0.5 : 0.0;
+        double heightOffset = getHeight() % 32 == 0 ? 0.5 : 0.0;
+        if (getSize() == 2) {
+            widthOffset += 1;
+            heightOffset += 1;
+        }
+
+        double hangOffset = 0.46875;
+
         if (getDirection().getAxis().isHorizontal()) {
-            double d = (double)this.pos.getX() + 0.5;
-            double e = (double)this.pos.getY() + 0.5;
-            double f = (double)this.pos.getZ() + 0.5;
-            double g = 0.46875;
-
-            double widthOffset = getWidth() % 32 == 0 ? 0.5 : 0.0;
-            double heightOffset = getHeight() % 32 == 0 ? 0.5 : 0.0;
-            if (getSize() == 2) {
-                widthOffset += 1;
-                heightOffset += 1;
-            }
-
-            d -= (double)this.direction.getStepX() * g;
-            f -= (double)this.direction.getStepZ() * g;
-            Direction direction = this.direction.getCounterClockWise();
-            this.setPosRaw(d += widthOffset * (double)direction.getStepX(), e += heightOffset, f += widthOffset * (double)direction.getStepZ());
-            double j = this.getWidth();
-            double k = this.getHeight();
-            double l = this.getWidth();
-            if (this.direction.getAxis() == Direction.Axis.Z) {
-                l = 1.0;
-            } else {
-                j = 1.0;
-            }
-            this.setBoundingBox(new AABB(d - (j /= 32.0), e - (k /= 32.0), f - (l /= 32.0), d + j, e + k, f + l));
-
-
-
-//            double x = (double) pos.getX() + 0.5;
-//            double y = (double) pos.getY() + 0.5;
-//            double z = (double) pos.getZ() + 0.5;
-//            double g = 0.46875;
-//
-//            double widthOffset = getWidth() % 32 == 0 ? 0.5 : 0.0;
-//            double heightOffset = getHeight() % 32 == 0 ? 0.5 : 0.0;
-//            if (getSize() == 2) {
-//                widthOffset += 1;
-//                heightOffset += 1;
-//            }
-//
-//            x -= (double) direction.getStepX() * g;
-//            z -= (double) direction.getStepZ() * g;
-//            Direction direction = getDirection().getCounterClockWise();
-//            setPosRaw(x += widthOffset * direction.getStepX(), y += heightOffset, z += widthOffset * direction.getStepZ());
-//            double j = getWidth();
-//            double k = getHeight();
-//            double l = getWidth();
-//            if (direction.getAxis() == Direction.Axis.Z) {
-//                l = 1.0;
-//            } else {
-//                j = 1.0;
-//            }
-//            setBoundingBox(new AABB(x - (j /= 32.0), y - (k /= 32.0), z - (l /= 32.0), x + j, y + k, z + l));
+            x -= getDirection().getStepX() * hangOffset;
+            z -= getDirection().getStepZ() * hangOffset;
+            Direction direction = getDirection().getCounterClockWise();
+            setPosRaw(x += widthOffset * (double)direction.getStepX(), y += heightOffset, z += widthOffset * (double)direction.getStepZ());
+            double xSize = this.getWidth();
+            double ySize = this.getHeight();
+            double zSize = this.getWidth();
+            if (getDirection().getAxis() == Direction.Axis.Z)
+                zSize = 1.0;
+            else
+                xSize = 1.0;
+            setBoundingBox(new AABB(x - (xSize /= 32.0), y - (ySize /= 32.0), z - (zSize /= 32.0), x + xSize, y + ySize, z + zSize));
         }
         else {
-            double x = (double) pos.getX() + 0.5;
-            double y = (double) pos.getY() + 0.5;
-            double z = (double) pos.getZ() + 0.5;
-            double g = 0.46875;
-
-            double widthOffset = getWidth() % 32 == 0 ? 0.5 : 0.0;
-            double heightOffset = getHeight() % 32 == 0 ? 0.5 : 0.0;
-            if (getSize() == 2) {
-                widthOffset += 1;
-                heightOffset += 1;
-            }
-
-            y -= direction.getStepY() * g;
-
+            y -= getDirection().getStepY() * hangOffset;
             setPosRaw(x += widthOffset, y, z -= heightOffset);
-
             double xSize = getWidth();
             double zSize = getHeight();
-
             setBoundingBox(new AABB(x - (xSize /= 32.0), y - (1.0 / 32.0), z - (zSize /= 32.0), x + xSize, y + 1.0 / 32.0, z + zSize));
         }
-
-
-//        //noinspection ConstantValue
-//        if (this.direction == null) {
-//            // When called from HangingEntity constructor direction is null
-//            return;
-//        }
-//
-//        double value = 0.46875D;
-//        double d1 = (double)this.pos.getX() + 0.5D - (double)this.direction.getStepX() * value;
-//        double d2 = (double)this.pos.getY() + 0.5D - (double)this.direction.getStepY() * value;
-//        double d3 = (double)this.pos.getZ() + 0.5D - (double)this.direction.getStepZ() * value;
-//        this.setPosRaw(d1, d2, d3);
-//        double d4 = this.getWidth();
-//        double d5 = this.getHeight();
-//        double d6 = this.getWidth();
-//        Direction.Axis directionAxis = this.direction.getAxis();
-//        switch (directionAxis) {
-//            case X -> d4 = 1.0D;
-//            case Y -> d5 = 1.0D;
-//            case Z -> d6 = 1.0D;
-//        }
-//
-//        d4 /= 32.0D;
-//        d5 /= 32.0D;
-//        d6 /= 32.0D;
-//        this.setBoundingBox(new AABB(d1 - d4, d2 - d5, d3 - d6, d1 + d4, d2 + d5, d3 + d6));
-
-//        //noinspection ConstantValue
-//        if (direction == null) {
-//            return;
-//        }
-//
-//        double x = (double)this.pos.getX() + 0.5;
-//        double y = (double)this.pos.getY() + 0.5;
-//        double z = (double)this.pos.getZ() + 0.5;
-//        double g = 0.46875;
-//        double widthOffset = this.getWidth();
-//        double heightOffset = this.getHeight();
-//        x -= (double)this.direction.getStepX() * 0.46875;
-//        z -= (double)this.direction.getStepZ() * 0.46875;
-//        Direction direction = this.direction.getCounterClockWise();
-//        this.setPosRaw(x += widthOffset * (double)direction.getStepX(), y += heightOffset, z += widthOffset * (double)direction.getStepZ());
-//        double j = this.getWidth();
-//        double k = this.getHeight();
-//        double l = this.getWidth();
-//        if (this.direction.getAxis() == Direction.Axis.Z) {
-//            l = 1.0;
-//        } else {
-//            j = 1.0;
-//        }
-//        this.setBoundingBox(new AABB(x - (j /= 32.0), y - (k /= 32.0), z - (l /= 32.0), x + j, y + k, z + l));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public boolean survives() {
         if (!level().noCollision(this))
@@ -353,52 +255,6 @@ public class PhotographFrameEntity extends HangingEntity {
 
         return level().getEntities(this, getBoundingBox(), HANGING_ENTITY).isEmpty();
     }
-
-    @SuppressWarnings("deprecation")
-//    @Override
-//    public boolean survives() {
-//        if (!this.level().noCollision(this)) {
-//            return false;
-//        } else {
-//            BlockState blockstate = this.level().getBlockState(this.pos.relative(this.direction.getOpposite()));
-//            return (blockstate.isSolid() || this.direction.getAxis().isHorizontal()
-//                    && DiodeBlock.isDiode(blockstate))
-//                    && this.level().getEntities(this, this.getBoundingBox(), HANGING_ENTITY).isEmpty();
-//        }
-//    }
-
-
-//    @Override
-//    protected void recalculateBoundingBox() {
-//        //noinspection ConstantValue
-//        if (this.direction == null) {
-//            // When called from HangingEntity constructor direction is null
-//            return;
-//        }
-//
-//        double value = 0.46875D;
-//        double d1 = (double)this.pos.getX() + 0.5D - (double)this.direction.getStepX() * value;
-//        double d2 = (double)this.pos.getY() + 0.5D - (double)this.direction.getStepY() * value;
-//        double d3 = (double)this.pos.getZ() + 0.5D - (double)this.direction.getStepZ() * value;
-//        this.setPosRaw(d1, d2, d3);
-//        double d4 = this.getWidth();
-//        double d5 = this.getHeight();
-//        double d6 = this.getWidth();
-//        Direction.Axis directionAxis = this.direction.getAxis();
-//        switch (directionAxis) {
-//            case X -> d4 = 1.0D;
-//            case Y -> d5 = 1.0D;
-//            case Z -> d6 = 1.0D;
-//        }
-//
-//        d4 /= 32.0D;
-//        d5 /= 32.0D;
-//        d6 /= 32.0D;
-//        this.setBoundingBox(new AABB(d1 - d4, d2 - d5, d3 - d6, d1 + d4, d2 + d5, d3 + d6));
-//    }
-
-
-    // Interaction:
 
     @Override
     protected void setDirection(@NotNull Direction facingDirection) {
@@ -447,8 +303,6 @@ public class PhotographFrameEntity extends HangingEntity {
         if (!itemStack.isEmpty()) {
             itemStack.setEntityRepresentation(this);
         }
-
-//        this.recalculateBoundingBox();
     }
 
     public boolean isGlowing() {
@@ -460,11 +314,11 @@ public class PhotographFrameEntity extends HangingEntity {
     }
 
     public int getRotation() {
-        return getEntityData().get(DATA_ROTATION);
+        return getEntityData().get(DATA_ITEM_ROTATION);
     }
 
     public void setRotation(int rotation) {
-        getEntityData().set(DATA_ROTATION, rotation % 4);
+        getEntityData().set(DATA_ITEM_ROTATION, rotation % 4);
     }
 
     @Override
@@ -480,7 +334,7 @@ public class PhotographFrameEntity extends HangingEntity {
             return InteractionResult.SUCCESS;
         }
 
-        if (itemInHand.getItem() instanceof PhotographItem photographItem && getItem().isEmpty()) {
+        if (itemInHand.getItem() instanceof PhotographItem && getItem().isEmpty()) {
             setItem(itemInHand.copy());
             itemInHand.shrink(1);
             return InteractionResult.SUCCESS;
