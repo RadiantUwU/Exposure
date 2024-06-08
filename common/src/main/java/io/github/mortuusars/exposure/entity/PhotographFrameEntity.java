@@ -481,22 +481,22 @@ public class PhotographFrameEntity extends HangingEntity {
     }
 
     public SoundEvent getPlaceSound() {
-        return SoundEvents.PAINTING_PLACE;
+        return Exposure.SoundEvents.PHOTOGRAPH_FRAME_PLACE.get();
     }
 
     public SoundEvent getBreakSound() {
-        return SoundEvents.PAINTING_BREAK;
-    }
-
-    public SoundEvent getRotateSound() {
-        return Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get();
+        return Exposure.SoundEvents.PHOTOGRAPH_FRAME_BREAK.get();
     }
 
     public SoundEvent getAddItemSound() {
-        return SoundEvents.ITEM_FRAME_ADD_ITEM;
+        return Exposure.SoundEvents.PHOTOGRAPH_FRAME_ADD_ITEM.get();
     }
 
     public SoundEvent getRemoveItemSound() {
-        return SoundEvents.ITEM_FRAME_REMOVE_ITEM;
+        return Exposure.SoundEvents.PHOTOGRAPH_FRAME_REMOVE_ITEM.get();
+    }
+
+    public SoundEvent getRotateSound() {
+        return Exposure.SoundEvents.PHOTOGRAPH_FRAME_ROTATE_ITEM.get();
     }
 }

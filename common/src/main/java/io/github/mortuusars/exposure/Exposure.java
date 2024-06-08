@@ -219,6 +219,12 @@ public class Exposure {
         public static final Supplier<SoundEvent> PHOTOGRAPH_BREAK = register("item", "photograph.break");
         public static final Supplier<SoundEvent> PHOTOGRAPH_RUSTLE = register("item", "photograph.rustle");
 
+        public static final Supplier<SoundEvent> PHOTOGRAPH_FRAME_PLACE = register("item", "photograph_frame.place");
+        public static final Supplier<SoundEvent> PHOTOGRAPH_FRAME_BREAK = register("item", "photograph_frame.break");
+        public static final Supplier<SoundEvent> PHOTOGRAPH_FRAME_ADD_ITEM = register("item", "photograph_frame.add_item");
+        public static final Supplier<SoundEvent> PHOTOGRAPH_FRAME_REMOVE_ITEM = register("item", "photograph_frame.remove_item");
+        public static final Supplier<SoundEvent> PHOTOGRAPH_FRAME_ROTATE_ITEM = register("item", "photograph_frame.rotate_item");
+
         public static final Supplier<SoundEvent> LIGHTROOM_PRINT = register("block", "lightroom.print");
 
         private static Supplier<SoundEvent> register(String category, String key) {

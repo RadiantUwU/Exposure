@@ -99,7 +99,6 @@
   "item.exposure.film_roll.tooltip.frame_count": "%s/%s",
   "item.exposure.film_roll.tooltip.frame_size": "Розмір: %sмм",
   "item.exposure.photograph": "Фотографія",
-  "item.exposure.photograph_frame": "Рамка для фотографії",
   "item.exposure.photograph.generation.0": "Оригінал",
   "item.exposure.photograph.generation.1": "Копія оригіналу",
   "item.exposure.photograph.generation.2": "Копія копії",
@@ -107,6 +106,7 @@
   "item.exposure.photograph.message.no_data": "Папір зовсім чистий. На ньому нічого немає, навіть якщо колись було.",
   "item.exposure.photograph.photographer_tooltip": "Автор: %s",
   "item.exposure.photograph.tooltip.details.copy": "Копіюється за допомогою крафту з:",
+  "item.exposure.photograph_frame": "Рамка для фотографії",
   "item.exposure.signed_album": "Підписаний фотоальбом",
   "item.exposure.stacked_photographs": "Фотографії",
   "jei.exposure.photograph_printing.title": "Друк фотографій",
@@ -130,5 +130,10 @@
   "subtitle.exposure.photograph.break": "Фотографія забрана",
   "subtitle.exposure.photograph.place": "Фотографія розміщена",
   "subtitle.exposure.photograph.rustle": "Фотографія шурхотить",
+  "subtitle.exposure.photograph_frame.add_item": "Рамка для фотографії заповнюється",
+  "subtitle.exposure.photograph_frame.break": "Рамку для фотографії зламано",
+  "subtitle.exposure.photograph_frame.place": "Рамку для фотографії розміщено",
+  "subtitle.exposure.photograph_frame.remove_item": "Рамку для фотографії спустошено",
+  "subtitle.exposure.photograph_frame.rotate_item": "Рамка для фотографії клацає",
   "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць"
 }

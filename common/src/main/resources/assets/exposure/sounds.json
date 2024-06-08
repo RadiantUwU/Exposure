@@ -217,5 +217,46 @@
       "exposure:item/photograph/rustle"
     ],
     "subtitle": "subtitle.exposure.photograph.rustle"
+  },
+  "item.photograph_frame.place": {
+    "sounds": [
+      "entity/painting/place1",
+      "entity/painting/place2",
+      "entity/painting/place3",
+      "entity/painting/place4"
+    ],
+    "subtitle": "subtitle.exposure.photograph_frame.place"
+  },
+  "item.photograph_frame.break": {
+    "sounds": [
+      "entity/painting/break1",
+      "entity/painting/break2",
+      "entity/painting/break3"
+    ],
+    "subtitle": "subtitle.exposure.photograph_frame.break"
+  },
+  "item.photograph_frame.add_item": {
+    "sounds": [
+      "entity/itemframe/add_item1",
+      "entity/itemframe/add_item2",
+      "entity/itemframe/add_item3",
+      "entity/itemframe/add_item4"
+    ],
+    "subtitle": "subtitle.exposure.photograph_frame.add_item"
+  },
+  "item.photograph_frame.remove_item": {
+    "sounds": [
+      "entity/itemframe/remove_item1",
+      "entity/itemframe/remove_item2",
+      "entity/itemframe/remove_item3",
+      "entity/itemframe/remove_item4"
+    ],
+    "subtitle": "subtitle.exposure.photograph_frame.remove_item"
+  },
+  "item.photograph_frame.rotate_item": {
+    "sounds": [
+      "exposure:item/photograph/rustle"
+    ],
+    "subtitle": "subtitle.exposure.photograph_frame.rotate_item"
   }
 }
