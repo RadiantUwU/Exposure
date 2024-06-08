@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -468,6 +469,13 @@ public class PhotographFrameEntity extends HangingEntity {
             };
         }
         return super.getSlot(slot);
+    }
+
+    @Override
+    protected @NotNull Component getTypeName() {
+        if (isGlowing())
+            return Component.translatable("entity.exposure.glowing_photograph_frame");
+        return super.getTypeName();
     }
 
     @Override
