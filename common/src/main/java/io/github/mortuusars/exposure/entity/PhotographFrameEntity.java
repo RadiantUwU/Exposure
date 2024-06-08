@@ -106,7 +106,7 @@ public class PhotographFrameEntity extends HangingEntity {
         ItemStack item = getItem();
         if (!item.isEmpty()) {
             tag.put("Item", item.save(new CompoundTag()));
-            tag.putBoolean("Glowing", this.isGlowing());
+            tag.putBoolean("IsGlowing", this.isGlowing()); // "Glowing" is used in vanilla
             tag.putByte("ItemRotation", (byte) this.getRotation());
         }
         ItemStack frameItem = getFrameItem();
@@ -138,7 +138,7 @@ public class PhotographFrameEntity extends HangingEntity {
                 LOGGER.warn("Unable to load item from: {}", itemTag);
 
             setItem(itemstack);
-            setGlowing(tag.getBoolean("Glowing"));
+            setGlowing(tag.getBoolean("IsGlowing")); // "Glowing" is used in vanilla
             setRotation(tag.getByte("ItemRotation"));
         }
 
