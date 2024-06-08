@@ -30,8 +30,8 @@ public class ExposureForge {
 
         RegisterImpl.BLOCKS.register(modEventBus);
         RegisterImpl.BLOCK_ENTITY_TYPES.register(modEventBus);
-        RegisterImpl.ITEMS.register(modEventBus);
         RegisterImpl.ENTITY_TYPES.register(modEventBus);
+        RegisterImpl.ITEMS.register(modEventBus);
         RegisterImpl.MENU_TYPES.register(modEventBus);
         RegisterImpl.RECIPE_SERIALIZERS.register(modEventBus);
         RegisterImpl.SOUND_EVENTS.register(modEventBus);

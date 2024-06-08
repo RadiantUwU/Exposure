@@ -60,8 +60,8 @@ public class Exposure {
     public static void init() {
         Blocks.init();
         BlockEntityTypes.init();
-        Items.init();
         EntityTypes.init();
+        Items.init();
         MenuTypes.init();
         RecipeSerializers.init();
         SoundEvents.init();

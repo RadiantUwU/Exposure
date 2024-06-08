@@ -1,6 +1,5 @@
 package io.github.mortuusars.exposure.item;
 
-import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,16 +7,16 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.HangingEntityItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class PhotographFrameItem extends HangingEntityItem {
+public class PhotographFrameItem extends Item {
     public PhotographFrameItem(Properties properties) {
-        super(Exposure.EntityTypes.PHOTOGRAPH_FRAME.get(), properties);
+        super(properties);
     }
 
     @Override
