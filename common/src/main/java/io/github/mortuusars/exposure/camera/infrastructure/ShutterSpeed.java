@@ -1,7 +1,7 @@
 package io.github.mortuusars.exposure.camera.infrastructure;
 
 import com.google.common.base.Preconditions;
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,6 +9,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import java.util.Objects;
 
 public class ShutterSpeed {
+    
     public static final ShutterSpeed DEFAULT = new ShutterSpeed("60");
 
     private final String text;
@@ -64,7 +65,7 @@ public class ShutterSpeed {
             }
         }
         catch (IllegalStateException e) {
-            LogUtils.getLogger().error("Cannot load a shutter speed from tag: " + e);
+            Exposure.LOGGER.error("Cannot load a shutter speed from tag: " + e);
         }
 
         return DEFAULT;

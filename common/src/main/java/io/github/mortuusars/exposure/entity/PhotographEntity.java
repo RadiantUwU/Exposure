@@ -39,8 +39,10 @@ import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 public class PhotographEntity extends HangingEntity {
+    
     protected static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(PhotographEntity.class, EntityDataSerializers.ITEM_STACK);
     protected static final EntityDataAccessor<Boolean> DATA_GLOWING = SynchedEntityData.defineId(PhotographEntity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> DATA_ROTATION = SynchedEntityData.defineId(PhotographEntity.class, EntityDataSerializers.INT);
@@ -113,7 +115,7 @@ public class PhotographEntity extends HangingEntity {
         if (!compoundtag.isEmpty()) {
             ItemStack itemstack = ItemStack.of(compoundtag);
             if (itemstack.isEmpty())
-                LogUtils.getLogger().warn("Unable to load item from: {}", compoundtag);
+                Exposure.LOGGER.warn("Unable to load item from: {}", compoundtag);
 
             setItem(itemstack);
             setGlowing(tag.getBoolean("Glowing"));

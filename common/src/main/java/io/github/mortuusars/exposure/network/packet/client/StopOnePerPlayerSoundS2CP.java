@@ -13,10 +13,12 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.UUID;
 
 public record StopOnePerPlayerSoundS2CP(UUID sourcePlayerId, SoundEvent soundEvent) implements IPacket {
+    
     public static final ResourceLocation ID = Exposure.resource("stop_one_per_player_sound");
 
     @Override
@@ -47,7 +49,7 @@ public record StopOnePerPlayerSoundS2CP(UUID sourcePlayerId, SoundEvent soundEve
             if (sourcePlayer != null)
                 Minecraft.getInstance().execute(() -> OnePerPlayerSounds.stop(sourcePlayer, soundEvent));
             else
-                LogUtils.getLogger().debug("Cannot stop OnePerPlayer sound. SourcePlayer was not found by it's UUID.");
+                Exposure.LOGGER.debug("Cannot stop OnePerPlayer sound. SourcePlayer was not found by it's UUID.");
         }
 
         return true;

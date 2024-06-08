@@ -14,11 +14,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.UUID;
 
 public record PlayOnePerPlayerSoundS2CP(UUID sourcePlayerId, SoundEvent soundEvent, SoundSource source,
                                         float volume, float pitch) implements IPacket {
+    
     public static final ResourceLocation ID = Exposure.resource("play_one_per_player_sound");
 
     @Override
@@ -53,7 +55,7 @@ public record PlayOnePerPlayerSoundS2CP(UUID sourcePlayerId, SoundEvent soundEve
             if (sourcePlayer != null)
                 Minecraft.getInstance().execute(() -> OnePerPlayerSounds.play(sourcePlayer, soundEvent, source, volume, pitch));
             else
-                LogUtils.getLogger().debug("Cannot play OnePerPlayer sound. SourcePlayer was not found by it's UUID.");
+                Exposure.LOGGER.debug("Cannot play OnePerPlayer sound. SourcePlayer was not found by it's UUID.");
         }
 
         return true;

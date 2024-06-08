@@ -1,6 +1,6 @@
 package io.github.mortuusars.exposure.data.storage;
 
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 public class ExposureExporter {
+    
     private final String name;
 
     private String folder = "exposures";
@@ -83,7 +84,7 @@ public class ExposureExporter {
             image = convertToBufferedImage(mapColorPixels, width, height, properties);
         }
         catch (Exception e) {
-            LogUtils.getLogger().error("Cannot convert exposure pixels to BufferedImage: " + e);
+            Exposure.LOGGER.error("Cannot convert exposure pixels to BufferedImage: " + e);
             return false;
         }
 
@@ -102,10 +103,10 @@ public class ExposureExporter {
                 trySetFileCreationDate(outputFile.getAbsolutePath(), unixSeconds);
             }
 
-            LogUtils.getLogger().info("Exposure saved: " + outputFile);
+            Exposure.LOGGER.info("Exposure saved: " + outputFile);
             return true;
         } catch (IOException e) {
-            LogUtils.getLogger().error("Exposure file was not saved: " + e);
+            Exposure.LOGGER.error("Exposure file was not saved: " + e);
             return false;
         }
     }

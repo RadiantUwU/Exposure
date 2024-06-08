@@ -1,7 +1,6 @@
 package io.github.mortuusars.exposure.item;
 
 import com.google.common.base.Preconditions;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
@@ -37,6 +36,7 @@ import java.util.stream.Collectors;
 
 public class ChromaticSheetItem extends Item {
     public static final String EXPOSURES_TAG = "Exposures";
+
     public ChromaticSheetItem(Properties properties) {
         super(properties);
     }
@@ -115,7 +115,7 @@ public class ChromaticSheetItem extends Item {
         String redId = redTag.getString(FrameData.ID);
         Optional<ExposureSavedData> redOpt = ExposureServer.getExposureStorage().getOrQuery(redId);
         if (redOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Red channel exposure '" + redId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Red channel exposure '" + redId + "' is not found.");
             return stack;
         }
 
@@ -123,7 +123,7 @@ public class ChromaticSheetItem extends Item {
         String greenId = greenTag.getString(FrameData.ID);
         Optional<ExposureSavedData> greenOpt = ExposureServer.getExposureStorage().getOrQuery(greenId);
         if (greenOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Green channel exposure '" + greenId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Green channel exposure '" + greenId + "' is not found.");
             return stack;
         }
 
@@ -131,7 +131,7 @@ public class ChromaticSheetItem extends Item {
         String blueId = blueTag.getString(FrameData.ID);
         Optional<ExposureSavedData> blueOpt = ExposureServer.getExposureStorage().getOrQuery(blueId);
         if (blueOpt.isEmpty()) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Blue channel exposure '" + blueId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Blue channel exposure '" + blueId + "' is not found.");
             return stack;
         }
 
@@ -169,7 +169,7 @@ public class ChromaticSheetItem extends Item {
             try {
                 processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
             } catch (Exception e) {
-                LogUtils.getLogger().error("Cannot process and save Chromatic Photograph: " + e);
+                Exposure.LOGGER.error("Cannot process and save Chromatic Photograph: " + e);
             }
         }).start();
 
@@ -180,7 +180,7 @@ public class ChromaticSheetItem extends Item {
         int width = Math.min(red.getWidth(), Math.min(green.getWidth(), blue.getWidth()));
         int height = Math.min(red.getHeight(), Math.min(green.getHeight(), blue.getHeight()));
         if (width <= 0 ||height <= 0) {
-            LogUtils.getLogger().error("Cannot create Chromatic Photograph: Width and Height should be larger than 0. " +
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Width and Height should be larger than 0. " +
                     "Width '{}', Height: '{}'.", width, height);
             return;
         }

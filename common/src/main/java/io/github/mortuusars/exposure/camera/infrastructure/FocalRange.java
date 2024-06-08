@@ -13,10 +13,12 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Objects;
 
 public final class FocalRange implements StringRepresentable {
+    
     public static final int ALLOWED_MIN = 10;
     public static final int ALLOWED_MAX = 300;
 
@@ -61,7 +63,7 @@ public final class FocalRange implements StringRepresentable {
             return getDefault();
 
         if (!stack.is(Exposure.Tags.Items.LENSES)) {
-            LogUtils.getLogger().error(stack + " is not a valid lens. Should have '#exposure:lenses' tag.");
+            Exposure.LOGGER.error(stack + " is not a valid lens. Should have '#exposure:lenses' tag.");
             return getDefault();
         }
 

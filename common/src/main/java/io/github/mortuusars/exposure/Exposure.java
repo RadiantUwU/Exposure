@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure;
 
 import com.google.common.base.Preconditions;
+import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.advancement.trigger.CameraFilmFrameExposedTrigger;
 import io.github.mortuusars.exposure.block.FlashBlock;
 import io.github.mortuusars.exposure.block.LightroomBlock;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +53,7 @@ import java.util.function.Supplier;
 
 public class Exposure {
     public static final String ID = "exposure";
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final float CROP_FACTOR = 1.142857f;
 

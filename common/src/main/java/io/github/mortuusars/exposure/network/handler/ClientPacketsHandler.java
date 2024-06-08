@@ -3,7 +3,6 @@ package io.github.mortuusars.exposure.network.handler;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Either;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
@@ -50,6 +49,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class ClientPacketsHandler {
+    
     public static void applyShader(ApplyShaderS2CP packet) {
         executeOnMainThread(() -> {
             if (packet.shaderLocation().getPath().equals("none")) {
@@ -84,7 +84,7 @@ public class ClientPacketsHandler {
                             new ICaptureComponent() {
                                 @Override
                                 public void end(Capture capture) {
-                                    LogUtils.getLogger().info("Saved exposure screenshot: " + filename);
+                                    Exposure.LOGGER.info("Saved exposure screenshot: " + filename);
                                 }
                             })
                     .setConverter(new DitheringColorConverter());
@@ -125,13 +125,12 @@ public class ClientPacketsHandler {
 
                 CapturedFramesHistory.add(frameData);
 
-                LogUtils.getLogger()
-                        .info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
+                Exposure.LOGGER.info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
                 Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
                         Component.translatable("command.exposure.load_from_file.success", finalExposureId)
                                 .withStyle(ChatFormatting.GREEN), false);
             } catch (IOException e) {
-                LogUtils.getLogger().error("Cannot load exposure:" + e);
+                Exposure.LOGGER.error("Cannot load exposure:" + e);
                 Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
                         Component.translatable("command.exposure.load_from_file.failure")
                                 .withStyle(ChatFormatting.RED), false);
@@ -156,7 +155,7 @@ public class ClientPacketsHandler {
         executeOnMainThread(() -> {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player == null) {
-                LogUtils.getLogger().error("Cannot show exposures. Player is null.");
+                Exposure.LOGGER.error("Cannot show exposures. Player is null.");
                 return;
             }
 

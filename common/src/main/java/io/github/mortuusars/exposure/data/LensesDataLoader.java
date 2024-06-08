@@ -12,6 +12,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 public class LensesDataLoader extends SimpleJsonResourceReloadListener {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final String DIRECTORY = "lenses";
-
+    
     public LensesDataLoader() {
         super(GSON, DIRECTORY);
     }
@@ -29,7 +30,7 @@ public class LensesDataLoader extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> content, ResourceManager resourceManager, ProfilerFiller profiler) {
         ConcurrentMap<Ingredient, FocalRange> lenses = new ConcurrentHashMap<>();
 
-        LogUtils.getLogger().info("Loading exposure lenses:");
+        Exposure.LOGGER.info("Loading exposure lenses:");
 
         for (var entry : content.entrySet()) {
             // Lenses should be in data/exposure/lenses folder.
@@ -51,15 +52,15 @@ public class LensesDataLoader extends SimpleJsonResourceReloadListener {
 
                 lenses.put(ingredient, focalRange);
 
-                LogUtils.getLogger().info("Lens [" + entry.getKey() + ", " + focalRange + "] added.");
+                Exposure.LOGGER.info("Lens [" + entry.getKey() + ", " + focalRange + "] added.");
             }
             catch (Exception e) {
-                LogUtils.getLogger().error(e.toString());
+                Exposure.LOGGER.error(e.toString());
             }
         }
 
         if (lenses.isEmpty())
-            LogUtils.getLogger().info("No lenses have been loaded.");
+            Exposure.LOGGER.info("No lenses have been loaded.");
 
         Lenses.reload(lenses);
     }

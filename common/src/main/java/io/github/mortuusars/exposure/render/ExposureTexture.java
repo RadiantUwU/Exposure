@@ -1,7 +1,7 @@
 package io.github.mortuusars.exposure.render;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +34,7 @@ public class ExposureTexture extends SimpleTexture {
             return texture;
         }
         catch (Exception e) {
-            LogUtils.getLogger().error("Cannot load texture [" + location + "]. " + e);
+            Exposure.LOGGER.error("Cannot load texture [" + location + "]. " + e);
             return null;
         }
     }
@@ -48,7 +48,7 @@ public class ExposureTexture extends SimpleTexture {
             this.image = image;
             return image;
         } catch (IOException e) {
-            LogUtils.getLogger().error("Cannot load texture: " + e);
+            Exposure.LOGGER.error("Cannot load texture: " + e);
             return null;
         }
     }

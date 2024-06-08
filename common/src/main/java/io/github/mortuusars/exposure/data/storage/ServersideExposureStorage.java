@@ -1,9 +1,8 @@
 package io.github.mortuusars.exposure.data.storage;
 
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.ExposureChangedS2CP;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +16,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ServersideExposureStorage implements IServersideExposureStorage {
+    
     private static final String EXPOSURE_DIR = "exposures";
 
     private final Supplier<DimensionDataStorage> levelStorageSupplier;
@@ -33,7 +33,7 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
         @Nullable ExposureSavedData loadedExposureData = dataStorage.get(ExposureSavedData::load, getSaveId(id));
 
         if (loadedExposureData == null)
-            LogUtils.getLogger().error("Exposure '" + id + "' was not loaded. File does not exist or some error occurred.");
+            Exposure.LOGGER.error("Exposure '" + id + "' was not loaded. File does not exist or some error occurred.");
 
         return Optional.ofNullable(loadedExposureData);
     }
@@ -70,7 +70,7 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
 
     @Override
     public void clear() {
-        LogUtils.getLogger().warn("Clearing Server Exposure Storage is not implemented.");
+        Exposure.LOGGER.warn("Clearing Server Exposure Storage is not implemented.");
     }
 
     /**
@@ -91,7 +91,7 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
             return Files.exists(path) || path.toFile().mkdirs();
         }
         catch (Exception e) {
-            LogUtils.getLogger().error("Failed to create exposure storage directory: " + e);
+            Exposure.LOGGER.error("Failed to create exposure storage directory: " + e);
             return false;
         }
     }

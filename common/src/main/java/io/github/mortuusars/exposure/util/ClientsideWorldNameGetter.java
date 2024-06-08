@@ -1,12 +1,13 @@
 package io.github.mortuusars.exposure.util;
 
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import net.minecraft.client.Minecraft;
 
 import java.io.File;
 import java.nio.file.Path;
 
 public class ClientsideWorldNameGetter {
+    
     public static String getWorldName() {
         try {
             if (Minecraft.getInstance().isSingleplayer()) {
@@ -39,7 +40,7 @@ public class ClientsideWorldNameGetter {
                 return "Unknown";
             }
         } catch (Exception e) {
-            LogUtils.getLogger().error("Failed to get level name: " + e);
+            Exposure.LOGGER.error("Failed to get level name: " + e);
             return "Unknown";
         }
     }

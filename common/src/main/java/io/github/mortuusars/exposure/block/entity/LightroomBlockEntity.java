@@ -41,12 +41,14 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
 public class LightroomBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer {
+    
     public static final int CONTAINER_DATA_SIZE = 3;
     public static final int CONTAINER_DATA_PROGRESS_ID = 0;
     public static final int CONTAINER_DATA_PRINT_TIME_ID = 1;
@@ -363,7 +365,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
         Optional<CompoundTag> selectedFrame = getSelectedFrame(filmStack);
         if (selectedFrame.isEmpty()) {
-            LogUtils.getLogger().error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
+            Exposure.LOGGER.error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
             return false;
         }
 
@@ -434,7 +436,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
         Optional<CompoundTag> selectedFrame = getSelectedFrame(filmStack);
         if (selectedFrame.isEmpty()) {
-            LogUtils.getLogger().error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
+            Exposure.LOGGER.error("Unable to get selected frame '{}' : {}", getSelectedFrameIndex(), filmStack);
             return;
         }
 
@@ -478,7 +480,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         } else if (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {
             stackedPhotographsItem.addPhotographOnTop(resultStack, printResult);
         } else {
-            LogUtils.getLogger().error("Unexpected item in result slot: " + resultStack);
+            Exposure.LOGGER.error("Unexpected item in result slot: " + resultStack);
             return;
         }
         setItem(Lightroom.RESULT_SLOT, resultStack);

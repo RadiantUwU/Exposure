@@ -11,10 +11,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Optional;
 
 public record QueryExposureDataC2SP(String id) implements IPacket {
+    
     public static final ResourceLocation ID = Exposure.resource("query_exposure_data");
 
     @Override
@@ -38,7 +40,7 @@ public record QueryExposureDataC2SP(String id) implements IPacket {
         Optional<ExposureSavedData> exposureSavedData = ExposureServer.getExposureStorage().getOrQuery(id);
 
         if (exposureSavedData.isEmpty())
-            LogUtils.getLogger().error("Cannot get exposure data with an id '" + id + "'. Result is null.");
+            Exposure.LOGGER.error("Cannot get exposure data with an id '" + id + "'. Result is null.");
         else {
             ExposureServer.getExposureSender().sendTo(player, id, exposureSavedData.get());
         }

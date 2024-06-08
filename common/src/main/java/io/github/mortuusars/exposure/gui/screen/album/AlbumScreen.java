@@ -41,6 +41,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class AlbumScreen extends AbstractContainerScreen<AlbumMenu> {
+    
     public static final ResourceLocation TEXTURE = Exposure.resource("textures/gui/album.png");
     public static final int MAIN_FONT_COLOR = 0xFFB59774;
     public static final int SECONDARY_FONT_COLOR = 0xFFEFE4CA;
@@ -504,7 +506,7 @@ public class AlbumScreen extends AbstractContainerScreen<AlbumMenu> {
             }
             return true;
         } catch (Exception e) {
-            LogUtils.getLogger().error("Cannot force page: " + e);
+            Exposure.LOGGER.error("Cannot force page: " + e);
         }
         return false;
     }

@@ -1,7 +1,7 @@
 package io.github.mortuusars.exposure.test;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.test.data.ExposurePredicateTests;
 import io.github.mortuusars.exposure.test.framework.Test;
 import io.github.mortuusars.exposure.test.framework.TestResult;
@@ -20,7 +20,7 @@ public class Tests {
     }
 
     public TestingResult run() {
-        LogUtils.getLogger().info("RUNNING TESTS");
+        Exposure.LOGGER.info("RUNNING TESTS");
 
         Pair<List<TestResult>, List<TestResult>> ran = run(
                 new ExposurePredicateTests().collect()
@@ -28,14 +28,14 @@ public class Tests {
 
         List<TestResult> skipped = skip();
         TestingResult testingResult = new TestingResult(ran.getFirst(), ran.getSecond(), skipped);
-        LogUtils.getLogger().info(String.join("",
+        Exposure.LOGGER.info(String.join("",
                 "TESTS COMPLETED!\n",
                 testingResult.getTotalTestCount() + " test(s) were conducted.",
-                testingResult.passed().size() > 0 ? ("\nPassed:\n" + testingResult.passed().stream()
+                !testingResult.passed().isEmpty() ? ("\nPassed:\n" + testingResult.passed().stream()
                         .map(TestResult::toString).collect(Collectors.joining("\n"))) : "",
-                testingResult.failed().size() > 0 ? ("\nFailed:\n" + testingResult.failed().stream()
+                !testingResult.failed().isEmpty() ? ("\nFailed:\n" + testingResult.failed().stream()
                         .map(TestResult::toString).collect(Collectors.joining("\n"))) : "",
-                testingResult.skipped().size() > 0 ? ("\nSkipped:\n" + testingResult.skipped().stream()
+                !testingResult.skipped().isEmpty() ? ("\nSkipped:\n" + testingResult.skipped().stream()
                         .map(TestResult::toString).collect(Collectors.joining("\n"))) : ""));
         return testingResult;
     }

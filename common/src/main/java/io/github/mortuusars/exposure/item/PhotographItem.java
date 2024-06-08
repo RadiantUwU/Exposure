@@ -101,7 +101,7 @@ public class PhotographItem extends Item {
         ItemStack itemInHand = player.getItemInHand(hand);
 
         if (getIdOrTexture(itemInHand) == null)
-            LogUtils.getLogger().warn("No Id or Texture is defined. - " + itemInHand);
+            Exposure.LOGGER.warn("No Id or Texture is defined. - " + itemInHand);
 
         if (level.isClientSide) {
             ClientGUI.openPhotographScreen(List.of(new ItemAndStack<>(itemInHand)));

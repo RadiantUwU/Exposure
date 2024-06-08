@@ -1,6 +1,6 @@
 package io.github.mortuusars.exposure.network.fabric;
 
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.packet.ExposureDataPartPacket;
 import io.github.mortuusars.exposure.network.packet.IPacket;
@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Function;
 
 public class PacketsImpl {
+    
     @Nullable
     private static MinecraftServer server;
 
@@ -51,7 +52,7 @@ public class PacketsImpl {
 
     public static void sendToAllClients(IPacket packet) {
         if (server == null) {
-            LogUtils.getLogger().error("Cannot send a packet to all players. Server is not present.");
+            Exposure.LOGGER.error("Cannot send a packet to all players. Server is not present.");
             return;
         }
 

@@ -1,6 +1,5 @@
 package io.github.mortuusars.exposure.entity;
 
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
@@ -42,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public class PhotographFrameEntity extends HangingEntity {
-    public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = Exposure.LOGGER;
 
     protected static final EntityDataAccessor<Integer> DATA_SIZE = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<ItemStack> DATA_FRAME_ITEM = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.ITEM_STACK);
@@ -128,7 +127,7 @@ public class PhotographFrameEntity extends HangingEntity {
         if (!frameItemTag.isEmpty()) {
             ItemStack itemstack = ItemStack.of(frameItemTag);
             if (itemstack.isEmpty()) {
-                LOGGER.warn("Unable to load frame item from: {}", frameItemTag);
+                Exposure.LOGGER.warn("Unable to load frame item from: {}", frameItemTag);
                 itemstack = new ItemStack(Exposure.Items.PHOTOGRAPH_FRAME.get());
             }
 
@@ -139,7 +138,7 @@ public class PhotographFrameEntity extends HangingEntity {
         if (!itemTag.isEmpty()) {
             ItemStack itemstack = ItemStack.of(itemTag);
             if (itemstack.isEmpty())
-                LOGGER.warn("Unable to load item from: {}", itemTag);
+                Exposure.LOGGER.warn("Unable to load item from: {}", itemTag);
 
             setItem(itemstack);
             setGlowing(tag.getBoolean("IsGlowing")); // "Glowing" is used in vanilla

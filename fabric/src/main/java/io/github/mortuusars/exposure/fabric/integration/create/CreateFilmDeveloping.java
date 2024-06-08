@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CreateFilmDeveloping {
+    
     public static final String CURRENT_STEP_TAG = "CurrentDevelopingStep";
     private static final Map<FilmType, List<FluidStack>> cache = new HashMap<>();
 
@@ -55,7 +57,7 @@ public class CreateFilmDeveloping {
             cache.put(filmType, fluidStacks);
             return fluidStacks;
         } else {
-            LogUtils.getLogger().warn("Create Film Developing should have at least one step. Defaults will be loaded.");
+            Exposure.LOGGER.warn("Create Film Developing should have at least one step. Defaults will be loaded.");
 
             List<? extends String> defaultSteps = Config.Common.spoutDevelopingSequence(filmType).getDefault();
             List<FluidStack> defaultFluidStacks = loadStacks(defaultSteps);
@@ -149,9 +151,9 @@ public class CreateFilmDeveloping {
             if (!fluidStack.isEmpty())
                 return fluidStack;
             else
-                LogUtils.getLogger().warn("FluidStack [" + serializedString + "] was loaded empty.");
+                Exposure.LOGGER.warn("FluidStack [" + serializedString + "] was loaded empty.");
         } catch (CommandSyntaxException e) {
-            LogUtils.getLogger().error("[" + serializedString + "] failed to load: " + e);
+            Exposure.LOGGER.error("[" + serializedString + "] failed to load: " + e);
         }
 
         return null;

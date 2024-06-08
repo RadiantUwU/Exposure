@@ -2,7 +2,6 @@ package io.github.mortuusars.exposure.camera.capture;
 
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.IImageToMapColorsConverter;
@@ -197,7 +196,7 @@ public class Capture {
             }
         }
         catch (Exception e) {
-            LogUtils.getLogger().error(e.toString());
+            Exposure.LOGGER.error(e.toString());
         }
         finally {
             try {
@@ -205,7 +204,7 @@ public class Capture {
                     component.end(this);
                 }
             } catch (Exception e) {
-                LogUtils.getLogger().error(e.toString());
+                Exposure.LOGGER.error(e.toString());
             }
         }
     }
@@ -248,7 +247,7 @@ public class Capture {
                 }
             }
         } catch (Exception e) {
-            LogUtils.getLogger().error("Failed to create an image: " + e);
+            Exposure.LOGGER.error("Failed to create an image: " + e);
         }
 
         return bufferedImage;

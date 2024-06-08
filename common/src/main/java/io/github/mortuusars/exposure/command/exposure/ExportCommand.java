@@ -3,15 +3,15 @@ package io.github.mortuusars.exposure.command.exposure;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
-import io.github.mortuusars.exposure.command.suggestion.ExposureIdSuggestionProvider;
-import io.github.mortuusars.exposure.data.ExposureLook;
 import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
 import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
+import io.github.mortuusars.exposure.command.suggestion.ExposureIdSuggestionProvider;
+import io.github.mortuusars.exposure.data.ExposureLook;
+import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.data.storage.ExposureExporter;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
-import io.github.mortuusars.exposure.data.ExposureSize;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
@@ -24,7 +24,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static net.minecraft.commands.Commands.*;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class ExportCommand {
     public static LiteralArgumentBuilder<CommandSourceStack> get() {
@@ -120,7 +121,7 @@ public class ExportCommand {
         try {
             folderPath = folder.getCanonicalPath();
         } catch (IOException e) {
-            LogUtils.getLogger().error(e.toString());
+            Exposure.LOGGER.error(e.toString());
             folderPath = folder.getAbsolutePath();
         }
         return folderPath;

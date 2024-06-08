@@ -1,7 +1,7 @@
 package io.github.mortuusars.exposure.data.storage;
 
 import com.google.common.base.Preconditions;
-import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ExposureSavedData extends SavedData {
+    
     public static final String TYPE_PROPERTY = "Type";
     public static final String WAS_PRINTED_PROPERTY = "WasPrinted";
     public static final String TIMESTAMP_PROPERTY = "Timestamp";
@@ -23,7 +24,7 @@ public class ExposureSavedData extends SavedData {
         Preconditions.checkArgument(height >= 0, "Height cannot be negative.");
 
         if (pixels.length > width * height)
-            LogUtils.getLogger().warn("Pixel count was larger that it supposed to be. This shouldn't happen.");
+            Exposure.LOGGER.warn("Pixel count was larger that it supposed to be. This shouldn't happen.");
 
         this.width = width;
         this.height = height;

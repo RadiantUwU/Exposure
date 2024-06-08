@@ -11,12 +11,14 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.slf4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class FiltersResourceLoader extends SimpleJsonResourceReloadListener {
+    
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final String DIRECTORY = "filters";
 
@@ -28,7 +30,7 @@ public class FiltersResourceLoader extends SimpleJsonResourceReloadListener {
     protected void apply(Map<ResourceLocation, JsonElement> content, ResourceManager resourceManager, ProfilerFiller profiler) {
         ConcurrentMap<Ingredient, ResourceLocation> filters = new ConcurrentHashMap<>();
 
-        LogUtils.getLogger().info("Loading exposure filters:");
+        Exposure.LOGGER.info("Loading exposure filters:");
 
         for (var entry : content.entrySet()) {
             // Lenses should be in data/exposure/filters folder.
@@ -49,15 +51,15 @@ public class FiltersResourceLoader extends SimpleJsonResourceReloadListener {
 
                 filters.put(ingredient, new ResourceLocation(shader));
 
-                LogUtils.getLogger().info("Filter [" + entry.getKey() + ", " + shader + "] added.");
+                Exposure.LOGGER.info("Filter [" + entry.getKey() + ", " + shader + "] added.");
             }
             catch (Exception e) {
-                LogUtils.getLogger().error(e.toString());
+                Exposure.LOGGER.error(e.toString());
             }
         }
 
         if (filters.isEmpty())
-            LogUtils.getLogger().info("No filters have been loaded.");
+            Exposure.LOGGER.info("No filters have been loaded.");
 
         Filters.reload(filters);
     }
