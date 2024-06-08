@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Added Photograph Frames
+
 ## 1.6.0 - 2024-05-11
 
 - Middle mouse button can now be used to open Camera controls.
