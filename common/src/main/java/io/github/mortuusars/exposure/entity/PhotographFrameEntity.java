@@ -366,7 +366,7 @@ public class PhotographFrameEntity extends HangingEntity {
             return InteractionResult.SUCCESS;
         }
 
-        if (itemInHand.is(Items.GLOW_INK_SAC)) {
+        if (itemInHand.is(Items.GLOW_INK_SAC) && !isGlowing()) {
             setGlowing(true);
             itemInHand.shrink(1);
             if (!level().isClientSide) {
@@ -474,7 +474,7 @@ public class PhotographFrameEntity extends HangingEntity {
     @Override
     protected @NotNull Component getTypeName() {
         if (isGlowing())
-            return Component.translatable("entity.exposure.glowing_photograph_frame");
+            return Component.translatable("entity.exposure.glow_photograph_frame");
         return super.getTypeName();
     }
 

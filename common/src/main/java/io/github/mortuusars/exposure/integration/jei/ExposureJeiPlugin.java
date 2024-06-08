@@ -2,6 +2,7 @@ package io.github.mortuusars.exposure.integration.jei;
 
 import com.google.common.collect.ImmutableList;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
@@ -21,6 +22,7 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -64,6 +66,11 @@ public class ExposureJeiPlugin implements IModPlugin {
                 new PhotographStackingJeiRecipe(PhotographStackingJeiRecipe.STACKING),
                 new PhotographStackingJeiRecipe(PhotographStackingJeiRecipe.REMOVING)
         ));
+
+        if (Config.Client.SHOW_JEI_INFORMATION.get()) {
+            registration.addItemStackInfo(new ItemStack(Exposure.Items.PHOTOGRAPH_FRAME.get()),
+                    Component.translatable("exposure.jei.info.photograph_frame"));
+        }
 
         if (PlatformHelper.isModLoaded("create")) {
             addSequencedDevelopingRecipes(registration);

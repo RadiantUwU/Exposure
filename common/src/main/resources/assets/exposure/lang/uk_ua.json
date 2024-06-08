@@ -29,7 +29,7 @@
   "container.exposure.lightroom": "Лайтрум",
   "entity.exposure.photograph": "Фотографія",
   "entity.exposure.photograph_frame": "Рамка для фотографії",
-  "entity.exposure.glowing_photograph_frame": "Сяюча рамка для фотографії",
+  "entity.exposure.glow_photograph_frame": "Сяюча рамка для фотографії",
   "gui.exposure.album.add_photograph": "Додати фотографію",
   "gui.exposure.album.by_author": "від: %1$s",
   "gui.exposure.album.cancel_signing": "Скасувати",
@@ -136,5 +136,6 @@
   "subtitle.exposure.photograph_frame.place": "Рамку для фотографії розміщено",
   "subtitle.exposure.photograph_frame.remove_item": "Рамку для фотографії спустошено",
   "subtitle.exposure.photograph_frame.rotate_item": "Рамка для фотографії клацає",
-  "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць"
+  "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць",
+  "exposure.jei.info.photograph_frame": "Має три розміри: 1х1, 2х2 і 3х3. Розміщується як Картина, але також може бути розміщена на підлозі та стелі. Сяючий чорнильний мішок зробить її сяючою. Сокирою можна зчистити рамку, Палиця її відновить."
 }

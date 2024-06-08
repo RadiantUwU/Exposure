@@ -29,7 +29,7 @@
   "container.exposure.lightroom": "Lightroom",
   "entity.exposure.photograph": "Photograph",
   "entity.exposure.photograph_frame": "Photograph Frame",
-  "entity.exposure.glowing_photograph_frame": "Glowing Photograph Frame",
+  "entity.exposure.glow_photograph_frame": "Glow Photograph Frame",
   "gui.exposure.album.add_photograph": "Add Photograph",
   "gui.exposure.album.by_author": "by %1$s",
   "gui.exposure.album.cancel_signing": "Cancel",
@@ -136,5 +136,6 @@
   "subtitle.exposure.photograph_frame.place": "Photograph Frame placed",
   "subtitle.exposure.photograph_frame.remove_item": "Photograph Frame empties",
   "subtitle.exposure.photograph_frame.rotate_item": "Photograph Frame clicks",
-  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details"
+  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details",
+  "exposure.jei.info.photograph_frame": "Has three sizes: 1x1, 2x2 and 3x3. Placed like a Painting but can be placed on floors and ceilings as well. Glow Ink Sac will make it glow. Axe can be used to strip the frame, Stick will restore it."
 }

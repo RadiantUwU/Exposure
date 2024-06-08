@@ -151,13 +151,16 @@ public class Config {
         public static final ForgeConfigSpec.ConfigValue<String> VIEWFINDER_FONT_SECONDARY_COLOR;
         public static final ForgeConfigSpec.BooleanValue VIEWFINDER_MIDDLE_CLICK_CONTROLS;
 
+        // RENDER
+        public static final ForgeConfigSpec.IntValue PHOTOGRAPH_FRAME_CULLING_DISTANCE;
+
+        // INTEGRATION
+        public static final ForgeConfigSpec.BooleanValue SHOW_JEI_INFORMATION;
+
         // IMAGE SAVING
         public static final ForgeConfigSpec.BooleanValue SAVE_EXPOSURE_TO_FILE_WHEN_VIEWED;
         public static final ForgeConfigSpec.BooleanValue EXPOSURE_SAVING_LEVEL_SUBFOLDER;
         public static final ForgeConfigSpec.EnumValue<ExposureSize> EXPOSURE_SAVING_SIZE;
-
-        // RENDER
-        public static final ForgeConfigSpec.IntValue PHOTOGRAPH_FRAME_CULLING_DISTANCE;
 
         static {
             ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -241,6 +244,15 @@ public class Config {
                                 "Note: this number may not relate to distance in blocks exactly. It's influenced by render distance and entity distance settings.")
                         .defineInRange("PhotographFrameCullingDistance", 64, 8, 128);
                 builder.pop();
+            }
+
+            {
+                builder.push("Integration");
+                SHOW_JEI_INFORMATION = builder
+                        .comment("Useful information about some items will be shown in JEI description category. Default: true")
+                        .define("JeiInformation", true);
+                builder.pop();
+
             }
 
             {
