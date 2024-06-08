@@ -103,7 +103,7 @@ public class PhotographFrameEntity extends HangingEntity {
 
     public void addAdditionalSaveData(@NotNull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        ItemStack item = this.getItem();
+        ItemStack item = getItem();
         if (!item.isEmpty()) {
             tag.put("Item", item.save(new CompoundTag()));
             tag.putBoolean("Glowing", this.isGlowing());
@@ -123,8 +123,10 @@ public class PhotographFrameEntity extends HangingEntity {
         CompoundTag frameItemTag = tag.getCompound("FrameItem");
         if (!frameItemTag.isEmpty()) {
             ItemStack itemstack = ItemStack.of(frameItemTag);
-            if (itemstack.isEmpty())
+            if (itemstack.isEmpty()) {
                 LOGGER.warn("Unable to load frame item from: {}", frameItemTag);
+                itemstack = new ItemStack(Exposure.Items.PHOTOGRAPH_FRAME.get());
+            }
 
             setFrameItem(itemstack);
         }

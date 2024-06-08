@@ -20,8 +20,6 @@ public class PhotographFrameItem extends HangingEntityItem {
         super(Exposure.EntityTypes.PHOTOGRAPH_FRAME.get(), properties);
     }
 
-    //TODO: test build height return InteractionResult.CONSUME;
-
     @Override
     public @NotNull InteractionResult useOn(UseOnContext context) {
         BlockPos clickedPos = context.getClickedPos();
@@ -40,19 +38,17 @@ public class PhotographFrameItem extends HangingEntityItem {
             EntityType.updateCustomEntityTag(level, player, photographEntity, compoundTag);
         }
 
-
         for (int i = 2; i >= 0; i--) {
             photographEntity.setSize(i);
             if (photographEntity.survives()) {
-
                 if (!level.isClientSide) {
                     photographEntity.playPlacementSound();
                     level.gameEvent(player, GameEvent.ENTITY_PLACE, photographEntity.position());
                     level.addFreshEntity(photographEntity);
                 }
 
-                if (!player.isCreative())
-                    photographEntity.setFrameItem(itemInHand.split(1));
+                photographEntity.setFrameItem((player.isCreative() ? itemInHand.copy() : itemInHand).split(1));
+
                 return InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
