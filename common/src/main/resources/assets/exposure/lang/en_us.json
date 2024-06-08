@@ -25,6 +25,7 @@
   "command.exposure.show.error.not_found": "Exposure with id '%s' is not found or cannot be loaded.",
   "command.exposure.show.latest.error.no_exposures": "No exposures have been stored in this session.",
   "config.jade.plugin_exposure.lightroom": "Lightroom",
+  "config.jade.plugin_exposure.photograph_frame": "Photograph Frame",
   "container.exposure.camera": "Camera",
   "container.exposure.lightroom": "Lightroom",
   "entity.exposure.photograph": "Photograph",

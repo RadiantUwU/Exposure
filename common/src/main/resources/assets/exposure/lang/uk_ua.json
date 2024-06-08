@@ -25,6 +25,7 @@
   "command.exposure.show.error.not_found": "Експозиція «%s» не знайдена або не може бути завантажена.",
   "command.exposure.show.latest.error.no_exposures": "Немає збережених експозицій за цей сеанс.",
   "config.jade.plugin_exposure.lightroom": "Лайтрум",
+  "config.jade.plugin_exposure.photograph_frame": "Рамка для фотографії",
   "container.exposure.camera": "Фотокамера",
   "container.exposure.lightroom": "Лайтрум",
   "entity.exposure.photograph": "Фотографія",
