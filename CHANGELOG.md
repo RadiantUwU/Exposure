@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added Photograph Frames
+- Photographs can no longer be placed on the wall. Existing hanging photographs will not be removed.
 
 ## 1.6.0 - 2024-05-11
 

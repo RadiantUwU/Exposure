@@ -7,17 +7,13 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.gui.ClientGUI;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
-import io.github.mortuusars.exposure.entity.PhotographEntity;
 import io.github.mortuusars.exposure.util.ItemAndStack;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -26,7 +22,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
@@ -264,57 +259,6 @@ public class StackedPhotographsItem extends Item {
         }
 
         return false;
-    }
-
-    @Override
-    public @NotNull InteractionResult useOn(UseOnContext context) {
-        BlockPos clickedPos = context.getClickedPos();
-        Direction direction = context.getClickedFace();
-        BlockPos resultPos = clickedPos.relative(direction);
-        Player player = context.getPlayer();
-        ItemStack itemInHand = context.getItemInHand();
-
-        if (itemInHand.getItem() != this || getPhotographsCount(itemInHand) == 0)
-            return InteractionResult.FAIL;
-
-        if (player == null || player.level().isOutsideBuildHeight(resultPos) || !player.mayUseItemAt(resultPos, direction, itemInHand))
-            return InteractionResult.FAIL;
-
-        if (player.isSecondaryUseActive()) {
-            cyclePhotographs(itemInHand, player);
-            return InteractionResult.SUCCESS;
-        }
-
-        ItemAndStack<PhotographItem> topPhotograph = removeTopPhotograph(itemInHand);
-
-        Level level = context.getLevel();
-        PhotographEntity photographEntity = new PhotographEntity(level, resultPos, direction, topPhotograph.getStack().copy());
-
-        if (photographEntity.survives()) {
-            if (!level.isClientSide) {
-                photographEntity.playPlacementSound();
-                level.gameEvent(player, GameEvent.ENTITY_PLACE, photographEntity.position());
-                level.addFreshEntity(photographEntity);
-            }
-
-            if (!player.isCreative()) {
-                int photographsCount = getPhotographsCount(itemInHand);
-                if (photographsCount == 0)
-                    itemInHand.shrink(1);
-                else if (photographsCount == 1)
-                    player.setItemInHand(context.getHand(), removeTopPhotograph(itemInHand).getStack());
-            }
-            else {
-                // Because in creative you don't get photograph back when breaking Photograph entity,
-                // we don't remove placed photograph from the photo.
-                addPhotographOnTop(itemInHand, topPhotograph.getStack());
-            }
-        }
-        else {
-            addPhotographOnTop(itemInHand, topPhotograph.getStack());
-        }
-
-        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override
