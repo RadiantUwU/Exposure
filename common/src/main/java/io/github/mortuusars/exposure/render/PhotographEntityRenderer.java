@@ -9,9 +9,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.LightLayer;
 import org.jetbrains.annotations.NotNull;
 
 public class PhotographEntityRenderer<T extends PhotographEntity> extends EntityRenderer<T> {
@@ -34,8 +36,6 @@ public class PhotographEntityRenderer<T extends PhotographEntity> extends Entity
     public void render(@NotNull T entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 
-        boolean invisible = entity.isInvisible();
-
         poseStack.pushPose();
 
         poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
@@ -47,20 +47,33 @@ public class PhotographEntityRenderer<T extends PhotographEntity> extends Entity
         float scale = 1f / ExposureClient.getExposureRenderer().getSize();
         poseStack.scale(scale, scale, -scale);
 
-        int brightness = switch (entity.getDirection()) {
-            case DOWN -> 210;
-            case UP -> 255;
-            default -> 235;
-        };
-
-        if (entity.isGlowing())
+        boolean isGlowing = entity.isGlowing();
+        if (isGlowing)
             packedLight = LightTexture.FULL_BRIGHT;
+
+        int brightness = isGlowing ? 255 : getPhotographBrightness(entity);
 
         ItemStack item = entity.getItem();
 
-        PhotographRenderer.render(item, !invisible, true, poseStack, bufferSource, packedLight,
+        PhotographRenderer.render(item, !entity.isInvisible(), true, poseStack, bufferSource, packedLight,
                 brightness, brightness, brightness, 255);
 
         poseStack.popPose();
+    }
+
+    public int getPhotographBrightness(T entity) {
+        if (entity.getDirection() == Direction.UP)
+            return 255;
+
+        // Darken the photo same way as the block sides darken,
+        // but not quite as much and allow light sources to brighten it:
+        int lightLevel = entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition());
+        float shadeFactor = entity.level().getShade(entity.getDirection(), true);
+        shadeFactor += (1f - shadeFactor) * 0.05f;
+
+        int shadedBrightness = (int)(255 * shadeFactor);
+        int missingLight = 255 - shadedBrightness;
+        int lightUp = (int)(missingLight * (lightLevel / 15f * 0.7f));
+        return Math.min(255, shadedBrightness + lightUp);
     }
 }
