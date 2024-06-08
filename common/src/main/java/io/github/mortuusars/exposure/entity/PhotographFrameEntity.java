@@ -46,8 +46,9 @@ public class PhotographFrameEntity extends HangingEntity {
     protected static final EntityDataAccessor<Integer> DATA_SIZE = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<ItemStack> DATA_FRAME_ITEM = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.ITEM_STACK);
     protected static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.ITEM_STACK);
-    protected static final EntityDataAccessor<Boolean> DATA_GLOWING = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> DATA_ITEM_ROTATION = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Boolean> DATA_GLOWING = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.BOOLEAN);
+    protected static final EntityDataAccessor<Boolean> DATA_STRIPPED = SynchedEntityData.defineId(PhotographFrameEntity.class, EntityDataSerializers.BOOLEAN);
 
     protected int size = 0;
 
@@ -68,11 +69,12 @@ public class PhotographFrameEntity extends HangingEntity {
     }
 
     protected void defineSynchedData() {
-        this.getEntityData().define(DATA_SIZE, 0);
-        this.getEntityData().define(DATA_FRAME_ITEM, ItemStack.EMPTY);
-        this.getEntityData().define(DATA_ITEM, ItemStack.EMPTY);
-        this.getEntityData().define(DATA_GLOWING, false);
-        this.getEntityData().define(DATA_ITEM_ROTATION, 0);
+        getEntityData().define(DATA_SIZE, 0);
+        getEntityData().define(DATA_FRAME_ITEM, ItemStack.EMPTY);
+        getEntityData().define(DATA_ITEM, ItemStack.EMPTY);
+        getEntityData().define(DATA_ITEM_ROTATION, 0);
+        getEntityData().define(DATA_STRIPPED, false);
+        getEntityData().define(DATA_GLOWING, false);
     }
 
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
@@ -107,7 +109,7 @@ public class PhotographFrameEntity extends HangingEntity {
         if (!item.isEmpty()) {
             tag.put("Item", item.save(new CompoundTag()));
             tag.putBoolean("IsGlowing", this.isGlowing()); // "Glowing" is used in vanilla
-            tag.putByte("ItemRotation", (byte) this.getRotation());
+            tag.putByte("ItemRotation", (byte) this.getItemRotation());
         }
         ItemStack frameItem = getFrameItem();
         if (!frameItem.isEmpty())
@@ -115,6 +117,7 @@ public class PhotographFrameEntity extends HangingEntity {
 
         tag.putByte("Size", (byte) getSize());
         tag.putByte("Facing", (byte) direction.get3DDataValue());
+        tag.putBoolean("Stripped", isStripped());
         tag.putBoolean("Invisible", isInvisible());
     }
 
@@ -139,11 +142,12 @@ public class PhotographFrameEntity extends HangingEntity {
 
             setItem(itemstack);
             setGlowing(tag.getBoolean("IsGlowing")); // "Glowing" is used in vanilla
-            setRotation(tag.getByte("ItemRotation"));
+            setItemRotation(tag.getByte("ItemRotation"));
         }
 
         setSize(tag.getByte("Size"));
         setDirection(Direction.from3DDataValue(tag.getByte("Facing")));
+        setStripped(tag.getBoolean("Stripped"));
         setInvisible(tag.getBoolean("Invisible"));
     }
 
@@ -304,6 +308,14 @@ public class PhotographFrameEntity extends HangingEntity {
         }
     }
 
+    public int getItemRotation() {
+        return getEntityData().get(DATA_ITEM_ROTATION);
+    }
+
+    public void setItemRotation(int rotation) {
+        getEntityData().set(DATA_ITEM_ROTATION, rotation % 4);
+    }
+
     public boolean isGlowing() {
         return getEntityData().get(DATA_GLOWING);
     }
@@ -312,22 +324,22 @@ public class PhotographFrameEntity extends HangingEntity {
         getEntityData().set(DATA_GLOWING, glowing);
     }
 
-    public int getRotation() {
-        return getEntityData().get(DATA_ITEM_ROTATION);
+    public boolean isStripped() {
+        return getEntityData().get(DATA_STRIPPED);
     }
 
-    public void setRotation(int rotation) {
-        getEntityData().set(DATA_ITEM_ROTATION, rotation % 4);
+    public void setStripped(boolean stripped) {
+        getEntityData().set(DATA_STRIPPED, stripped);
     }
 
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
 
-        if (!isInvisible()) {
+        if (!isStripped()) {
             if (canStrip(itemInHand)) {
                 if (!level().isClientSide) {
-                    setInvisible(true);
+                    setStripped(true);
                     itemInHand.hurtAndBreak(1, player, (pl) -> pl.broadcastBreakEvent(hand));
                     gameEvent(GameEvent.BLOCK_CHANGE, player);
                     playSound(SoundEvents.AXE_STRIP, 1f, 1f);
@@ -337,7 +349,7 @@ public class PhotographFrameEntity extends HangingEntity {
         }
         else if (itemInHand.is(Items.STICK)) {
             if (!level().isClientSide) {
-                setInvisible(false);
+                setStripped(false);
                 itemInHand.shrink(1);
                 gameEvent(GameEvent.BLOCK_CHANGE, player);
                 playPlacementSound();
@@ -366,7 +378,7 @@ public class PhotographFrameEntity extends HangingEntity {
         if (!getItem().isEmpty()) {
             if (!level().isClientSide) {
                 playSound(getRotateSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.9f);
-                setRotation(getRotation() + 1);
+                setItemRotation(getItemRotation() + 1);
                 gameEvent(GameEvent.BLOCK_CHANGE, player);
             }
             return InteractionResult.SUCCESS;

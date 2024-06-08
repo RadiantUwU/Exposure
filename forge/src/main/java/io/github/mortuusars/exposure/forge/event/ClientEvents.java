@@ -57,8 +57,11 @@ public class ClientEvents {
         public static void registerModels(ModelEvent.RegisterAdditional event) {
             event.register(ExposureClient.Models.CAMERA_GUI);
             event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL_STRIPPED);
             event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM_STRIPPED);
             event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE);
+            event.register(ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE_STRIPPED);
         }
 
         @SubscribeEvent

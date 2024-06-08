@@ -49,6 +49,8 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
         }
 
         Direction direction = entity.getDirection();
+        int size = entity.getSize();
+        boolean isStripped = entity.isStripped();
 
         poseStack.pushPose();
         // Offsets name tag rendering to be like item frame:
@@ -56,85 +58,90 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
         poseStack.popPose();
 
-        boolean invisible = entity.isInvisible();
-
         poseStack.pushPose();
 
-        double hangOffset = 0.46875; // thickness of the frame is 1px (0.5 - (1/16 * 0.5)) - 0.5 is because we are offsetting from the center.
+        // thickness of the frame is 1px (0.5 - (1/16 * 0.5)) (0.5 is because we are offsetting from the center)
+        // stripped frame is thin, so 1/16 becomes 0.15/16 (thickness of the backplate)
+        double hangOffset = 0.46875;
         poseStack.translate(direction.getStepX() * hangOffset, direction.getStepY() * hangOffset, direction.getStepZ() * hangOffset);
 
         poseStack.mulPose(Axis.XP.rotationDegrees(entity.getXRot()));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entity.getYRot()));
 
-        if (!invisible) {
-            renderFrame(entity, poseStack, bufferSource, packedLight);
+        if (!entity.isInvisible()) {
+            renderFrame(entity, poseStack, bufferSource, packedLight, size, isStripped);
         }
 
         ItemStack item = entity.getItem();
         if (!item.isEmpty()) {
-            renderPhotograph(entity, poseStack, bufferSource, packedLight, item);
+            renderPhotograph(entity, poseStack, bufferSource, packedLight, item, size, isStripped);
         }
 
         poseStack.popPose();
     }
 
-    private void renderPhotograph(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, ItemStack item) {
-        poseStack.pushPose();
-        int size = entity.getSize();
-
-        boolean frameInvisible = entity.isInvisible();
-
-        float frameBorderOffset = frameInvisible ? 0f : 0.125f; // (2px / 16px = 0.125)
-        float desiredSize = size + 1 - frameBorderOffset * 2;
-        float scale = desiredSize / (float)ExposureClient.getExposureRenderer().getSize();
-
-        poseStack.mulPose(Axis.ZP.rotationDegrees((entity.getRotation() * 360.0F / 4.0F)));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-        float offsetFromCenter = frameInvisible ? 0.497f : 0.475f;
-        poseStack.translate(-0.5 * (size + 1) + frameBorderOffset, -0.5 * (size + 1) + frameBorderOffset, offsetFromCenter);
-        poseStack.scale(scale, scale, 1);
-
-        int brightness;
-        if (entity.isGlowing()) {
-            packedLight = LightTexture.FULL_BRIGHT;
-            brightness = 255;
-        }
-        else if (entity.getDirection() == Direction.UP) {
-            brightness = 255;
-        } else {
-            // Darken the photo same way as the block sides darken,
-            // but not quite as much and allow light sources to brighten it:
-            int lightLevel = entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition());
-            float shadeFactor = entity.level().getShade(entity.getDirection(), true);
-            shadeFactor += (1f - shadeFactor) * 0.2f;
-
-            int shadedBrightness = (int)(255 * shadeFactor);
-            int missingLight = 255 - shadedBrightness;
-            int lightUp = (int)(missingLight * (lightLevel / 15f * 0.5f));
-            brightness = Math.min(255, shadedBrightness + lightUp);
-        }
-
-        PhotographRenderer.render(item, false, false, poseStack, bufferSource, packedLight,
-                brightness, brightness, brightness, 255);
-        poseStack.popPose();
-    }
-
-    private void renderFrame(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    private void renderFrame(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, 
+                             int packedLight, int size, boolean isStripped) {
         poseStack.pushPose();
         poseStack.translate(-0.5f, -0.5f, -0.5f);
-        ModelResourceLocation modelLocation;
-        int size = entity.getSize();
-        if (size == 0)
-            modelLocation = ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL;
-        else if (size == 1)
-            modelLocation = ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM;
-        else
-            modelLocation = ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE;
-
+        ModelResourceLocation modelLocation = getModelLocation(entity, size, isStripped);
         BakedModel model = blockRenderer.getBlockModelShaper().getModelManager().getModel(modelLocation);
         blockRenderer.getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(Sheets.solidBlockSheet()),
                 null, model, 1.0f, 1.0f, 1.0f, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
+    }
+
+    public ModelResourceLocation getModelLocation(T entity, int size, boolean isStripped) {
+        if (size == 0)
+            return isStripped ? ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL_STRIPPED : ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL;
+        else if (size == 1)
+            return isStripped ? ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM_STRIPPED : ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM;
+        else
+            return isStripped ? ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE_STRIPPED : ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE;
+    }
+
+    private void renderPhotograph(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource,
+                                  int packedLight, ItemStack item, int size, boolean isStripped) {
+        poseStack.pushPose();
+
+        boolean frameInvisible = entity.isInvisible();
+
+        float frameBorderOffset = frameInvisible || isStripped ? 0f : 0.125f; // (2px / 16px = 0.125)
+        float offsetFromCenter = frameInvisible ? 0.497f : 0.48f;
+        float desiredSize = size + 1 - frameBorderOffset * 2;
+        float scale = desiredSize / (float)ExposureClient.getExposureRenderer().getSize();
+
+        poseStack.mulPose(Axis.ZP.rotationDegrees((entity.getItemRotation() * 360.0F / 4.0F)));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
+        poseStack.translate(-0.5 * (size + 1) + frameBorderOffset, -0.5 * (size + 1) + frameBorderOffset, offsetFromCenter);
+        poseStack.scale(scale, scale, 1);
+
+        boolean isGlowing = entity.isGlowing();
+        if (isGlowing)
+            packedLight = LightTexture.FULL_BRIGHT;
+
+        int brightness = isGlowing ? 255 : getPhotographBrightness(entity);
+
+        PhotographRenderer.render(item, false, false, poseStack, bufferSource, packedLight,
+                brightness, brightness, brightness, 255);
+
+        poseStack.popPose();
+    }
+
+    public int getPhotographBrightness(T entity) {
+        if (entity.getDirection() == Direction.UP)
+            return 255;
+
+        // Darken the photo same way as the block sides darken,
+        // but not quite as much and allow light sources to brighten it:
+        int lightLevel = entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition());
+        float shadeFactor = entity.level().getShade(entity.getDirection(), true);
+        shadeFactor += (1f - shadeFactor) * 0.2f;
+
+        int shadedBrightness = (int)(255 * shadeFactor);
+        int missingLight = 255 - shadedBrightness;
+        int lightUp = (int)(missingLight * (lightLevel / 15f * 0.5f));
+        return Math.min(255, shadedBrightness + lightUp);
     }
 
     @Override

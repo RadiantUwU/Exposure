@@ -1,0 +1,21 @@
+{
+	"texture_size": [32, 32],
+	"textures": {
+		"texture": "exposure:block/photograph_frame_small",
+		"particle": "exposure:block/photograph_frame_small"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 15.85],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 8, 8], "texture": "#texture"},
+				"east": {"uv": [0.125, 0, 0.175, 8], "texture": "#texture"},
+				"south": {"uv": [8, 0, 16, 8], "texture": "#texture"},
+				"west": {"uv": [7.125, 0, 7.175, 8], "texture": "#texture"},
+				"up": {"uv": [0, 0.125, 8, 0.175], "texture": "#texture"},
+				"down": {"uv": [0, 7.125, 8, 7.175], "texture": "#texture"}
+			}
+		}
+	]
+}

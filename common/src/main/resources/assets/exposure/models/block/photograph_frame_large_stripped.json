@@ -1,0 +1,22 @@
+{
+	"texture_size": [64, 64],
+	"textures": {
+		"texture": "exposure:block/photograph_frame_large",
+		"back": "exposure:block/photograph_frame_large_back",
+		"particle": "exposure:block/photograph_frame_large"
+	},
+	"elements": [
+		{
+			"from": [-16, -16, 15.85],
+			"to": [32, 32, 16],
+			"faces": {
+				"north": {"uv": [0, 0, 12, 12], "texture": "#texture"},
+				"east": {"uv": [0.0625, 0, 0.0875, 12], "texture": "#texture"},
+				"south": {"uv": [0, 0, 12, 12], "texture": "#back"},
+				"west": {"uv": [11.5625, 0, 11.5875, 12], "texture": "#texture"},
+				"up": {"uv": [0, 0.0625, 12, 0.0875], "texture": "#texture"},
+				"down": {"uv": [0, 11.5625, 12, 11.5875], "texture": "#texture"}
+			}
+		}
+	]
+}

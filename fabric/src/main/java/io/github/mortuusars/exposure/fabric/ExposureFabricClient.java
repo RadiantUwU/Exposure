@@ -36,8 +36,11 @@ public class ExposureFabricClient implements ClientModInitializer {
         ModelLoadingPlugin.register(pluginContext ->
                 pluginContext.addModels(ExposureClient.Models.CAMERA_GUI,
                         ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL,
+                        ExposureClient.Models.PHOTOGRAPH_FRAME_SMALL_STRIPPED,
                         ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM,
-                        ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE));
+                        ExposureClient.Models.PHOTOGRAPH_FRAME_MEDIUM_STRIPPED,
+                        ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE,
+                        ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE_STRIPPED));
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new ExposureFabricClientReloadListener());
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new FabricFiltersResourceLoader());

@@ -94,9 +94,19 @@ public class ExposureClient {
     }
 
     public static class Models {
-        public static final ModelResourceLocation CAMERA_GUI = new ModelResourceLocation(Exposure.ID, "camera_gui", "inventory");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL = new ModelResourceLocation(Exposure.ID, "photograph_frame_small", "");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM = new ModelResourceLocation(Exposure.ID, "photograph_frame_medium", "");
-        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE = new ModelResourceLocation(Exposure.ID, "photograph_frame_large", "");
+        public static final ModelResourceLocation CAMERA_GUI =
+                new ModelResourceLocation(Exposure.ID, "camera_gui", "inventory");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_small", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_SMALL_STRIPPED =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_small_stripped", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_medium", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_MEDIUM_STRIPPED =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_medium_stripped", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_large", "");
+        public static final ModelResourceLocation PHOTOGRAPH_FRAME_LARGE_STRIPPED =
+                new ModelResourceLocation(Exposure.ID, "photograph_frame_large_stripped", "");
     }
 }
