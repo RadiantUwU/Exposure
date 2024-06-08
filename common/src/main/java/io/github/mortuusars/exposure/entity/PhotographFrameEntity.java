@@ -424,11 +424,14 @@ public class PhotographFrameEntity extends HangingEntity {
         if (entity instanceof Player player && player.isCreative())
             return;
 
+        // Prevent item phasing through the block when placed on the ceiling (pointing DOWN)
+        float yOffset = getDirection() == Direction.DOWN ? -0.3f : 0f;
+
         if (dropSelf)
-            spawnAtLocation(getFrameItem());
+            spawnAtLocation(getFrameItem(), yOffset);
 
         if (!itemStack.isEmpty())
-            spawnAtLocation(itemStack.copy());
+            spawnAtLocation(itemStack.copy(), yOffset);
     }
 
     @Override
