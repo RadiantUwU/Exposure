@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.entity;
 
 import com.mojang.logging.LogUtils;
+import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.item.PhotographItem;
@@ -62,8 +63,7 @@ public class PhotographFrameEntity extends HangingEntity {
 
     @Override
     public boolean shouldRenderAtSqrDistance(double distance) {
-        double d = 16.0;
-        d *= 64.0 * getViewScale();
+        double d = Config.Client.PHOTOGRAPH_FRAME_CULLING_DISTANCE.get() * getViewScale();
         return distance < d * d;
     }
 

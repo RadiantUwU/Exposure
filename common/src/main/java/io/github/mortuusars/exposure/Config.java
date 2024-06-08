@@ -156,6 +156,9 @@ public class Config {
         public static final ForgeConfigSpec.BooleanValue EXPOSURE_SAVING_LEVEL_SUBFOLDER;
         public static final ForgeConfigSpec.EnumValue<ExposureSize> EXPOSURE_SAVING_SIZE;
 
+        // RENDER
+        public static final ForgeConfigSpec.IntValue PHOTOGRAPH_FRAME_CULLING_DISTANCE;
+
         static {
             ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -228,6 +231,15 @@ public class Config {
                         .comment("Delay in ticks before capturing an image when shooting with flash." +
                                 "\nIf you experience flash synchronization issues (Flash having no effect on the image) - try increasing the value.")
                         .defineInRange("FlashCaptureDelayTicks", 3, 1, 6);
+                builder.pop();
+            }
+
+            {
+                builder.push("Render");
+                PHOTOGRAPH_FRAME_CULLING_DISTANCE = builder
+                        .comment("Distance from the player beyond which Photograph Frame would not be rendered. Default: 64",
+                                "Note: this number may not relate to distance in blocks exactly. It's influenced by render distance and entity distance settings.")
+                        .defineInRange("PhotographFrameCullingDistance", 64, 8, 128);
                 builder.pop();
             }
 

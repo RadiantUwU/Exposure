@@ -90,7 +90,7 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
 
         poseStack.mulPose(Axis.ZP.rotationDegrees((entity.getRotation() * 360.0F / 4.0F)));
         poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
-        float offsetFromCenter = frameInvisible ? 0.4975f : 0.485f;
+        float offsetFromCenter = frameInvisible ? 0.497f : 0.475f;
         poseStack.translate(-0.5 * (size + 1) + frameBorderOffset, -0.5 * (size + 1) + frameBorderOffset, offsetFromCenter);
         poseStack.scale(scale, scale, 1);
 
