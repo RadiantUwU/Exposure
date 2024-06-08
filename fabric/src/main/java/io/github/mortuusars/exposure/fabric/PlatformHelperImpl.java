@@ -14,6 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +26,10 @@ import java.util.function.Consumer;
 public class PlatformHelperImpl {
     public static boolean canShear(ItemStack stack) {
         return stack.getItem() instanceof ShearsItem;
+    }
+
+    public static boolean canStrip(ItemStack stack) {
+        return stack.getItem() instanceof AxeItem;
     }
 
     public static void openMenu(ServerPlayer serverPlayer, MenuProvider menuProvider, Consumer<FriendlyByteBuf> extraDataWriter) {

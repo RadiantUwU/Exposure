@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolActions;
@@ -21,6 +22,10 @@ import java.util.function.Consumer;
 public class PlatformHelperImpl {
     public static boolean canShear(ItemStack stack) {
         return stack.canPerformAction(ToolActions.SHEARS_CARVE);
+    }
+
+    public static boolean canStrip(ItemStack stack) {
+        return stack.canPerformAction(ToolActions.AXE_STRIP);
     }
 
     public static void openMenu(ServerPlayer serverPlayer, MenuProvider menuProvider, Consumer<FriendlyByteBuf> extraDataWriter) {

@@ -323,12 +323,24 @@ public class PhotographFrameEntity extends HangingEntity {
     @Override
     public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemInHand = player.getItemInHand(hand);
-        if (!isInvisible() && canShear(itemInHand)) {
+
+        if (!isInvisible()) {
+            if (canStrip(itemInHand)) {
+                if (!level().isClientSide) {
+                    setInvisible(true);
+                    itemInHand.hurtAndBreak(1, player, (pl) -> pl.broadcastBreakEvent(hand));
+                    gameEvent(GameEvent.BLOCK_CHANGE, player);
+                    playSound(SoundEvents.AXE_STRIP, 1f, 1f);
+                }
+                return InteractionResult.SUCCESS;
+            }
+        }
+        else if (itemInHand.is(Items.STICK)) {
             if (!level().isClientSide) {
-                setInvisible(true);
-                itemInHand.hurtAndBreak(1, player, (pl) -> pl.broadcastBreakEvent(hand));
+                setInvisible(false);
+                itemInHand.shrink(1);
                 gameEvent(GameEvent.BLOCK_CHANGE, player);
-                playSound(SoundEvents.SHEEP_SHEAR, 1f, level().getRandom().nextFloat() * 0.2f + 0.9f);
+                playPlacementSound();
             }
             return InteractionResult.SUCCESS;
         }
@@ -337,6 +349,7 @@ public class PhotographFrameEntity extends HangingEntity {
             setItem(itemInHand.copy());
             itemInHand.shrink(1);
             gameEvent(GameEvent.BLOCK_CHANGE, player);
+            playSound(getAddItemSound(), 1.0f, 1.0f);
             return InteractionResult.SUCCESS;
         }
 
@@ -350,17 +363,20 @@ public class PhotographFrameEntity extends HangingEntity {
             return InteractionResult.SUCCESS;
         }
 
-        if (!level().isClientSide) {
-            this.playSound(getRotateSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.9f);
-            this.setRotation(getRotation() + 1);
-            gameEvent(GameEvent.BLOCK_CHANGE, player);
+        if (!getItem().isEmpty()) {
+            if (!level().isClientSide) {
+                playSound(getRotateSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.9f);
+                setRotation(getRotation() + 1);
+                gameEvent(GameEvent.BLOCK_CHANGE, player);
+            }
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
-    public boolean canShear(ItemStack stack) {
-        return PlatformHelper.canShear(stack);
+    public boolean canStrip(ItemStack stack) {
+        return PlatformHelper.canStrip(stack);
     }
 
     @Override
@@ -406,7 +422,7 @@ public class PhotographFrameEntity extends HangingEntity {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide && isGlowing() && level().getRandom().nextFloat() < 0.01f) {
+        if (level().isClientSide && isGlowing() && level().getRandom().nextFloat() < 0.003f) {
             AABB bb = getBoundingBox();
             Vec3i normal = getDirection().getNormal();
             level().addParticle(ParticleTypes.END_ROD,
@@ -446,19 +462,23 @@ public class PhotographFrameEntity extends HangingEntity {
 
     @Override
     public void playPlacementSound() {
-        this.playSound(this.getPlaceSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.7f);
+        playSound(getPlaceSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.7f);
     }
 
     public SoundEvent getPlaceSound() {
-        return SoundEvents.ITEM_FRAME_PLACE;
+        return SoundEvents.PAINTING_PLACE;
     }
 
     public SoundEvent getBreakSound() {
-        return SoundEvents.ITEM_FRAME_BREAK;
+        return SoundEvents.PAINTING_BREAK;
     }
 
     public SoundEvent getRotateSound() {
         return Exposure.SoundEvents.PHOTOGRAPH_RUSTLE.get();
+    }
+
+    public SoundEvent getAddItemSound() {
+        return SoundEvents.ITEM_FRAME_ADD_ITEM;
     }
 
     public SoundEvent getRemoveItemSound() {
