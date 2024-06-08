@@ -28,6 +28,7 @@
   "container.exposure.camera": "Camera",
   "container.exposure.lightroom": "Lightroom",
   "entity.exposure.photograph": "Photograph",
+  "entity.exposure.photograph_frame": "Photograph Frame",
   "gui.exposure.album.add_photograph": "Add Photograph",
   "gui.exposure.album.by_author": "by %1$s",
   "gui.exposure.album.cancel_signing": "Cancel",

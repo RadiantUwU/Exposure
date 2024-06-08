@@ -22,10 +22,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -328,29 +325,33 @@ public class PhotographFrameEntity extends HangingEntity {
             if (!level().isClientSide) {
                 setInvisible(true);
                 itemInHand.hurtAndBreak(1, player, (pl) -> pl.broadcastBreakEvent(hand));
+                gameEvent(GameEvent.BLOCK_CHANGE, player);
                 playSound(SoundEvents.SHEEP_SHEAR, 1f, level().getRandom().nextFloat() * 0.2f + 0.9f);
             }
-
             return InteractionResult.SUCCESS;
         }
 
         if (itemInHand.getItem() instanceof PhotographItem && getItem().isEmpty()) {
             setItem(itemInHand.copy());
             itemInHand.shrink(1);
+            gameEvent(GameEvent.BLOCK_CHANGE, player);
             return InteractionResult.SUCCESS;
         }
 
         if (itemInHand.is(Items.GLOW_INK_SAC)) {
             setGlowing(true);
             itemInHand.shrink(1);
-            if (!level().isClientSide)
+            if (!level().isClientSide) {
                 playSound(SoundEvents.GLOW_INK_SAC_USE);
+                gameEvent(GameEvent.BLOCK_CHANGE, player);
+            }
             return InteractionResult.SUCCESS;
         }
 
         if (!level().isClientSide) {
             this.playSound(getRotateSound(), 1.0F, level().getRandom().nextFloat() * 0.2f + 0.9f);
             this.setRotation(getRotation() + 1);
+            gameEvent(GameEvent.BLOCK_CHANGE, player);
         }
 
         return InteractionResult.SUCCESS;
@@ -414,6 +415,31 @@ public class PhotographFrameEntity extends HangingEntity {
                     level().getRandom().nextFloat() * 0.02f * normal.getY(),
                     level().getRandom().nextFloat() * 0.02f * normal.getZ());
         }
+    }
+
+    @Override
+    public @NotNull SlotAccess getSlot(int slot) {
+        if (slot == 0) {
+            return new SlotAccess(){
+
+                @Override
+                public @NotNull ItemStack get() {
+                    return PhotographFrameEntity.this.getItem();
+                }
+
+                @Override
+                public boolean set(ItemStack carried) {
+                    PhotographFrameEntity.this.setItem(carried);
+                    return true;
+                }
+            };
+        }
+        return super.getSlot(slot);
+    }
+
+    @Override
+    public float getNameTagOffsetY() {
+        return (getSize() + 1) / 2f + 0.35f;
     }
 
     @Override

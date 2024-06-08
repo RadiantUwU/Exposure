@@ -2,10 +2,9 @@ package io.github.mortuusars.exposure.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Sheets;
@@ -17,11 +16,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.NotNull;
 
 public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> extends EntityRenderer<T> {
@@ -44,13 +44,22 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
 
     @Override
     public void render(@NotNull T entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (Minecraft.getInstance().hitResult instanceof EntityHitResult entityHitResult && entityHitResult.getEntity() == entity) {
+            Minecraft.getInstance().crosshairPickEntity = entity;
+        }
+
+        Direction direction = entity.getDirection();
+
+        poseStack.pushPose();
+        // Offsets name tag rendering to be like item frame:
+        poseStack.translate(direction.getStepX() * 0.3f, direction.getStepY() * 0.3f, direction.getStepZ() * 0.3f);
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        poseStack.popPose();
 
         boolean invisible = entity.isInvisible();
 
         poseStack.pushPose();
 
-        Direction direction = entity.getDirection();
         double hangOffset = 0.46875; // thickness of the frame is 1px (0.5 - (1/16 * 0.5)) - 0.5 is because we are offsetting from the center.
         poseStack.translate(direction.getStepX() * hangOffset, direction.getStepY() * hangOffset, direction.getStepZ() * hangOffset);
 
@@ -69,7 +78,7 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
         poseStack.popPose();
     }
 
-    private static <T extends PhotographFrameEntity> void renderPhotograph(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, ItemStack item) {
+    private void renderPhotograph(@NotNull T entity, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, ItemStack item) {
         poseStack.pushPose();
         int size = entity.getSize();
 
@@ -90,9 +99,9 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
             packedLight = LightTexture.FULL_BRIGHT;
             brightness = 255;
         }
-        else if (entity.getDirection() == Direction.UP)
+        else if (entity.getDirection() == Direction.UP) {
             brightness = 255;
-        else {
+        } else {
             // Darken the photo same way as the block sides darken,
             // but not quite as much and allow light sources to brighten it:
             int lightLevel = entity.level().getBrightness(LightLayer.BLOCK, entity.blockPosition());
@@ -126,5 +135,21 @@ public class PhotographFrameEntityRenderer<T extends PhotographFrameEntity> exte
         blockRenderer.getModelRenderer().renderModel(poseStack.last(), bufferSource.getBuffer(Sheets.solidBlockSheet()),
                 null, model, 1.0f, 1.0f, 1.0f, packedLight, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
+    }
+
+    @Override
+    protected boolean shouldShowName(T entity) {
+        if (Minecraft.renderNames() && (!entity.getItem().isEmpty() && entity.getItem().hasCustomHoverName()
+                && Minecraft.getInstance().crosshairPickEntity == entity)) {
+            double distSqr = Minecraft.getInstance().crosshairPickEntity.distanceToSqr(entity);
+            float showRangeSqr = entity.isDiscrete() ? 32.0f : 64.0f;
+            return distSqr < (double) (showRangeSqr * showRangeSqr);
+        }
+        return false;
+    }
+
+    @Override
+    protected void renderNameTag(T entity, Component displayName, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
+        super.renderNameTag(entity, entity.getItem().getHoverName(), poseStack, buffer, packedLight);
     }
 }

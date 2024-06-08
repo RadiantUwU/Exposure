@@ -28,6 +28,7 @@
   "container.exposure.camera": "Фотокамера",
   "container.exposure.lightroom": "Лайтрум",
   "entity.exposure.photograph": "Фотографія",
+  "entity.exposure.photograph_frame": "Рамка для фотографії",
   "gui.exposure.album.add_photograph": "Додати фотографію",
   "gui.exposure.album.by_author": "від: %1$s",
   "gui.exposure.album.cancel_signing": "Скасувати",
