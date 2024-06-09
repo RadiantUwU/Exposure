@@ -39,7 +39,7 @@ public class ExposureClient {
     private static KeyMapping openCameraControlsKey = null;
 
     public static void init() {
-        exposureSender = new ExposureSender((packet, player) -> Packets.sendToServer(packet));
+        exposureSender = new ExposureSender((packet, player) -> Packets.sendToServer(packet), ExposureSender.TO_SERVER_PACKET_SPLIT_THRESHOLD);
         exposureReceiver = new ExposureReceiver(exposureStorage);
 
         ItemProperties.register(Exposure.Items.CAMERA.get(), new ResourceLocation("camera_state"), CameraItemClientExtensions::itemPropertyFunction);

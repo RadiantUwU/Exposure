@@ -19,7 +19,8 @@ public class ExposureServer {
     public static void init(MinecraftServer server) {
         exposureStorage = new ServersideExposureStorage(() -> server.overworld().getDataStorage(),
                 () -> server.getWorldPath(LevelResource.ROOT));
-        exposureSender = new ExposureSender((packet, player) -> Packets.sendToClient(packet, ((ServerPlayer) player)));
+        exposureSender = new ExposureSender((packet, player) -> Packets.sendToClient(packet, ((ServerPlayer) player)),
+                ExposureSender.TO_CLIENT_PACKET_SPLIT_THRESHOLD);
         exposureReceiver = new ExposureReceiver(exposureStorage);
     }
 

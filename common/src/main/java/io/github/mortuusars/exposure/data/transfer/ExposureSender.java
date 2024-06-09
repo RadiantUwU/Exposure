@@ -8,12 +8,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BiConsumer;
 
 public class ExposureSender implements IExposureSender {
-    private static final int PART_SIZE = 30_000;
+    public static final int TO_SERVER_PACKET_SPLIT_THRESHOLD = 28_000; // ToClient packet size limit is 32kb
+    public static final int TO_CLIENT_PACKET_SPLIT_THRESHOLD = 500_000; // ToClient packet size limit is 8mb
 
     private final BiConsumer<ExposureDataPartPacket, @Nullable Player> packetSender;
+    private final int splitThreshold;
 
-    public ExposureSender(BiConsumer<ExposureDataPartPacket, @Nullable Player> packetSender) {
+    public ExposureSender(BiConsumer<ExposureDataPartPacket, @Nullable Player> packetSender, int splitThreshold) {
         this.packetSender = packetSender;
+        this.splitThreshold = splitThreshold;
     }
 
     public void send(String id, ExposureSavedData exposureData) {
@@ -22,7 +25,7 @@ public class ExposureSender implements IExposureSender {
 
     @Override
     public void sendTo(@Nullable Player player, String id, ExposureSavedData exposureData) {
-        byte[][] parts = splitToParts(exposureData.getPixels(), PART_SIZE);
+        byte[][] parts = splitToParts(exposureData.getPixels(), splitThreshold);
         int offset = 0;
 
         for (byte[] part : parts) {
@@ -31,7 +34,7 @@ public class ExposureSender implements IExposureSender {
 
             packetSender.accept(packet, player);
 
-            offset += PART_SIZE;
+            offset += splitThreshold;
         }
     }
 
