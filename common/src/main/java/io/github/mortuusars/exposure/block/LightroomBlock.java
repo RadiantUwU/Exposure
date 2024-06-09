@@ -5,6 +5,7 @@ import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.block.entity.Lightroom;
 import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
+import io.github.mortuusars.exposure.item.StackedPhotographsItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -84,18 +85,23 @@ public class LightroomBlock extends Block implements EntityBlock {
     @SuppressWarnings("deprecation")
     @Override
     public int getAnalogOutputSignal(@NotNull BlockState blockState, Level level, @NotNull BlockPos pos) {
-        if (level.getBlockEntity(pos) instanceof LightroomBlockEntity lightroomBlockEntity) {
-            ItemStack filmStack = lightroomBlockEntity.getItem(Lightroom.FILM_SLOT);
-            if (filmStack.isEmpty() || !filmStack.hasTag() || !(filmStack.getItem() instanceof DevelopedFilmItem developedFilmItem))
-                return 0;
-
-            int exposedFrames = developedFilmItem.getExposedFramesCount(filmStack);
-            int currentFrame = lightroomBlockEntity.getSelectedFrameIndex();
-
-            return Mth.floor((currentFrame + 1f) / exposedFrames * 14.0F) + 1;
-        }
-        else
+        if (!(level.getBlockEntity(pos) instanceof LightroomBlockEntity lightroomBlockEntity)) {
             return 0;
+        }
+
+        ItemStack resultStack = lightroomBlockEntity.getItem(Lightroom.RESULT_SLOT);
+
+        if (resultStack.isEmpty()) {
+            return 0;
+        }
+
+        if (resultStack.getItem() instanceof StackedPhotographsItem stackedPhotographsItem) {
+            int photographsCount = stackedPhotographsItem.getPhotographsCount(resultStack);
+            return (int) ((photographsCount / (float) stackedPhotographsItem.getStackLimit() * 14) + 1);
+        }
+        else {
+            return 1;
+        }
     }
 
 

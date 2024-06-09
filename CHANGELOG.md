@@ -2,7 +2,11 @@
 
 ## Unreleased
 - Added Photograph Frames
-- Photographs can no longer be placed on the wall. Existing hanging photographs will not be removed.
+  - Photographs can no longer be placed on the wall. Existing hanging photographs will not be removed.
+  
+- Lightroom comparator output now based on the number of Photographs in the output slot rather than the selected frame.
+
+---
 
 ## 1.6.0 - 2024-05-11
 
