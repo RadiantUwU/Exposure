@@ -1,7 +1,6 @@
 package io.github.mortuusars.exposure.block.entity;
 
 import com.google.common.base.Preconditions;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
@@ -41,7 +40,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -206,10 +204,9 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
      * @return Process, that will be used to print an image.
      */
     public Lightroom.Process getActualProcess(ItemStack filmStack) {
-        ItemStack film = getItem(Lightroom.FILM_SLOT);
-
-        if (!isSelectedFrameChromatic(film, getSelectedFrameIndex()))
+        if (!canPrintChromatic(filmStack, getSelectedFrameIndex())) {
             return Lightroom.Process.REGULAR;
+        }
 
         return process;
     }
@@ -234,6 +231,22 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         return getSelectedFrame(film)
                 .map(frame -> frame.getBoolean(FrameData.CHROMATIC))
                 .orElse(false);
+    }
+
+    public boolean canPrintChromatic(ItemStack filmStack, int selectedFrameIndex) {
+        boolean chromaticSelected = getSelectedFrame(filmStack)
+                .map(frame -> frame.getBoolean(FrameData.CHROMATIC))
+                .orElse(false);
+
+        if (chromaticSelected) {
+            return true;
+        }
+
+        if (filmStack.getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.BLACK_AND_WHITE && getLevel() != null) {
+            return getLevel().getBlockState(getBlockPos().above()).is(Exposure.Tags.Blocks.CHROMATIC_REFRACTORS);
+        }
+
+        return false;
     }
 
     public void startPrintingProcess(boolean advanceFrameOnFinish) {
@@ -321,7 +334,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     }
 
     public boolean canOutputToResultSlot(ItemStack resultStack, ItemStack filmStack, Lightroom.Process process) {
-        if (isSelectedFrameChromatic(filmStack, getSelectedFrameIndex()) && process == Lightroom.Process.CHROMATIC)
+        if (canPrintChromatic(filmStack, getSelectedFrameIndex()) && process == Lightroom.Process.CHROMATIC)
             return resultStack.isEmpty();
 
         return resultStack.isEmpty() || resultStack.getItem() instanceof PhotographItem

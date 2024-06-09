@@ -116,8 +116,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         printButton.visible = !getMenu().isPrinting();
 
         processToggleButton.active = true;
-        processToggleButton.visible = getMenu().getExposedFrames().getCompound(
-                getMenu().getSelectedFrame()).getBoolean(FrameData.CHROMATIC);
+        processToggleButton.visible = getMenu().canChangeProcess();
     }
 
     @Override

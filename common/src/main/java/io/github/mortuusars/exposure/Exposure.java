@@ -40,6 +40,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -290,6 +291,10 @@ public class Exposure {
             public static final TagKey<Item> RED_FILTERS = TagKey.create(Registries.ITEM, Exposure.resource("red_filters"));
             public static final TagKey<Item> GREEN_FILTERS = TagKey.create(Registries.ITEM, Exposure.resource("green_filters"));
             public static final TagKey<Item> BLUE_FILTERS = TagKey.create(Registries.ITEM, Exposure.resource("blue_filters"));
+        }
+
+        public static class Blocks {
+            public static final TagKey<Block> CHROMATIC_REFRACTORS = TagKey.create(Registries.BLOCK, Exposure.resource("chromatic_refractors"));
         }
     }
 

@@ -159,6 +159,10 @@ public class LightroomMenu extends AbstractContainerMenu {
         return (!filmStack.isEmpty() && filmStack.getItem() instanceof IFilmItem filmItem) ? filmItem.getExposedFramesCount(filmStack) : 0;
     }
 
+    public boolean canChangeProcess() {
+        return getBlockEntity().canPrintChromatic(getBlockEntity().getItem(Lightroom.FILM_SLOT), getSelectedFrame());
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int buttonId) {
         Preconditions.checkState(!player.level().isClientSide, "This should be server-side only.");
