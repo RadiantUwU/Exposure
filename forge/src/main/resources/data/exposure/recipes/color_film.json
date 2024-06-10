@@ -3,10 +3,10 @@
   "category": "equipment",
   "key": {
     "G": {
-      "tag": "forge:nuggets/gold"
+      "item": "minecraft:gunpowder"
     },
     "I": {
-      "tag": "forge:ingots/iron"
+      "tag": "forge:ingots/gold"
     },
     "K": {
       "item": "minecraft:dried_kelp"
@@ -15,7 +15,7 @@
       "item": "minecraft:lapis_lazuli"
     },
     "N": {
-      "tag": "forge:nuggets/iron"
+      "tag": "forge:nuggets/gold"
     }
   },
   "pattern": [
