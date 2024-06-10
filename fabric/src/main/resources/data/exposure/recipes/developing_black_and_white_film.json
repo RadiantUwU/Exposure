@@ -5,11 +5,23 @@
   },
   "ingredients": [
     {
-      "fabric:type": "fabric:nbt",
-      "base": {
-        "item": "minecraft:potion"
-      },
-      "nbt": "{Potion:\"minecraft:water\"}"
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        {
+          "fabric:type": "fabric:nbt",
+          "base": {
+            "item": "minecraft:potion"
+          },
+          "nbt": "{Potion:\"minecraft:water\"}"
+        },
+        {
+          "fabric:type": "fabric:nbt",
+          "base": {
+            "item": "minecraft:potion"
+          },
+          "nbt": "{Potion:\"water\"}"
+        }
+      ]
     }
   ],
   "result": {

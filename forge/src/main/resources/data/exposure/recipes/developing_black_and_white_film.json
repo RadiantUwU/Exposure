@@ -4,11 +4,18 @@
     "item": "exposure:black_and_white_film"
   },
   "ingredients": [
-    {
-      "type": "forge:partial_nbt",
-      "item": "minecraft:potion",
-      "nbt": "{Potion:\"minecraft:water\"}"
-    }
+    [
+      {
+        "type": "forge:partial_nbt",
+        "item": "minecraft:potion",
+        "nbt": "{Potion:\"minecraft:water\"}"
+      },
+      {
+        "type": "forge:partial_nbt",
+        "item": "minecraft:potion",
+        "nbt": "{Potion:\"water\"}"
+      }
+    ]
   ],
   "result": {
     "item": "exposure:developed_black_and_white_film"
