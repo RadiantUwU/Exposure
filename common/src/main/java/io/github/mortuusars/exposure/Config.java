@@ -32,6 +32,9 @@ public class Config {
         // Photographs
         public static final ForgeConfigSpec.IntValue STACKED_PHOTOGRAPHS_MAX_SIZE;
 
+        // Misc
+        public static final ForgeConfigSpec.BooleanValue FILM_ROLL_RENAMING;
+
         // Compatibility
         public static final ForgeConfigSpec.BooleanValue CREATE_SPOUT_DEVELOPING_ENABLED;
         public static final ForgeConfigSpec.ConfigValue<List<? extends String>> CREATE_SPOUT_DEVELOPING_SEQUENCE_COLOR;
@@ -94,6 +97,14 @@ public class Config {
                         .comment("How many photographs can be stacked in Stacked Photographs item. Default: 16.",
                                 "Larger numbers may cause errors. Use at your own risk.")
                         .defineInRange("StackedPhotographsMaxSize", 16, 2, 64);
+            }
+            builder.pop();
+
+            builder.push("Misc");
+            {
+                FILM_ROLL_RENAMING = builder
+                        .comment("Film rolls can be renamed by using the item. Default: true")
+                        .define("FilmRollRenaming", true);
             }
             builder.pop();
 

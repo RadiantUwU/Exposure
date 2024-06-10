@@ -6,6 +6,7 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
+import io.github.mortuusars.exposure.gui.screen.ItemRenameScreen;
 import io.github.mortuusars.exposure.gui.screen.album.AlbumScreen;
 import io.github.mortuusars.exposure.integration.jei.category.PhotographPrintingCategory;
 import io.github.mortuusars.exposure.integration.jei.category.PhotographStackingCategory;
@@ -97,6 +98,15 @@ public class ExposureJeiPlugin implements IModPlugin {
         registration.addGenericGuiContainerHandler(AlbumScreen.class, new IGuiContainerHandler<AlbumScreen>() {
             @Override
             public @NotNull List<Rect2i> getGuiExtraAreas(@NotNull AlbumScreen containerScreen) {
+                return List.of(new Rect2i(0, 0,
+                        Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+                        Minecraft.getInstance().getWindow().getGuiScaledHeight()));
+            }
+        });
+
+        registration.addGenericGuiContainerHandler(ItemRenameScreen.class, new IGuiContainerHandler<ItemRenameScreen>() {
+            @Override
+            public @NotNull List<Rect2i> getGuiExtraAreas(@NotNull ItemRenameScreen containerScreen) {
                 return List.of(new Rect2i(0, 0,
                         Minecraft.getInstance().getWindow().getGuiScaledWidth(),
                         Minecraft.getInstance().getWindow().getGuiScaledHeight()));

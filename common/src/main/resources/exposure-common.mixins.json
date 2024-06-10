@@ -21,7 +21,8 @@
     "BookPageCountMixin",
     "LecternBlockEntityAccessor",
     "LecternMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "ServerGamePacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

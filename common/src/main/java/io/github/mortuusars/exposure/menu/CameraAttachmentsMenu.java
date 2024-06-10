@@ -256,8 +256,7 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(@NotNull Player player) {
-        boolean sameItemSameTags = ItemStack.isSameItemSameTags(player.getInventory().getItem(cameraSlotIndex), camera.getStack());
-        return sameItemSameTags;
+        return ItemStack.isSameItemSameTags(player.getInventory().getItem(cameraSlotIndex), camera.getStack());
     }
 
     public static CameraAttachmentsMenu fromBuffer(int containerId, Inventory playerInventory, FriendlyByteBuf buffer) {

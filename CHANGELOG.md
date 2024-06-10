@@ -3,7 +3,8 @@
 ## Unreleased
 - Added Photograph Frames
   - Photographs can no longer be placed on the wall. Existing hanging photographs will not be removed.
-  
+- Added Film Roll renaming. Use the item to open renaming UI. Renaming this way does not cost any experience.  
+
 - Lightroom comparator output now based on the number of Photographs in the output slot rather than the selected frame.
 - Chromatic Process can now be enabled for all black and white images by placing an Amethyst Cluster on top of a Lightroom.
 

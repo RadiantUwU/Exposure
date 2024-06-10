@@ -15,10 +15,7 @@ import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
 import io.github.mortuusars.exposure.entity.PhotographEntity;
 import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
 import io.github.mortuusars.exposure.item.*;
-import io.github.mortuusars.exposure.menu.AlbumMenu;
-import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
-import io.github.mortuusars.exposure.menu.LecternAlbumMenu;
-import io.github.mortuusars.exposure.menu.LightroomMenu;
+import io.github.mortuusars.exposure.menu.*;
 import io.github.mortuusars.exposure.recipe.FilmDevelopingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographAgingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographCopyingRecipe;
@@ -182,6 +179,7 @@ public class Exposure {
         public static final Supplier<MenuType<AlbumMenu>> ALBUM = Register.menuType("album", AlbumMenu::fromBuffer);
         public static final Supplier<MenuType<LecternAlbumMenu>> LECTERN_ALBUM = Register.menuType("lectern_album", LecternAlbumMenu::fromBuffer);
         public static final Supplier<MenuType<LightroomMenu>> LIGHTROOM = Register.menuType("lightroom", LightroomMenu::fromBuffer);
+        public static final Supplier<MenuType<ItemRenameMenu>> ITEM_RENAME = Register.menuType("item_rename", ItemRenameMenu::fromBuffer);
 
         static void init() {
         }

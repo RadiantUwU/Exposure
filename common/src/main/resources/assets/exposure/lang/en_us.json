@@ -28,9 +28,10 @@
   "config.jade.plugin_exposure.photograph_frame": "Photograph Frame",
   "container.exposure.camera": "Camera",
   "container.exposure.lightroom": "Lightroom",
+  "entity.exposure.glow_photograph_frame": "Glow Photograph Frame",
   "entity.exposure.photograph": "Photograph",
   "entity.exposure.photograph_frame": "Photograph Frame",
-  "entity.exposure.glow_photograph_frame": "Glow Photograph Frame",
+  "exposure.jei.info.photograph_frame": "Has three sizes: 1x1, 2x2 and 3x3. Placed like a Painting but can be placed on floors and ceilings as well. Glow Ink Sac will make it glow. Axe can be used to strip the frame, Stick will restore it.",
   "gui.exposure.album.add_photograph": "Add Photograph",
   "gui.exposure.album.by_author": "by %1$s",
   "gui.exposure.album.cancel_signing": "Cancel",
@@ -56,6 +57,9 @@
   "gui.exposure.flash_mode.on": "On",
   "gui.exposure.frame.id": "Id: %s",
   "gui.exposure.frame.texture": "Texture: %s",
+  "gui.exposure.item_rename.apply": "Apply",
+  "gui.exposure.item_rename.cancel": "Cancel",
+  "gui.exposure.item_rename.title": "Rename",
   "gui.exposure.lightroom.current_frame": "Frame: %s",
   "gui.exposure.lightroom.next_frame": "Next Frame",
   "gui.exposure.lightroom.previous_frame": "Previous Frame",
@@ -100,6 +104,7 @@
   "item.exposure.film_roll.tooltip.developing_step": "Developing: %s",
   "item.exposure.film_roll.tooltip.frame_count": "%s/%s",
   "item.exposure.film_roll.tooltip.frame_size": "Size: %smm",
+  "item.exposure.film_roll.tooltip.renaming": "§8[§7Use§8] to rename",
   "item.exposure.photograph": "Photograph",
   "item.exposure.photograph.generation.0": "Original",
   "item.exposure.photograph.generation.1": "Copy of original",
@@ -137,6 +142,5 @@
   "subtitle.exposure.photograph_frame.place": "Photograph Frame placed",
   "subtitle.exposure.photograph_frame.remove_item": "Photograph Frame empties",
   "subtitle.exposure.photograph_frame.rotate_item": "Photograph Frame clicks",
-  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details",
-  "exposure.jei.info.photograph_frame": "Has three sizes: 1x1, 2x2 and 3x3. Placed like a Painting but can be placed on floors and ceilings as well. Glow Ink Sac will make it glow. Axe can be used to strip the frame, Stick will restore it."
+  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details"
 }

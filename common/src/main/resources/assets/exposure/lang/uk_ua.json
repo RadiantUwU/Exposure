@@ -28,9 +28,10 @@
   "config.jade.plugin_exposure.photograph_frame": "Рамка для фотографії",
   "container.exposure.camera": "Фотокамера",
   "container.exposure.lightroom": "Лайтрум",
+  "entity.exposure.glow_photograph_frame": "Сяюча рамка для фотографії",
   "entity.exposure.photograph": "Фотографія",
   "entity.exposure.photograph_frame": "Рамка для фотографії",
-  "entity.exposure.glow_photograph_frame": "Сяюча рамка для фотографії",
+  "exposure.jei.info.photograph_frame": "Має три розміри: 1х1, 2х2 і 3х3. Розміщується як Картина, але також може бути розміщена на підлозі та стелі. Сяючий чорнильний мішок зробить її сяючою. Сокирою можна зчистити рамку, Палиця її відновить.",
   "gui.exposure.album.add_photograph": "Додати фотографію",
   "gui.exposure.album.by_author": "від: %1$s",
   "gui.exposure.album.cancel_signing": "Скасувати",
@@ -56,6 +57,9 @@
   "gui.exposure.flash_mode.on": "Увімкнено",
   "gui.exposure.frame.id": "Ідентифікатор: %s",
   "gui.exposure.frame.texture": "Текстура: %s",
+  "gui.exposure.item_rename.apply": "Перейменувати",
+  "gui.exposure.item_rename.cancel": "Відміна",
+  "gui.exposure.item_rename.title": "Перейменування",
   "gui.exposure.lightroom.current_frame": "Кадр: %s",
   "gui.exposure.lightroom.next_frame": "Наступний кадр",
   "gui.exposure.lightroom.previous_frame": "Попередній кадр",
@@ -100,6 +104,7 @@
   "item.exposure.film_roll.tooltip.developing_step": "Проявка: %s",
   "item.exposure.film_roll.tooltip.frame_count": "%s/%s",
   "item.exposure.film_roll.tooltip.frame_size": "Розмір: %sмм",
+  "item.exposure.film_roll.tooltip.renaming": "§8[§7Використайте§8] щоб перейменувати",
   "item.exposure.photograph": "Фотографія",
   "item.exposure.photograph.generation.0": "Оригінал",
   "item.exposure.photograph.generation.1": "Копія оригіналу",
@@ -137,6 +142,5 @@
   "subtitle.exposure.photograph_frame.place": "Рамку для фотографії розміщено",
   "subtitle.exposure.photograph_frame.remove_item": "Рамку для фотографії спустошено",
   "subtitle.exposure.photograph_frame.rotate_item": "Рамка для фотографії клацає",
-  "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць",
-  "exposure.jei.info.photograph_frame": "Має три розміри: 1х1, 2х2 і 3х3. Розміщується як Картина, але також може бути розміщена на підлозі та стелі. Сяючий чорнильний мішок зробить її сяючою. Сокирою можна зчистити рамку, Палиця її відновить."
+  "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць"
 }
