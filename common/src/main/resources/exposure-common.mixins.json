@@ -9,6 +9,7 @@
     "GuiMixin",
     "ItemInHandRendererMixin",
     "ItemRendererMixin",
+    "KeyBindTooltip",
     "KeyboardHandlerMixin",
     "KeyMappingMixin",
     "LocalPlayerTickMixin",
