@@ -21,7 +21,10 @@ import java.awt.geom.Rectangle2D;
 import java.util.Optional;
 
 public class ViewfinderOverlay {
-    private static final ResourceLocation VIEWFINDER_TEXTURE = Exposure.resource("textures/gui/viewfinder/viewfinder.png");
+    public static final ResourceLocation VIEWFINDER_TEXTURE = Exposure.resource("textures/gui/viewfinder/viewfinder.png");
+    public static final ResourceLocation NO_FILM_ICON_TEXTURE = Exposure.resource("textures/gui/viewfinder/icon/no_film.png");
+    public static final ResourceLocation REMAINING_FRAMES_ICON_TEXTURE = Exposure.resource("textures/gui/viewfinder/icon/remaining_frames.png");
+
     public static Rectangle2D.Float opening = new Rectangle2D.Float(0, 0, 0, 0);
 
     private static final PoseStack POSE_STACK = new PoseStack();
@@ -135,17 +138,31 @@ public class ViewfinderOverlay {
                 camera.getItem().getCompositionGuide(camera.getStack()).getId() + ".png"));
         GuiUtil.blit(poseStack, opening.x, opening.x + opening.width, opening.y, opening.y + opening.height, -1f, 0f, 1f, 0f, 1f);
 
-        // Icons
         if (!(minecraft.screen instanceof ViewfinderControlsScreen)) {
-            Optional<ItemAndStack<FilmRollItem>> film = camera.getItem().getFilm(camera.getStack());
-            if (film.isEmpty() || !film.get().getItem().canAddFrame(film.get().getStack())) {
-                RenderSystem.setShaderTexture(0, Exposure.resource("textures/gui/viewfinder/icon/no_film.png"));
-                GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 12), opening.y + opening.height - 19,
-                        24, 19, 0, 0, 24, 19, 0);
-            }
+            renderIcons(poseStack, camera);
         }
 
         poseStack.popPose();
+    }
+
+    private static void renderIcons(PoseStack poseStack, CameraInHand camera) {
+        Optional<ItemAndStack<FilmRollItem>> film = camera.getItem().getFilm(camera.getStack());
+        if (film.isEmpty() || !film.get().getItem().canAddFrame(film.get().getStack())) {
+            RenderSystem.setShaderTexture(0, NO_FILM_ICON_TEXTURE);
+            GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 12), opening.y + opening.height - 19,
+                    24, 19, 0, 0, 24, 19, 0);
+        }
+        else {
+            ItemAndStack<FilmRollItem> f = film.get();
+            int maxFrames = f.getItem().getMaxFrameCount(f.getStack());
+            int exposedFrames = f.getItem().getExposedFramesCount(f.getStack());
+            int remainingFrames = Math.max(0, maxFrames - exposedFrames);
+            if (maxFrames > 5 && remainingFrames <= 3) {
+                RenderSystem.setShaderTexture(0, REMAINING_FRAMES_ICON_TEXTURE);
+                GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 17), opening.y + opening.height - 15,
+                        33, 15, 0, (remainingFrames - 1) * 15, 33, 45, 0);
+            }
+        }
     }
 
     public static void drawRect(PoseStack poseStack, float minX, float minY, float maxX, float maxY, int color) {
