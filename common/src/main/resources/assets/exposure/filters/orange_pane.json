@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:orange_stained_glass_pane"
   },
+  "tint_color": "#EB8844",
   "shader": "exposure:shaders/orange_tint.json"
 }

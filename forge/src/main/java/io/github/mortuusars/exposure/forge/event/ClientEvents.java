@@ -7,7 +7,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.client.ExposureClientReloadListener;
 import io.github.mortuusars.exposure.client.MouseHandler;
-import io.github.mortuusars.exposure.data.FiltersResourceLoader;
+import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
 import io.github.mortuusars.exposure.gui.screen.ItemRenameScreen;
 import io.github.mortuusars.exposure.gui.screen.album.AlbumScreen;
@@ -52,7 +52,7 @@ public class ClientEvents {
         @SubscribeEvent
         public static void registerResourceReloadListeners(RegisterClientReloadListenersEvent event) {
             event.registerReloadListener(new ExposureClientReloadListener());
-            event.registerReloadListener(new FiltersResourceLoader());
+            event.registerReloadListener(new Filters.Loader());
         }
 
         @SubscribeEvent

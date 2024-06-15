@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:magenta_stained_glass_pane"
   },
+  "tint_color": "#C354CD",
   "shader": "exposure:shaders/magenta_tint.json"
 }

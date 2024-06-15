@@ -3,7 +3,7 @@ package io.github.mortuusars.exposure.fabric;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.fabric.resources.ExposureFabricClientReloadListener;
-import io.github.mortuusars.exposure.fabric.resources.FabricFiltersResourceLoader;
+import io.github.mortuusars.exposure.fabric.resources.FabricFiltersLoader;
 import io.github.mortuusars.exposure.gui.component.PhotographTooltip;
 import io.github.mortuusars.exposure.gui.screen.ItemRenameScreen;
 import io.github.mortuusars.exposure.gui.screen.LightroomScreen;
@@ -45,7 +45,7 @@ public class ExposureFabricClient implements ClientModInitializer {
                         ExposureClient.Models.PHOTOGRAPH_FRAME_LARGE_STRIPPED));
 
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new ExposureFabricClientReloadListener());
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new FabricFiltersResourceLoader());
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new FabricFiltersLoader());
 
         EntityRendererRegistry.register(Exposure.EntityTypes.PHOTOGRAPH.get(), PhotographEntityRenderer::new);
         EntityRendererRegistry.register(Exposure.EntityTypes.PHOTOGRAPH_FRAME.get(), PhotographFrameEntityRenderer::new);

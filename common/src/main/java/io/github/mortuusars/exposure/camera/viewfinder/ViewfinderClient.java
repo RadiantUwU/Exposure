@@ -8,7 +8,7 @@ import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
-import io.github.mortuusars.exposure.data.Filters;
+import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.util.CameraInHand;
 import io.github.mortuusars.exposure.util.Fov;
@@ -17,16 +17,13 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class ViewfinderClient {
     public static final float ZOOM_STEP = 8f;
@@ -77,20 +74,6 @@ public class ViewfinderClient {
 
                     Minecraft.getInstance().gameRenderer.loadEffect(shaderLocation);
                 });
-
-//        Optional<ItemStack> attachment = camera.getItem().getAttachment(camera.getStack(), CameraItem.FILTER_ATTACHMENT);
-//        attachment.ifPresent(stack -> {
-//            Filters.getShaderOf(stack);
-//
-//            PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
-//            if (effect != null)
-//                previousShaderEffect = effect.getName();
-//
-//
-//
-//            String itemName = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
-//            Minecraft.getInstance().gameRenderer.loadEffect(Exposure.resource("shaders/post/" + itemName + ".json"));
-//        });
 
         SelfieClient.update(camera, activeHand, false);
 

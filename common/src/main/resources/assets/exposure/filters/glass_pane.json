@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:glass_pane"
   },
+  "attachment_texture": "exposure:textures/gui/filter/glass.png",
   "shader": "exposure:shaders/crisp.json"
 }

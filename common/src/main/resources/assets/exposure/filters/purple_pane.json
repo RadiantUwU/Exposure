@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:purple_stained_glass_pane"
   },
+  "tint_color": "#7B2FBE",
   "shader": "exposure:shaders/purple_tint.json"
 }

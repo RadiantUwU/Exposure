@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:pink_stained_glass_pane"
   },
+  "tint_color": "#D88198",
   "shader": "exposure:shaders/pink_tint.json"
 }

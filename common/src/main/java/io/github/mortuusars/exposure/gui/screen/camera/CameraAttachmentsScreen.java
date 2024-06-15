@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.gui.screen.camera;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
+import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
@@ -11,22 +12,23 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttachmentsMenu> {
     public static final ResourceLocation TEXTURE = Exposure.resource("textures/gui/camera_attachments.png");
+
+    protected Map<Integer, Rect2i> slotPlaceholders = Collections.emptyMap();
 
     public CameraAttachmentsScreen(CameraAttachmentsMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -44,6 +46,13 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
         this.imageHeight = 185;
         inventoryLabelY = this.imageHeight - 94;
         super.init();
+
+        slotPlaceholders = Map.of(
+                CameraItem.FILM_ATTACHMENT.slot(), new Rect2i(238, 0, 18, 18),
+                CameraItem.FLASH_ATTACHMENT.slot(), new Rect2i(238, 18, 18, 18),
+                CameraItem.LENS_ATTACHMENT.slot(), new Rect2i(238, 36, 18, 18),
+                CameraItem.FILTER_ATTACHMENT.slot(), new Rect2i(238, 54, 18, 18)
+        );
     }
 
     @Override
@@ -59,7 +68,7 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
                     guiGraphics.pose().translate(0, 0, 350);
                     RenderSystem.enableBlend();
                     RenderSystem.defaultBlendFunc();
-                    guiGraphics.blit(TEXTURE, leftPos + slot.x + 1, topPos + slot.y + 1, 176, 20, 16, 16);
+                    guiGraphics.blit(TEXTURE, leftPos + slot.x, topPos + slot.y, 176, 20, 16, 16);
                     RenderSystem.disableBlend();
                     guiGraphics.pose().popPose();
                 }
@@ -77,52 +86,9 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
         RenderSystem.defaultBlendFunc();
         guiGraphics.blit(TEXTURE, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
-        Slot filmSlot = menu.slots.get(CameraItem.FILM_ATTACHMENT.slot());
-        if (!filmSlot.hasItem())
-            guiGraphics.blit(TEXTURE, leftPos + filmSlot.x - 1, topPos + filmSlot.y - 1, 238, 0, 18, 18);
+        renderSlotPlaceholders(guiGraphics, mouseX, mouseY, partialTick);
 
-        Slot flashSlot = menu.slots.get(CameraItem.FLASH_ATTACHMENT.slot());
-        if (!flashSlot.hasItem())
-            guiGraphics.blit(TEXTURE, leftPos + flashSlot.x - 1, topPos + flashSlot.y - 1, 238, 18, 18, 18);
-        else
-            guiGraphics.blit(TEXTURE, leftPos + 99, topPos + 7, 0, 185, 24, 28);
-
-        Slot lensSlot = menu.slots.get(CameraItem.LENS_ATTACHMENT.slot());
-        boolean hasLens = lensSlot.hasItem();
-        if (hasLens)
-            guiGraphics.blit(TEXTURE, leftPos + 103, topPos + 49, 24, 185, 31, 35);
-        else
-            guiGraphics.blit(TEXTURE, leftPos + lensSlot.x - 1, topPos + lensSlot.y - 1, 238, 36, 18, 18);
-
-        Slot filterSlot = menu.slots.get(CameraItem.FILTER_ATTACHMENT.slot());
-        if (filterSlot.hasItem()) {
-            int x = hasLens ? 116 : 106;
-            int y = hasLens ? 58 : 53;
-
-            float r = 1f;
-            float g = 1f;
-            float b = 1f;
-
-            ResourceLocation key = BuiltInRegistries.ITEM.getKey(filterSlot.getItem().getItem());
-            if (key.getNamespace().equals("minecraft") && key.getPath().contains("_stained_glass_pane")) {
-                String colorString = key.getPath().replace("_stained_glass_pane", "");
-                DyeColor color = DyeColor.byName(colorString, DyeColor.WHITE);
-                int rgb = color.getFireworkColor();
-                r = Mth.clamp(((rgb >> 16) & 0xFF) / 255f, 0f, 1f);
-                g = Mth.clamp((((rgb >> 8) & 0xFF) / 255f), 0f, 1f);
-                b = Mth.clamp((rgb & 0xFF) / 255f, 0f, 1f);
-            }
-
-            RenderSystem.setShaderColor(r, g, b, 1f);
-
-            if (!filterSlot.getItem().is(Items.GLASS_PANE))
-                guiGraphics.blit(TEXTURE, leftPos + x, topPos + y, 55, 185, 15, 23); // Glass part
-
-            guiGraphics.blit(TEXTURE, leftPos + x, topPos + y, 70, 185, 15, 23); // Glares
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        } else {
-            guiGraphics.blit(TEXTURE, leftPos + filterSlot.x - 1, topPos + filterSlot.y - 1, 238, 54, 18, 18);
-        }
+        renderAttachments(guiGraphics, mouseX, mouseY, partialTick);
 
         if (Minecraft.getInstance().player != null) {
             for (Slot slot : getMenu().slots) {
@@ -133,6 +99,49 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
         }
 
         RenderSystem.disableBlend();
+    }
+
+    private void renderAttachments(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        Slot flashSlot = menu.slots.get(CameraItem.FLASH_ATTACHMENT.slot());
+        if (flashSlot.hasItem())
+            guiGraphics.blit(TEXTURE, leftPos + 96, topPos + 11, 0, 185, 28, 28);
+
+        Slot lensSlot = menu.slots.get(CameraItem.LENS_ATTACHMENT.slot());
+        boolean hasLens = lensSlot.hasItem();
+        if (hasLens)
+            guiGraphics.blit(TEXTURE, leftPos + 97, topPos + 49, 28, 185, 31, 35);
+
+        Slot filterSlot = menu.slots.get(CameraItem.FILTER_ATTACHMENT.slot());
+        if (filterSlot.hasItem()) {
+            int x = hasLens ? 102 : 98;
+            int y = hasLens ? 54 : 52;
+
+            Filters.of(filterSlot.getItem()).ifPresent(filter -> {
+                int tintRGB = filter.getTintColor();
+                float r = ((tintRGB >> 16) & 0xFF) / 255f;
+                float g = ((tintRGB >> 8) & 0xFF) / 255f;
+                float b = (tintRGB & 0xFF) / 255f;
+
+                RenderSystem.setShaderColor(r, g, b, 1.0F);
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+
+                ResourceLocation filterTexture = filter.getAttachmentTexture();
+                guiGraphics.blit(filterTexture, leftPos + x, topPos + y, 0, 0, 32, 32, 32, 32);
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            });
+        }
+    }
+
+    private void renderSlotPlaceholders(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        for (int slotIndex : slotPlaceholders.keySet()) {
+            Slot slot = getMenu().getSlot(slotIndex);
+            if (!slot.hasItem()) {
+                Rect2i placeholder = slotPlaceholders.get(slotIndex);
+                guiGraphics.blit(TEXTURE, leftPos + slot.x - 1, topPos + slot.y - 1,
+                        placeholder.getX(), placeholder.getY(), placeholder.getWidth(), placeholder.getHeight());
+            }
+        }
     }
 
     @Override

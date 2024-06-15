@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:blue_stained_glass_pane"
   },
+  "tint_color": "#253192",
   "shader": "exposure:shaders/blue_filter.json"
 }

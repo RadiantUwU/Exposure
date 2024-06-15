@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:lime_stained_glass_pane"
   },
+  "tint_color": "#41CD34",
   "shader": "exposure:shaders/lime_tint.json"
 }

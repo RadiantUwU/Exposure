@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:light_gray_stained_glass_pane"
   },
+  "tint_color": "#ABABAB",
   "shader": "exposure:shaders/light_gray_tint.json"
 }

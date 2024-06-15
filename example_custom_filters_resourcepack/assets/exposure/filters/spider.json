@@ -2,5 +2,7 @@
   "item": {
     "item": "minecraft:spider_eye"
   },
+  "attachment_texture": "exposure:textures/gui/filter/spider_eye.png",
+  "tint_color": "#FFBBAA",
   "shader": "minecraft:shaders/post/spider.json"
 }

@@ -2,5 +2,6 @@
   "item": {
     "item": "minecraft:yellow_stained_glass_pane"
   },
+  "tint_color": "#DECF2A",
   "shader": "exposure:shaders/yellow_tint.json"
 }
