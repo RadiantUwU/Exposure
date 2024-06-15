@@ -13,6 +13,7 @@ import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.gui.screen.element.ChromaticProcessToggleButton;
+import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.menu.LightroomMenu;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
@@ -29,6 +30,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -38,13 +40,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
     public static final ResourceLocation MAIN_TEXTURE = Exposure.resource("textures/gui/lightroom.png");
@@ -54,6 +55,8 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
     protected Player player;
     protected Button printButton;
     protected ChromaticProcessToggleButton processToggleButton;
+
+    protected Map<Integer, Rect2i> slotPlaceholders = Collections.emptyMap();
 
     public LightroomScreen(LightroomMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -66,6 +69,15 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         imageHeight = 210;
         super.init();
         inventoryLabelY = 116;
+
+        slotPlaceholders = Map.of(
+                Lightroom.FILM_SLOT, new Rect2i(238, 0, 18, 18),
+                Lightroom.PAPER_SLOT, new Rect2i(238, 18, 18, 18),
+                Lightroom.CYAN_SLOT, new Rect2i(238, 36, 18, 18),
+                Lightroom.MAGENTA_SLOT, new Rect2i(238, 54, 18, 18),
+                Lightroom.YELLOW_SLOT, new Rect2i(238, 72, 18, 18),
+                Lightroom.BLACK_SLOT, new Rect2i(238, 90, 18, 18)
+        );
 
         printButton = new ImageButton(leftPos + 117, topPos + 89, 22, 22, 176, 17,
                 22, MAIN_TEXTURE, 256, 256, this::onPrintButtonPressed,
@@ -128,19 +140,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         guiGraphics.blit(MAIN_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
         guiGraphics.blit(MAIN_TEXTURE, leftPos - 27, topPos + 34, 0, 208, 28, 31);
 
-        // PLACEHOLDER ICONS
-        if (!getMenu().slots.get(Lightroom.FILM_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos - 21, topPos + 41, 238, 0, 18, 18);
-        if (!getMenu().slots.get(Lightroom.PAPER_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos + 7, topPos + 91, 238, 18, 18, 18);
-        if (!getMenu().slots.get(Lightroom.CYAN_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos + 41, topPos + 91, 238, 36, 18, 18);
-        if (!getMenu().slots.get(Lightroom.MAGENTA_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos + 59, topPos + 91, 238, 54, 18, 18);
-        if (!getMenu().slots.get(Lightroom.YELLOW_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos + 77, topPos + 91, 238, 72, 18, 18);
-        if (!getMenu().slots.get(Lightroom.BLACK_SLOT).hasItem())
-            guiGraphics.blit(MAIN_TEXTURE, leftPos + 95, topPos + 91, 238, 90, 18, 18);
+        renderSlotPlaceholders(guiGraphics, mouseX, mouseY, partialTick);
 
         if (getMenu().isPrinting()) {
             int progress = getMenu().getData().get(LightroomBlockEntity.CONTAINER_DATA_PROGRESS_ID);
@@ -203,6 +203,17 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderSlotPlaceholders(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        for (int slotIndex : slotPlaceholders.keySet()) {
+            Slot slot = getMenu().getSlot(slotIndex);
+            if (!slot.hasItem()) {
+                Rect2i placeholder = slotPlaceholders.get(slotIndex);
+                guiGraphics.blit(MAIN_TEXTURE, leftPos + slot.x - 1, topPos + slot.y - 1,
+                        placeholder.getX(), placeholder.getY(), placeholder.getWidth(), placeholder.getHeight());
+            }
+        }
     }
 
     @Override
