@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.item;
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.block.FlashBlock;
 import io.github.mortuusars.exposure.camera.AttachmentSound;
@@ -506,6 +507,21 @@ public class CameraItem extends Item {
         if (isInSelfieMode(cameraStack))
             frame.putBoolean(FrameData.SELFIE, true);
 
+        if (ExposureClient.isShaderActive()) {
+            // Chromatic only for black and white:
+            boolean isBW = getAttachment(cameraStack, FILM_ATTACHMENT)
+                    .map(f -> f.getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.BLACK_AND_WHITE)
+                    .orElse(false);
+            if (isBW) {
+                getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
+                    frame.putBoolean(FrameData.CHROMATIC, true);
+                    frame.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
+                });
+            }
+        }
+
+        Exposure.LOGGER.info("" + ExposureClient.isShaderActive());
+
         Capture capture = createCapture(player, cameraStack, exposureId, flashHasFired);
         CaptureManager.enqueue(capture);
 
@@ -601,17 +617,6 @@ public class CameraItem extends Item {
     }
     public void addFrameData(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entitiesInFrame) {
         Level level = player.level();
-
-        // Chromatic only for black and white:
-        Boolean isBW = getAttachment(cameraStack, FILM_ATTACHMENT)
-                .map(f -> f.getItem() instanceof IFilmItem filmItem && filmItem.getType() == FilmType.BLACK_AND_WHITE)
-                .orElse(false);
-        if (isBW) {
-            getAttachment(cameraStack, FILTER_ATTACHMENT).flatMap(ColorChannel::fromStack).ifPresent(c -> {
-                frame.putBoolean(FrameData.CHROMATIC, true);
-                frame.putString(FrameData.CHROMATIC_CHANNEL, c.getSerializedName());
-            });
-        }
 
         ListTag pos = new ListTag();
         pos.add(IntTag.valueOf(player.blockPosition().getX()));

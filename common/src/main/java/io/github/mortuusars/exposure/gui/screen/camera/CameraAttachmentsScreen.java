@@ -149,7 +149,7 @@ public class CameraAttachmentsScreen extends AbstractContainerScreen<CameraAttac
                 float g = ((tintRGB >> 8) & 0xFF) / 255f;
                 float b = (tintRGB & 0xFF) / 255f;
 
-                if (isMouseOver(filterOnLens, mouseX, mouseY)) {
+                if (isMouseOver(filterOnLens, mouseX, mouseY) || isMouseOver(this.filter, mouseX, mouseY)) {
                     r *= 1.35f;
                     g *= 1.35f;
                     b *= 1.35f;
