@@ -2,10 +2,14 @@
 
 ## Unreleased
 - Added Photograph Frames
-  - Photographs can no longer be placed on the wall. Existing hanging photographs will not be removed.
+  - Photographs can no longer be hanged on the wall. Existing hanging photographs will not be removed.
 - Added Film Roll renaming. Use the item to open renaming UI. Renaming this way does not cost any experience.
 
+Updated Camera Attachments UI:
+- You can now hover over camera components to see tooltip with information about it.
+- Available Lenses and Filters can be viewed by clicking on the lens and filter respectively.
 - Added ability to render custom Filter texture in Camera Attachments UI `//WIKI`
+
 
 - Lightroom comparator output now based on the number of Photographs in the output slot rather than the selected frame.
 - Chromatic Process can now be enabled for all black and white images by placing an Amethyst Cluster on top of a Lightroom.

@@ -270,7 +270,7 @@ public class AlbumScreen extends AbstractContainerScreen<AlbumMenu> {
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
         if (isInAddingMode() && hoveredSlot != null && !hoveredSlot.getItem()
                 .isEmpty() && !(hoveredSlot.getItem().getItem() instanceof PhotographItem))
-            return; // Do not render tooltips for greyed-out items
+            return; // Do not onRender tooltips for greyed-out items
 
         if (!isInAddingMode()) {
             for (Page page : pages) {

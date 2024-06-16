@@ -252,7 +252,7 @@ public class Config {
                 builder.push("Render");
                 PHOTOGRAPH_FRAME_CULLING_DISTANCE = builder
                         .comment("Distance from the player beyond which Photograph Frame would not be rendered. Default: 64",
-                                "Note: this number may not relate to distance in blocks exactly. It's influenced by render distance and entity distance settings.")
+                                "Note: this number may not relate to distance in blocks exactly. It's influenced by onRender distance and entity distance settings.")
                         .defineInRange("PhotographFrameCullingDistance", 64, 8, 128);
                 builder.pop();
             }

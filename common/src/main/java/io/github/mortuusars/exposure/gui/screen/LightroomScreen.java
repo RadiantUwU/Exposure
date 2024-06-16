@@ -237,8 +237,13 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
             tooltipLines.add(Component.translatable("gui.exposure.lightroom.next_frame"));
         }
 
-        if (hoveredFrameIndex != -1)
+        if (hoveredFrameIndex != -1) {
             addFrameInfoTooltipLines(tooltipLines, hoveredFrameIndex, advancedTooltips);
+        }
+
+        if (isOverCenterFrame(mouseX, mouseY)) {
+            tooltipLines.add(Component.translatable("gui.exposure.lightroom.zoom_in.tooltip"));
+        }
 
         guiGraphics.renderTooltip(Minecraft.getInstance().font, tooltipLines, Optional.empty(), mouseX, mouseY);
     }

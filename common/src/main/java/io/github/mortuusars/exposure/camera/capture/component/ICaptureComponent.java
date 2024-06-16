@@ -23,7 +23,7 @@ public interface ICaptureComponent {
     }
 
     /**
-     * Allows to delay the capture by a number of render frames. Frame is a tick of a 'TickEvent.RenderTickEvent'.<br>
+     * Allows to delay the capture by a number of onRender frames. Frame is a tick of a 'TickEvent.RenderTickEvent'.<br>
      * Largest delay from all modifiers will be used.<br>
      * Called before {@link #initialize initialize} and after {@link #getTicksDelay getTicksDelay}
      */
