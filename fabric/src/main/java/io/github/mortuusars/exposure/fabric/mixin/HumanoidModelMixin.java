@@ -37,7 +37,7 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> extends Ageable
             arm = arm.getOpposite();
 
         if (camera.getCamera().getItem().isInSelfieMode(camera.getStack()))
-            CameraItemClientExtensions.applySelfieHoldingPose((HumanoidModel<?>) (Object) this, entity, arm);
+            CameraItemClientExtensions.applySelfieHoldingPose((HumanoidModel<?>) (Object) this, entity, arm, false);
         else
             CameraItemClientExtensions.applyDefaultHoldingPose((HumanoidModel<?>) (Object) this, entity, arm);
 

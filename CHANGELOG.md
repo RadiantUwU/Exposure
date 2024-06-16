@@ -18,6 +18,7 @@ Updated Camera Attachments UI:
 - Viewfinder will now show an indicator for last three frames to remind you that the Film Roll is about to end.
 
 
+- Slightly improved player arms positions in selfie pose.    
 - Fixed player selfie pose sometimes not applying when activating/deactivating Camera rapidly.  
 
 ---

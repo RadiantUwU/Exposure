@@ -19,7 +19,7 @@ public class CameraItemForgeClientExtensions implements IClientItemExtensions {
     public final HumanoidModel.ArmPose CAMERA_ARM_POSE = HumanoidModel.ArmPose.create("camera", true,
             CameraItemClientExtensions::applyDefaultHoldingPose);
     public final HumanoidModel.ArmPose CAMERA_SELFIE_POSE = HumanoidModel.ArmPose.create("camera_selfie", false,
-            CameraItemClientExtensions::applySelfieHoldingPose);
+            (model, entity, arm) -> CameraItemClientExtensions.applySelfieHoldingPose(model, entity, arm, true));
 
     @Override
     public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity entityLiving, InteractionHand hand, ItemStack itemStack) {

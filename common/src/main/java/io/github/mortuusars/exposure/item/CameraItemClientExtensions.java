@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.item;
 
+import io.github.mortuusars.exposure.Exposure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
@@ -20,17 +21,22 @@ public class CameraItemClientExtensions {
         model.head.xRot += 0.3f;
     }
 
-    public static void applySelfieHoldingPose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm) {
+    public static void applySelfieHoldingPose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm, boolean undoArmBobbing) {
         ModelPart cameraArm = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
 
         // Arm follows camera:
-        cameraArm.xRot = (-(float)Math.PI / 2F) + model.head.xRot + 0.15F;
-        cameraArm.yRot = model.head.yRot + (arm == HumanoidArm.RIGHT ? -0.3f : 0.3f);
-        cameraArm.zRot = 0f;
+        cameraArm.xRot = (model.head.xRot + Math.abs(model.head.xRot * 0.13f)) + (-(float) Math.PI / 2F);
+        cameraArm.yRot = model.head.yRot + (arm == HumanoidArm.RIGHT ? -0.25f : 0.25f);
+        if (model.head.xRot <= 0) {
+            cameraArm.zRot = -(model.head.xRot * 0.15f);
+        } else {
+            cameraArm.zRot = -(model.head.xRot * 0.22f);
+        }
 
-        // Undo arm bobbing:
-        AnimationUtils.bobModelPart(cameraArm, entity.tickCount + Minecraft.getInstance().getFrameTime(),
-                arm == HumanoidArm.LEFT ? 1.0F : -1.0F);
+        if (undoArmBobbing) {
+            AnimationUtils.bobModelPart(cameraArm, entity.tickCount + Minecraft.getInstance().getFrameTime(),
+                    arm == HumanoidArm.LEFT ? 1.0F : -1.0F);
+        }
     }
 
     public static float itemPropertyFunction(ItemStack stack, ClientLevel clientLevel, LivingEntity livingEntity, int seed) {
