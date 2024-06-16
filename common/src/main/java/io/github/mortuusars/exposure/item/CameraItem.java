@@ -13,6 +13,7 @@ import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.component.*;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.*;
+import io.github.mortuusars.exposure.camera.viewfinder.SelfieClient;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.network.Packets;
@@ -241,7 +242,6 @@ public class CameraItem extends Item {
 
     public void setActive(ItemStack stack, boolean active) {
         stack.getOrCreateTag().putBoolean("Active", active);
-        setSelfieMode(stack, false);
     }
 
     public void activate(Player player, ItemStack stack) {

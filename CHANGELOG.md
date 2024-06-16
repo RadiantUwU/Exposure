@@ -17,6 +17,9 @@ Updated Camera Attachments UI:
 - Film developing recipe will now also accept potions defined without `minecraft:` namespace - i.e. `{Potion:thick}`.
 - Viewfinder will now show an indicator for last three frames to remind you that the Film Roll is about to end.
 
+
+- Fixed player selfie pose sometimes not applying when activating/deactivating Camera rapidly.  
+
 ---
 
 ## 1.6.0 - 2024-05-11
