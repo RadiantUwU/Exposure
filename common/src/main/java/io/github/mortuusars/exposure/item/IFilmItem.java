@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.item;
 
+import io.github.mortuusars.exposure.ExposureConstants;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -25,7 +26,7 @@ public interface IFilmItem {
     }
 
     default int getDefaultFrameSize() {
-        return 320;
+        return ExposureConstants.DEFAULT_FRAME_SIZE;
     }
 
     default int getFrameSize(ItemStack filmStack) {

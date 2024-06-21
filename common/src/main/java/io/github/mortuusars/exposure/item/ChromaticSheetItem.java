@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.item;
 
 import com.google.common.base.Preconditions;
+import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -115,7 +115,7 @@ public class ChromaticSheetItem extends Item {
         String redId = redTag.getString(FrameData.ID);
         Optional<ExposureSavedData> redOpt = ExposureServer.getExposureStorage().getOrQuery(redId);
         if (redOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Red channel exposure '" + redId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Red channel exposure '{}' is not found.", redId);
             return stack;
         }
 
@@ -123,7 +123,7 @@ public class ChromaticSheetItem extends Item {
         String greenId = greenTag.getString(FrameData.ID);
         Optional<ExposureSavedData> greenOpt = ExposureServer.getExposureStorage().getOrQuery(greenId);
         if (greenOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Green channel exposure '" + greenId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Green channel exposure '{}' is not found.", greenId);
             return stack;
         }
 
@@ -131,7 +131,7 @@ public class ChromaticSheetItem extends Item {
         String blueId = blueTag.getString(FrameData.ID);
         Optional<ExposureSavedData> blueOpt = ExposureServer.getExposureStorage().getOrQuery(blueId);
         if (blueOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Blue channel exposure '" + blueId + "' is not found.");
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Blue channel exposure '{}' is not found.", blueId);
             return stack;
         }
 
@@ -169,7 +169,7 @@ public class ChromaticSheetItem extends Item {
             try {
                 processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
             } catch (Exception e) {
-                Exposure.LOGGER.error("Cannot process and save Chromatic Photograph: " + e);
+                Exposure.LOGGER.error("Cannot process and save Chromatic Photograph: {}", e.toString());
             }
         }).start();
 
@@ -185,7 +185,9 @@ public class ChromaticSheetItem extends Item {
             return;
         }
 
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        NativeImage image = new NativeImage(NativeImage.Format.RGB, width, height, false);
+
+//        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);/
 
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
@@ -195,11 +197,12 @@ public class ChromaticSheetItem extends Item {
 
                 int rgb = 0xFF << 24 | r << 16 | g << 8 | b;
 
-                image.setRGB(x, y, rgb);
+                image.setPixelRGBA(x, y, rgb);
             }
         }
 
         byte[] mapColorPixels = FloydDither.ditherWithMapColors(image);
+        image.close();
 
         CompoundTag properties = new CompoundTag();
         properties.putString(ExposureSavedData.TYPE_PROPERTY, FilmType.COLOR.getSerializedName());

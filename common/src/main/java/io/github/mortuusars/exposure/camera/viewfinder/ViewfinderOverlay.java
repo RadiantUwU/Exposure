@@ -10,6 +10,7 @@ import io.github.mortuusars.exposure.item.FilmRollItem;
 import io.github.mortuusars.exposure.util.CameraInHand;
 import io.github.mortuusars.exposure.util.GuiUtil;
 import io.github.mortuusars.exposure.util.ItemAndStack;
+import io.github.mortuusars.exposure.util.Rect2f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +18,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.joml.Matrix4f;
 
-import java.awt.geom.Rectangle2D;
 import java.util.Optional;
 
 public class ViewfinderOverlay {
@@ -25,7 +25,7 @@ public class ViewfinderOverlay {
     public static final ResourceLocation NO_FILM_ICON_TEXTURE = Exposure.resource("textures/gui/viewfinder/icon/no_film.png");
     public static final ResourceLocation REMAINING_FRAMES_ICON_TEXTURE = Exposure.resource("textures/gui/viewfinder/icon/remaining_frames.png");
 
-    public static Rectangle2D.Float opening = new Rectangle2D.Float(0, 0, 0, 0);
+    public static Rect2f opening = new Rect2f(0, 0, 0, 0);
 
     private static final PoseStack POSE_STACK = new PoseStack();
     private static Minecraft minecraft = Minecraft.getInstance();
@@ -59,7 +59,7 @@ public class ViewfinderOverlay {
         scale = Mth.lerp(Math.min(0.5f * minecraft.getDeltaFrameTime(), 0.5f), scale, 1f);
         float openingSize = Math.min(width, height);
 
-        opening = new Rectangle2D.Float((width - openingSize) / 2f, (height - openingSize) / 2f, openingSize, openingSize);
+        opening = new Rect2f((width - openingSize) / 2f, (height - openingSize) / 2f, openingSize, openingSize);
 
         if (minecraft.options.hideGui)
             return;

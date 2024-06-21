@@ -4,6 +4,8 @@
 - Added Photograph Frames
   - Photographs can no longer be hanged on the wall. Existing hanging photographs will not be removed.
 - Added Film Roll renaming. Use the item to open renaming UI. Renaming this way does not cost any experience.
+- Added Interplanar Projector filter. Allows loading custom images by renaming the item to filepath. 
+- Updates item textures.
 
 Updated Camera Attachments UI:
 - You can now hover over camera components to see tooltip with information about it.

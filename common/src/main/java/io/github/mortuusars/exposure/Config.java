@@ -3,9 +3,9 @@ package io.github.mortuusars.exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import io.github.mortuusars.exposure.data.ExposureSize;
+import io.github.mortuusars.exposure.util.Color;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.awt.*;
 import java.util.List;
 
 /**
@@ -287,6 +287,7 @@ public class Config {
             SPEC = builder.build();
         }
 
+        //TODO: store Color object
         public static int getBackgroundColor() {
             return getColorFromHex(VIEWFINDER_BACKGROUND_COLOR.get());
         }

@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.mortuusars.exposure.Exposure;
-import io.github.mortuusars.exposure.util.ColorUtils;
+import io.github.mortuusars.exposure.util.Color;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -92,7 +92,7 @@ public class Filters {
                 int tintColor = Filter.DEFAULT_TINT_COLOR;
                 if (jsonObject.has("tint_color")) {
                     String hexString = jsonObject.get("tint_color").getAsString();
-                    tintColor = ColorUtils.getRGBFromHex(hexString);
+                    tintColor = Color.getRGBFromHex(hexString);
                 }
 
                 return Optional.of(new Filter(ingredient, shader, attachmentTexture, tintColor));

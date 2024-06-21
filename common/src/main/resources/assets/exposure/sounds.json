@@ -258,5 +258,15 @@
       "exposure:item/photograph/rustle"
     ],
     "subtitle": "subtitle.exposure.photograph_frame.rotate_item"
+  },
+  "item.camera.interplanar_projector.project": {
+    "sounds": [
+      {
+        "name": "block/end_portal/endportal",
+        "pitch": 1.3,
+        "volume": 0.5
+      }
+    ],
+    "subtitle": "subtitle.exposure.interplanar_projector.project"
   }
 }

@@ -143,6 +143,9 @@ public class Exposure {
                 () -> new PhotographItem(new Item.Properties()
                         .stacksTo(1)));
 
+        public static final Supplier<InterplanarProjectorItem> INTERPLANAR_PROJECTOR = Register.item("interplanar_projector",
+                () -> new InterplanarProjectorItem(new Item.Properties()));
+
         public static final Supplier<StackedPhotographsItem> STACKED_PHOTOGRAPHS = Register.item("stacked_photographs",
                 () -> new StackedPhotographsItem(new Item.Properties()
                         .stacksTo(1)));
@@ -216,6 +219,7 @@ public class Exposure {
         public static final Supplier<SoundEvent> FILTER_INSERT = register("item", "camera.filter_insert");
         public static final Supplier<SoundEvent> FILTER_REMOVE = register("item", "camera.filter_remove");
         public static final Supplier<SoundEvent> FLASH = register("item", "camera.flash");
+        public static final Supplier<SoundEvent> INTERPLANAR_PROJECT = register("item", "camera.interplanar_projector.project");
 
         public static final Supplier<SoundEvent> PHOTOGRAPH_PLACE = register("item", "photograph.place");
         public static final Supplier<SoundEvent> PHOTOGRAPH_BREAK = register("item", "photograph.break");

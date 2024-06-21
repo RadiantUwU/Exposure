@@ -1,19 +1,17 @@
 package io.github.mortuusars.exposure.data.storage;
 
+import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
-import io.github.mortuusars.exposure.util.ColorUtils;
+import io.github.mortuusars.exposure.util.Color;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -78,35 +76,32 @@ public class ExposureExporter {
     }
 
     public boolean save(byte[] mapColorPixels, int width, int height, CompoundTag properties) {
-        BufferedImage image;
-
-        try {
-            image = convertToBufferedImage(mapColorPixels, width, height, properties);
+        try (NativeImage image = convertToNativeImage(mapColorPixels, width, height, properties)) {
+            return save(image, properties);
         }
         catch (Exception e) {
-            Exposure.LOGGER.error("Cannot convert exposure pixels to BufferedImage: " + e);
+            Exposure.LOGGER.error("Cannot convert exposure pixels to NativeImage: " + e);
             return false;
         }
-
-        return save(image, properties);
     }
 
-    public boolean save(BufferedImage image, CompoundTag properties) {
+    public boolean save(NativeImage image, CompoundTag properties) {
+        // Existing file would be overwritten
         try {
             File outputFile = new File(folder + "/" + (worldName != null ? worldName + "/" : "") + name + ".png");
-            // Existing file would be overwritten
             boolean ignored = outputFile.mkdirs();
-            ImageIO.write(image, "png", outputFile);
+
+            image.writeToFile(outputFile);
 
             if (properties.contains(ExposureSavedData.TIMESTAMP_PROPERTY, CompoundTag.TAG_LONG)) {
                 long unixSeconds = properties.getLong(ExposureSavedData.TIMESTAMP_PROPERTY);
                 trySetFileCreationDate(outputFile.getAbsolutePath(), unixSeconds);
             }
 
-            Exposure.LOGGER.info("Exposure saved: " + outputFile);
+            Exposure.LOGGER.info("Exposure saved: {}", outputFile);
             return true;
         } catch (IOException e) {
-            Exposure.LOGGER.error("Exposure file was not saved: " + e);
+            Exposure.LOGGER.error("Failed to save exposure to file: {}", e.toString());
             return false;
         }
     }
@@ -124,8 +119,8 @@ public class ExposureExporter {
     }
 
     @NotNull
-    protected BufferedImage convertToBufferedImage(byte[] MapColorPixels, int width, int height, CompoundTag properties) {
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    protected NativeImage convertToNativeImage(byte[] MapColorPixels, int width, int height, CompoundTag properties) {
+        NativeImage image = new NativeImage(width, height, false);
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -150,24 +145,39 @@ public class ExposureExporter {
                     }
                 }
 
-                int rgb = ColorUtils.BGRtoRGB(bgr);
+                int rgb = Color.BGRtoRGB(bgr);
 
-                image.setRGB(x, y, rgb);
+                image.setPixelRGBA(x, y, rgb);
             }
         }
 
-        if (getSize() != ExposureSize.X1)
-            image = resizeImage(image, getSize());
+        if (getSize() != ExposureSize.X1) {
+            int resultWidth = image.getWidth() * getSize().getMultiplier();
+            int resultHeight = image.getHeight() * getSize().getMultiplier();
+            NativeImage resized = resize(image, 0, 0, image.getWidth(), image.getHeight(), resultWidth, resultHeight);
+            image.close();
+            image = resized;
+        }
 
         return image;
     }
 
-    protected BufferedImage resizeImage(BufferedImage sourceImage, ExposureSize size) {
-        int targetWidth = sourceImage.getWidth() * size.getMultiplier();
-        int targetHeight = sourceImage.getHeight() * size.getMultiplier();
-        Image scaledInstance = sourceImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_FAST);
-        BufferedImage outputImg = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_ARGB);
-        outputImg.getGraphics().drawImage(scaledInstance, 0, 0, null);
-        return outputImg;
+    protected NativeImage resize(NativeImage source, int sourceX, int sourceY, int sourceWidth, int sourceHeight,
+                                              int resultWidth, int resultHeight) {
+        NativeImage result = new NativeImage(source.format(), resultWidth, resultHeight, false);
+
+        for (int x = 0; x < resultWidth; x++) {
+            float ratioX = x / (float)resultWidth;
+            int sourcePosX = (int)(sourceX + (sourceWidth * ratioX));
+
+            for (int y = 0; y < resultHeight; y++) {
+                float ratioY = y / (float)resultHeight;
+                int sourcePosY = (int)(sourceY + (sourceHeight * ratioY));
+                int color = source.getPixelRGBA(sourcePosX, sourcePosY);
+                result.setPixelRGBA(x, y, color);
+            }
+        }
+
+        return result;
     }
 }

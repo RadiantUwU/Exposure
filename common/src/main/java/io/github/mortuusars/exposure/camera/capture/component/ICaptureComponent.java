@@ -4,9 +4,6 @@ import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import net.minecraft.nbt.CompoundTag;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
 /**
  * Client-side extension of the capture system. Allows modifying the steps of the capture process.
  */
@@ -49,23 +46,19 @@ public interface ICaptureComponent {
     /**
      * Called after screenshot has been taken and before any processing of the image.
      */
-    default void screenshotTaken(Capture capture, NativeImage screenshot) { }
+    default void imageTaken(Capture capture, NativeImage screenshot) { }
 
     /**
      * Allows modifying a single pixel. Will be called for every pixel in the image.
-     * @param red 0 - 255
-     * @param green 0 - 255
-     * @param blue 0 - 255
-     * @return Vector of RGB colors (0 - 255).
      */
-    default Color modifyPixel(Capture capture, int red, int green, int blue) {
-        return new Color(red, green, blue);
+    default int modifyPixel(Capture capture, int color) {
+        return color;
     }
 
     /**
      * Allows modifying an image after it has been processed. Before dithering.
      */
-    default BufferedImage modifyImage(Capture capture, BufferedImage image) {
+    default NativeImage modifyImage(Capture capture, NativeImage image) {
         return image;
     }
 

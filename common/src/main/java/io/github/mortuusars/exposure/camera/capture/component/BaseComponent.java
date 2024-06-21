@@ -23,12 +23,12 @@ public class BaseComponent implements ICaptureComponent {
 
     @Override
     public int getFramesDelay(Capture capture) {
-        return Config.Client.CAPTURE_DELAY_FRAMES.get();
+        return 1 + Config.Client.CAPTURE_DELAY_FRAMES.get();
     }
 
     @Override
     public void onDelayFrame(Capture capture, int delayFramesLeft) {
-        if (delayFramesLeft == Math.max(0, Config.Client.CAPTURE_DELAY_FRAMES.get() - 1)) { // Right before capturing
+        if (delayFramesLeft == Math.max(0, getFramesDelay(capture) - 1)) { // Right before capturing
             Minecraft mc = Minecraft.getInstance();
             storedGuiHidden = mc.options.hideGui;
             storedCameraType = mc.options.getCameraType();
@@ -41,7 +41,7 @@ public class BaseComponent implements ICaptureComponent {
     }
 
     @Override
-    public void screenshotTaken(Capture capture, NativeImage screenshot) {
+    public void imageTaken(Capture capture, NativeImage screenshot) {
         Minecraft mc = Minecraft.getInstance();
         mc.options.hideGui = storedGuiHidden;
         mc.options.setCameraType(storedCameraType);

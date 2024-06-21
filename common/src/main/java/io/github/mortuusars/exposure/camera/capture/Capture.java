@@ -3,46 +3,52 @@ package io.github.mortuusars.exposure.camera.capture;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.ExposureConstants;
 import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.IImageToMapColorsConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
-import io.github.mortuusars.exposure.util.ColorUtils;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("unused")
-public class Capture {
-    private FilmType type = FilmType.COLOR;
-    private int size = 320;
-    private float cropFactor = Exposure.CROP_FACTOR;
-    private float brightnessStops = 0f;
-    private boolean asyncProcessing = true;
-    private Collection<ICaptureComponent> components = Collections.emptyList();
-    private IImageToMapColorsConverter converter = new SimpleColorConverter();
+public abstract class Capture {
+    protected FilmType type = FilmType.COLOR;
+    protected int size = 320;
+    protected float cropFactor = Exposure.CROP_FACTOR;
+    protected float brightnessStops = 0f;
+    protected boolean asyncCapturing = false;
+    protected boolean asyncProcessing = true;
+    protected Collection<ICaptureComponent> components = Collections.emptyList();
+    protected IImageToMapColorsConverter converter = new SimpleColorConverter();
+    protected Runnable onImageCaptured = () -> {};
+    protected Runnable onCapturingFailed = () -> {};
 
-    private int ticksDelay = -1;
-    private int framesDelay = -1;
-    private long captureTick;
-    private boolean completed = false;
-    private long currentTick;
+    protected int ticksDelay = -1;
+    protected int framesDelay = -1;
+    protected long captureTick;
+    protected long currentTick;
+    protected boolean isCapturing = false;
+    protected boolean done = false;
 
-    public boolean isCompleted() {
-        return completed;
+    public abstract @Nullable NativeImage captureImage();
+
+    public boolean isDone() {
+        return done;
     }
 
     public int getTicksDelay() {
-        return (int)(captureTick - Objects.requireNonNull(Minecraft.getInstance().level).getGameTime());
+        return (int) (captureTick - Objects.requireNonNull(Minecraft.getInstance().level).getGameTime());
     }
 
     public int getFramesDelay() {
@@ -63,7 +69,7 @@ public class Capture {
     }
 
     public Capture setSize(int size) {
-        Preconditions.checkArgument(size > 0, "'size' cannot be less or equal to 0.");
+        Preconditions.checkArgument(size > 0, "'size [{}] is not valid' should be larger than 0.", size);
         this.size = size;
         return this;
     }
@@ -73,7 +79,7 @@ public class Capture {
     }
 
     public Capture cropFactor(float cropFactor) {
-        Preconditions.checkArgument(cropFactor != 0, "'cropFactor' cannot be 0.");
+        Preconditions.checkArgument(cropFactor != 0, "'cropFactor [{}] is not valid' should be larger than 0.", cropFactor);
         this.cropFactor = cropFactor;
         return this;
     }
@@ -84,6 +90,11 @@ public class Capture {
 
     public Capture setBrightnessStops(float brightnessStops) {
         this.brightnessStops = brightnessStops;
+        return this;
+    }
+
+    public Capture setAsyncCapturing(boolean asyncCapturing) {
+        this.asyncCapturing = asyncCapturing;
         return this;
     }
 
@@ -104,6 +115,16 @@ public class Capture {
 
     public Capture setConverter(IImageToMapColorsConverter converter) {
         this.converter = converter;
+        return this;
+    }
+
+    public Capture ifCapturingFailed(Runnable runnable) {
+        this.onCapturingFailed = runnable;
+        return this;
+    }
+
+    public Capture whenImageCaptured(Runnable runnable) {
+        this.onImageCaptured = runnable;
         return this;
     }
 
@@ -128,7 +149,24 @@ public class Capture {
         }
     }
 
-    public void tick() {
+    public synchronized void tick() {
+        if (delayTick() || isCapturing) {
+            return;
+        }
+
+        isCapturing = true;
+
+        if (asyncCapturing) {
+            CompletableFuture.supplyAsync(this::captureImage)
+                    .thenAccept(this::onImageCaptured);
+        }
+        else {
+            @Nullable NativeImage image = captureImage();
+            onImageCaptured(image);
+        }
+    }
+
+    protected boolean delayTick() {
         long lastTick = currentTick;
         currentTick = Objects.requireNonNull(Minecraft.getInstance().level).getGameTime();
 
@@ -147,7 +185,7 @@ public class Capture {
                 }
             }
 
-            return;
+            return true;
         }
 
         if (framesDelay > 0) {
@@ -157,32 +195,58 @@ public class Capture {
                 modifier.onDelayFrame(this, framesDelay);
             }
 
+            return true;
+        }
+        return false;
+    }
+
+    protected void onImageCaptured(@Nullable NativeImage image) {
+        if (image == null) {
+            done = true;
+//            isCapturing = false;
+            onCapturingFailed.run();
             return;
         }
 
-        NativeImage screenshot = Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget());
+        onImageCaptured.run();
 
-        for (ICaptureComponent modifier : components) {
-            modifier.screenshotTaken(this, screenshot);
+        if (asyncCapturing) {
+            Minecraft.getInstance().execute(() -> {
+                for (ICaptureComponent modifier : components) {
+                    modifier.imageTaken(this, image);
+                }
+            });
+        }
+        else {
+            for (ICaptureComponent modifier : components) {
+                modifier.imageTaken(this, image);
+            }
         }
 
-        if (asyncProcessing)
-            new Thread(() -> processImage(screenshot), "ExposureProcessing").start();
-        else
-            processImage(screenshot);
+        if (asyncProcessing && !asyncCapturing) { // It's already async when asyncCapturing
+            CompletableFuture.runAsync((() -> processImage(image)));
+        }
+        else {
+            processImage(image);
+        }
 
-        completed = true;
+        done = true;
+        isCapturing = false;
     }
 
-    public void processImage(NativeImage screenshotImage) {
-        try {
-            BufferedImage image = scaleCropAndProcess(screenshotImage);
-
-            for (ICaptureComponent component : components) {
-                image = component.modifyImage(this, image);
+    public void processImage(@NotNull NativeImage image) {
+        try (@Nullable NativeImage processedImage = scaleCropAndProcess(image)) {
+            if (processedImage == null) {
+                return;
             }
 
-            byte[] pixels = converter.convert(this, image);
+            NativeImage modifiedImage = processedImage;
+
+            for (ICaptureComponent component : components) {
+                modifiedImage = component.modifyImage(this, modifiedImage);
+            }
+
+            byte[] pixels = converter.convert(this, modifiedImage);
 
             for (ICaptureComponent component : components) {
                 component.teardown(this);
@@ -192,13 +256,11 @@ public class Capture {
             properties.putString(ExposureSavedData.TYPE_PROPERTY, getFilmType().getSerializedName());
 
             for (ICaptureComponent component : components) {
-                component.save(pixels, image.getWidth(), image.getHeight(), properties);
+                component.save(pixels, modifiedImage.getWidth(), modifiedImage.getHeight(), properties);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Exposure.LOGGER.error(e.toString());
-        }
-        finally {
+        } finally {
             try {
                 for (ICaptureComponent component : components) {
                     component.end(this);
@@ -206,10 +268,12 @@ public class Capture {
             } catch (Exception e) {
                 Exposure.LOGGER.error(e.toString());
             }
+
+            isCapturing = false;
         }
     }
 
-    private BufferedImage scaleCropAndProcess(NativeImage sourceImage) {
+    protected @Nullable NativeImage scaleCropAndProcess(@NotNull NativeImage sourceImage) {
         int sWidth = sourceImage.getWidth();
         int sHeight = sourceImage.getHeight();
 
@@ -225,31 +289,42 @@ public class Capture {
 
         int size = getSize();
 
-        BufferedImage bufferedImage = new BufferedImage(size, size, BufferedImage.TYPE_INT_RGB);
-
         try (sourceImage) {
-            for (int x = 0; x < size; x++) {
-                float sourceX = sourceSize * (x / (float) size);
-                int sx = Mth.clamp((int) sourceX + sourceXStart, sourceXStart, sourceXStart + sourceSize);
-
-                for (int y = 0; y < size; y++) {
-                    float sourceY = sourceSize * (y / (float) size);
-                    int sy = Mth.clamp((int) sourceY + sourceYStart, sourceYStart, sourceYStart + sourceSize);
-
-                    int rgba = ColorUtils.BGRtoRGB(sourceImage.getPixelRGBA(sx, sy)); // Mojang decided to return BGR in getPixelRGBA method.
-                    Color pixel = new Color(rgba, false);
-
-                    for (ICaptureComponent component : components) {
-                        pixel = component.modifyPixel(this, pixel.getRed(), pixel.getGreen(), pixel.getBlue());
-                    }
-
-                    bufferedImage.setRGB(x, y, 0xFF << 24 | pixel.getRed() << 16 | pixel.getGreen() << 8 | pixel.getBlue());
-                }
-            }
+            return resizeWithModification(sourceImage, sourceXStart, sourceYStart, sourceSize, sourceSize, size, size);
         } catch (Exception e) {
-            Exposure.LOGGER.error("Failed to create an image: " + e);
+            Exposure.LOGGER.error("Failed to process an image: {}", e.toString());
         }
 
-        return bufferedImage;
+        return null;
+    }
+
+
+    /**
+     * Resizes and applies component pixel modifications to every pixel.
+     * Use NativeImage#resizeSubRectTo would be nicer, but I haven't found a way to make it use Nearest Neighbor interpolation.
+     */
+    public NativeImage resizeWithModification(NativeImage source, int sourceX, int sourceY, int sourceWidth, int sourceHeight,
+                                              int resultWidth, int resultHeight) {
+        NativeImage result = new NativeImage(source.format(), resultWidth, resultHeight, false);
+
+        for (int x = 0; x < resultWidth; x++) {
+            float ratioX = x / (float)resultWidth;
+            int sourcePosX = (int)(sourceX + (sourceWidth * ratioX));
+
+            for (int y = 0; y < resultHeight; y++) {
+                float ratioY = y / (float)resultHeight;
+                int sourcePosY = (int)(sourceY + (sourceHeight * ratioY));
+
+                int color = source.getPixelRGBA(sourcePosX, sourcePosY);
+
+                for (ICaptureComponent component : components) {
+                    color = component.modifyPixel(this, color);
+                }
+
+                result.setPixelRGBA(x, y, color);
+            }
+        }
+
+        return result;
     }
 }

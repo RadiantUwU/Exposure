@@ -4,9 +4,9 @@ import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.render.GammaModifier;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
-import java.awt.*;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
@@ -28,6 +28,11 @@ public class BrightnessComponent implements ICaptureComponent {
     }
 
     @Override
+    public int getFramesDelay(Capture capture) {
+        return 1;
+    }
+
+    @Override
     public void onDelayFrame(Capture capture, int delayFramesLeft) {
         if (delayFramesLeft <= 1 && GammaModifier.getAdditionalBrightness() == 0f) {
             GammaModifier.setAdditionalBrightness(additionalGamma);
@@ -37,14 +42,18 @@ public class BrightnessComponent implements ICaptureComponent {
     }
 
     @Override
-    public Color modifyPixel(Capture capture, int red, int green, int blue) {
+    public int modifyPixel(Capture capture, int color) {
         float stopsDif = brightnessStops;
         if (stopsDif == 0f)
-            return new Color(red, green, blue);
+            return color;
+
+        int red = FastColor.ARGB32.red(color);
+        int green = FastColor.ARGB32.green(color);
+        int blue = FastColor.ARGB32.blue(color);
 
         float brightness = 1f + (stopsDif * (stopsDif < 0 ? darkenPerStop : brightenPerStop));
 
-        // We simulate the bright light by not modifying all pixels equally
+        // We simulate bright light by not modifying all pixels equally
         float lightness = (red + green + blue) / 765f; // from 0.0 to 1.0
         float bias;
         if (stopsDif < 0)
@@ -64,14 +73,14 @@ public class BrightnessComponent implements ICaptureComponent {
 
         // BUT, it does not look perfect (idk, maybe because of dithering), so we blend them together.
         // This makes transitions smoother, subtler. Which looks good imo.
-        return new Color(
+        return FastColor.ARGB32.color(255,
                 Mth.clamp((int) ((r + rdst[0]) / 2), 0, 255),
                 Mth.clamp((int) ((g + rdst[1]) / 2), 0, 255),
                 Mth.clamp((int) ((b + rdst[2]) / 2), 0, 255));
     }
 
     @Override
-    public void screenshotTaken(Capture capture, NativeImage screenshot) {
+    public void imageTaken(Capture capture, NativeImage screenshot) {
         GammaModifier.setAdditionalBrightness(0f);
     }
 

@@ -2,14 +2,18 @@ package io.github.mortuusars.exposure.network.packet.server;
 
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.CameraItem;
+import io.github.mortuusars.exposure.item.InterplanarProjectorItem;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.IPacket;
 import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import it.unimi.dsi.fastutil.longs.LongSet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -18,6 +22,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -73,6 +79,20 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
         ItemStack cameraStack = player.getItemInHand(hand);
         if (!(cameraStack.getItem() instanceof CameraItem cameraItem))
             throw new IllegalStateException("Item in hand in not a Camera.");
+
+        if (frame.getBoolean(FrameData.PROJECTED)) {
+            cameraItem.getAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT).ifPresent(filter -> {
+                if (filter.getItem() instanceof InterplanarProjectorItem interplanarProjector) {
+                    player.level().playSound(player, player, Exposure.SoundEvents.INTERPLANAR_PROJECT.get(),
+                            SoundSource.PLAYERS, 0.8f, 1f);
+
+                    if (interplanarProjector.isConsumable(filter)) {
+                        filter.shrink(1);
+                        cameraItem.setAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT, filter);
+                    }
+                }
+            });
+        }
 
         cameraItem.addFrame(serverPlayer, cameraStack, hand, frame, getEntities(serverPlayer.serverLevel()));
         return true;

@@ -33,7 +33,7 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
         @Nullable ExposureSavedData loadedExposureData = dataStorage.get(ExposureSavedData::load, getSaveId(id));
 
         if (loadedExposureData == null)
-            Exposure.LOGGER.error("Exposure '" + id + "' was not loaded. File does not exist or some error occurred.");
+            Exposure.LOGGER.error("Exposure '{}' was not loaded. File does not exist or some error occurred.", id);
 
         return Optional.ofNullable(loadedExposureData);
     }
@@ -91,7 +91,7 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
             return Files.exists(path) || path.toFile().mkdirs();
         }
         catch (Exception e) {
-            Exposure.LOGGER.error("Failed to create exposure storage directory: " + e);
+            Exposure.LOGGER.error("Failed to create exposure storage directory: {}", e.toString());
             return false;
         }
     }

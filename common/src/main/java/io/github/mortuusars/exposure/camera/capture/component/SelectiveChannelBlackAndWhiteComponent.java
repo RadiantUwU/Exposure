@@ -2,8 +2,7 @@ package io.github.mortuusars.exposure.camera.capture.component;
 
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.util.ColorChannel;
-
-import java.awt.*;
+import net.minecraft.util.FastColor;
 
 @SuppressWarnings("ClassCanBeRecord")
 public class SelectiveChannelBlackAndWhiteComponent implements ICaptureComponent {
@@ -18,12 +17,17 @@ public class SelectiveChannelBlackAndWhiteComponent implements ICaptureComponent
     }
 
     @Override
-    public Color modifyPixel(Capture capture, int red, int green, int blue) {
-        if (channel == ColorChannel.RED)
-            return new Color(red, red, red);
-        if (channel == ColorChannel.GREEN)
-            return new Color(green, green, green);
-        else
-            return new Color(blue, blue, blue);
+    public int modifyPixel(Capture capture, int color) {
+        if (channel == ColorChannel.RED) {
+            int red = FastColor.ARGB32.red(color);
+            return FastColor.ARGB32.color(255, red, red, red);
+        }
+        if (channel == ColorChannel.GREEN) {
+            int green = FastColor.ARGB32.green(color);
+            return FastColor.ARGB32.color(255, green, green, green);
+        } else {
+            int blue = FastColor.ARGB32.blue(color);
+            return FastColor.ARGB32.color(255, blue, blue, blue);
+        }
     }
 }

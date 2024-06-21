@@ -19,14 +19,16 @@ public class CaptureManager {
             if (currentCapture != null) {
                 currentCapture.initialize();
             }
-            return;
+            else {
+                return;
+            }
         }
 
-        if (currentCapture.isCompleted()) {
+        if (currentCapture.isDone()) {
             currentCapture = null;
-            return;
         }
-
-        currentCapture.tick();
+        else {
+            currentCapture.tick();
+        }
     }
 }

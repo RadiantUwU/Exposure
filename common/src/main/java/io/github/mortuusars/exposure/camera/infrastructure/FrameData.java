@@ -19,6 +19,7 @@ public class FrameData {
     public static final String TIMESTAMP = "Timestamp";
     public static final String PHOTOGRAPHER = "Photographer";
     public static final String PHOTOGRAPHER_ID = "PhotographerId";
+    public static final String PROJECTED = "Projected";
     public static final String FLASH = "Flash";
     public static final String SELFIE = "Selfie";
     public static final String POSITION = "Pos";

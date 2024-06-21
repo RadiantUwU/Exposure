@@ -24,7 +24,7 @@ public class ExposureSender implements IExposureSender {
     }
 
     @Override
-    public void sendTo(@Nullable Player player, String id, ExposureSavedData exposureData) {
+    public synchronized void sendTo(@Nullable Player player, String id, ExposureSavedData exposureData) {
         byte[][] parts = splitToParts(exposureData.getPixels(), splitThreshold);
         int offset = 0;
 

@@ -1,0 +1,7 @@
+{
+  "item": {
+    "item": "exposure:interplanar_projector"
+  },
+  "tint_color": "#41CD34",
+  "shader": "minecraft:shaders/post/ntsc.json"
+}

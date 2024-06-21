@@ -1,17 +1,17 @@
 package io.github.mortuusars.exposure.camera.capture.processing;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import io.github.mortuusars.exposure.util.Color;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.MapColor;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class FloydDither {
     private record NegatableColor(int r, int g, int b) {}
 
-    public static byte[] ditherWithMapColors(BufferedImage image) {
+    public static byte[] ditherWithMapColors(NativeImage image) {
         int width = image.getWidth();
         int height = image.getHeight();
         int[][] pixels = convertToPixelArray(image);
@@ -112,14 +112,14 @@ public class FloydDither {
                 + Math.pow(vectorA[2] - vectorB[2], 2));
     }
 
-    private static int[][] convertToPixelArray(BufferedImage image) {
+    private static int[][] convertToPixelArray(NativeImage image) {
         final int width = image.getWidth();
         final int height = image.getHeight();
         int[][] result = new int[height][width];
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int rgb = image.getRGB(x, y);
+                int rgb = Color.BGRtoRGB(image.getPixelRGBA(x, y));
                 result[y][x] = rgb;
             }
         }

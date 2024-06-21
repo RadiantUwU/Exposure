@@ -24,6 +24,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ViewfinderClient {
     public static final float ZOOM_STEP = 8f;
@@ -67,13 +68,7 @@ public class ViewfinderClient {
 
         camera.getItem().getAttachment(camera.getStack(), CameraItem.FILTER_ATTACHMENT)
                 .flatMap(Filters::getShaderOf)
-                .ifPresent(shaderLocation -> {
-                    PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
-                    if (effect != null)
-                        previousShaderEffect = effect.getName();
-
-                    Minecraft.getInstance().gameRenderer.loadEffect(shaderLocation);
-                });
+                .ifPresent(ViewfinderClient::applyShader);
 
         SelfieClient.update(camera, activeHand, false);
 
@@ -84,6 +79,27 @@ public class ViewfinderClient {
         isOpen = false;
         targetFov = Minecraft.getInstance().options.fov().get();
 
+        removeShader();
+    }
+
+    public static Optional<ResourceLocation> getCurrentShader() {
+        PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
+        if (effect != null) {
+            return Optional.of(new ResourceLocation(effect.getName()));
+        }
+
+        return Optional.empty();
+    }
+
+    public static void applyShader(ResourceLocation shaderLocation) {
+        PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
+        if (effect != null)
+            previousShaderEffect = effect.getName();
+
+        Minecraft.getInstance().gameRenderer.loadEffect(shaderLocation);
+    }
+
+    public static void removeShader() {
         Minecraft.getInstance().gameRenderer.shutdownEffect();
 
         if (shouldRestorePreviousShaderEffect() && previousShaderEffect != null)

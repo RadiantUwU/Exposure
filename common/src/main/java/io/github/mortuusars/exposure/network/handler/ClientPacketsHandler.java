@@ -1,14 +1,11 @@
 package io.github.mortuusars.exposure.network.handler;
 
 import com.google.common.base.Preconditions;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Either;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
-import io.github.mortuusars.exposure.camera.capture.Capture;
-import io.github.mortuusars.exposure.camera.capture.CaptureManager;
-import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
+import io.github.mortuusars.exposure.camera.capture.*;
 import io.github.mortuusars.exposure.camera.capture.component.BaseComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ExposureExporterComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ExposureStorageSaveComponent;
@@ -25,7 +22,6 @@ import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.network.packet.client.*;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.ClientsideWorldNameGetter;
-import io.github.mortuusars.exposure.util.ColorUtils;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -40,16 +36,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class ClientPacketsHandler {
-    
+
     public static void applyShader(ApplyShaderS2CP packet) {
         executeOnMainThread(() -> {
             if (packet.shaderLocation().getPath().equals("none")) {
@@ -71,7 +63,7 @@ public class ClientPacketsHandler {
             String filename = Util.getFilenameFormattedDateTime();
             CompoundTag frameData = new CompoundTag();
             frameData.putString(FrameData.ID, filename);
-            Capture capture = new Capture()
+            Capture capture = new ScreenshotCapture()
                     .setSize(finalSize)
                     .cropFactor(1f)
                     .addComponents(
@@ -84,7 +76,7 @@ public class ClientPacketsHandler {
                             new ICaptureComponent() {
                                 @Override
                                 public void end(Capture capture) {
-                                    Exposure.LOGGER.info("Saved exposure screenshot: " + filename);
+                                    Exposure.LOGGER.info("Saved exposure screenshot: {}", filename);
                                 }
                             })
                     .setConverter(new DitheringColorConverter());
@@ -102,39 +94,23 @@ public class ClientPacketsHandler {
 
         String finalExposureId = exposureId;
         new Thread(() -> {
-            try {
-                BufferedImage read = ImageIO.read(new File(path));
+            Capture capture = new FileCapture(path, error -> { if (player != null) player.displayClientMessage(
+                            error.getTechnicalTranslation().withStyle(ChatFormatting.RED), false); })
+                    .setSize(size)
+                    .cropFactor(1f)
+                    .addComponents(new ExposureStorageSaveComponent(finalExposureId, true))
+                    .setConverter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
+            CaptureManager.enqueue(capture);
 
-                NativeImage image = new NativeImage(read.getWidth(), read.getHeight(), false);
+            CompoundTag frameData = new CompoundTag();
+            frameData.putString(FrameData.ID, finalExposureId);
 
-                for (int x = 0; x < read.getWidth(); x++) {
-                    for (int y = 0; y < read.getHeight(); y++) {
-                        image.setPixelRGBA(x, y, ColorUtils.BGRtoRGB(read.getRGB(x, y)));
-                    }
-                }
+            CapturedFramesHistory.add(frameData);
 
-                Capture capture = new Capture()
-                        .setSize(size)
-                        .cropFactor(1f)
-                        .addComponents(new ExposureStorageSaveComponent(finalExposureId, true))
-                        .setConverter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
-                capture.processImage(image);
-
-                CompoundTag frameData = new CompoundTag();
-                frameData.putString(FrameData.ID, finalExposureId);
-
-                CapturedFramesHistory.add(frameData);
-
-                Exposure.LOGGER.info("Loaded exposure from file '" + path + "' with Id: '" + finalExposureId + "'.");
-                Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
-                        Component.translatable("command.exposure.load_from_file.success", finalExposureId)
-                                .withStyle(ChatFormatting.GREEN), false);
-            } catch (IOException e) {
-                Exposure.LOGGER.error("Cannot load exposure:" + e);
-                Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
-                        Component.translatable("command.exposure.load_from_file.failure")
-                                .withStyle(ChatFormatting.RED), false);
-            }
+            Exposure.LOGGER.info("Loaded exposure from file '{}' with Id: '{}'.", path, finalExposureId);
+            Objects.requireNonNull(Minecraft.getInstance().player).displayClientMessage(
+                    Component.translatable("command.exposure.load_from_file.success", finalExposureId)
+                            .withStyle(ChatFormatting.GREEN), false);
         }).start();
     }
 
