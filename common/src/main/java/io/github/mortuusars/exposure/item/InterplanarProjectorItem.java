@@ -45,7 +45,9 @@ public class InterplanarProjectorItem extends Item {
         }
 
         if (Screen.hasShiftDown()) {
-            components.add(Component.translatable("item.exposure.interplanar_projector.tooltip.consumed_info"));
+            if (isConsumable(stack)) {
+                components.add(Component.translatable("item.exposure.interplanar_projector.tooltip.consumed_info"));
+            }
             components.add(Component.translatable("item.exposure.interplanar_projector.tooltip.info"));
             components.add(Component.translatable("item.exposure.interplanar_projector.tooltip.switch_info"));
         }

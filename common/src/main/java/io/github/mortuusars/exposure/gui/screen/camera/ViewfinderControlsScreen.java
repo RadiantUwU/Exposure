@@ -7,7 +7,7 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderOverlay;
 import io.github.mortuusars.exposure.client.MouseHandler;
 import io.github.mortuusars.exposure.gui.screen.element.IElementWithTooltip;
@@ -140,7 +140,7 @@ public class ViewfinderControlsScreen extends Screen {
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        if (!ViewfinderClient.isLookingThrough()) {
+        if (!Viewfinder.isLookingThrough()) {
             this.onClose();
             return;
         }
@@ -230,11 +230,11 @@ public class ViewfinderControlsScreen extends Screen {
             return true;
 
         if (keyCode == InputConstants.KEY_ADD || keyCode == InputConstants.KEY_EQUALS) {
-            ViewfinderClient.zoom(ZoomDirection.IN, true);
+            Viewfinder.zoom(ZoomDirection.IN, true);
             return true;
         }
         else if (keyCode == 333 /*KEY_SUBTRACT*/ || keyCode == InputConstants.KEY_MINUS) {
-            ViewfinderClient.zoom(ZoomDirection.OUT, true);
+            Viewfinder.zoom(ZoomDirection.OUT, true);
             return true;
         }
 
@@ -244,7 +244,7 @@ public class ViewfinderControlsScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (!super.mouseScrolled(mouseX, mouseY, delta)) {
-            ViewfinderClient.zoom(delta > 0d ? ZoomDirection.IN : ZoomDirection.OUT, true);
+            Viewfinder.zoom(delta > 0d ? ZoomDirection.IN : ZoomDirection.OUT, true);
             return true;
         }
 

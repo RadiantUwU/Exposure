@@ -4,7 +4,7 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.client.ExposureClientReloadListener;
 import io.github.mortuusars.exposure.client.MouseHandler;
 import io.github.mortuusars.exposure.data.filter.Filters;
@@ -88,13 +88,13 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void renderOverlay(RenderGuiOverlayEvent.Pre event) {
-            if (ViewfinderClient.isLookingThrough())
+            if (Viewfinder.isLookingThrough())
                 event.setCanceled(true);
         }
 
         @SubscribeEvent
         public static void mouseScroll(InputEvent.MouseScrollingEvent event) {
-            if (ViewfinderClient.handleMouseScroll(event.getScrollDelta() > 0d ? ZoomDirection.IN : ZoomDirection.OUT))
+            if (Viewfinder.handleMouseScroll(event.getScrollDelta() > 0d ? ZoomDirection.IN : ZoomDirection.OUT))
                 event.setCanceled(true);
         }
 
@@ -104,7 +104,7 @@ public class ClientEvents {
                 return;
 
             double prevFov = event.getFOV();
-            double modifiedFov = ViewfinderClient.modifyFov(prevFov);
+            double modifiedFov = Viewfinder.modifyFov(prevFov);
             if (prevFov != modifiedFov)
                 event.setFOV(modifiedFov);
         }

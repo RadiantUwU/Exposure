@@ -16,7 +16,7 @@ import io.github.mortuusars.exposure.camera.capture.component.*;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.*;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.network.Packets;
@@ -537,9 +537,8 @@ public class CameraItem extends Item {
 
         if (projectingFile) {
             entitiesInFrame = Collections.emptyList();
-        }
-        else {
-            entitiesInFrame = EntitiesInFrame.get(player, ViewfinderClient.getCurrentFov(), 12, isInSelfieMode(cameraStack))
+        } else {
+            entitiesInFrame = EntitiesInFrame.get(player, Viewfinder.getCurrentFov(), 12, isInSelfieMode(cameraStack))
                     .stream()
                     .map(Entity::getUUID)
                     .toList();
@@ -577,82 +576,64 @@ public class CameraItem extends Item {
             ItemAndStack<InterplanarProjectorItem> filter = projector.get();
             String filepath = filter.getItem().getFilename(filter.getStack()).orElse("");
 
-            AtomicBoolean removeShaderWhenDone = new AtomicBoolean(false);
-
-            ViewfinderClient.getCurrentShader().ifPresent(current -> {
-                Filters.getShaderOf(filter.getStack()).ifPresent(shader -> {
-                    if (current.equals(shader)) {
-                        removeShaderWhenDone.set(true);
-                    }
-                });
-            });
-
-            capture = createFileCapture(player, cameraStack, exposureId, filepath, filter.getItem().isDithered(filter.getStack()));
-            capture.ifCapturingFailed(() -> {
-                Capture regularCapture = createCapture(player, cameraStack, exposureId, flashHasFired);
-                if (removeShaderWhenDone.get()) {
-                    regularCapture.whenImageCaptured(() -> {
+            capture = createFileCapture(player, cameraStack, exposureId, filepath, filter.getItem().isDithered(filter.getStack()))
+                    .onCapturingFailed(() -> {
+                        Capture regularCapture = createRegularCapture(player, cameraStack, exposureId, flashHasFired);
+                        regularCapture.onImageCaptured(() -> {
+                            Minecraft.getInstance().execute(() -> {
+                                player.level().playSound(player, player, Exposure.SoundEvents.INTERPLANAR_PROJECT.get(),
+                                        SoundSource.PLAYERS, 0.8f, 0.6f);
+                                for (int i = 0; i < 32; ++i) {
+                                    player.level().addParticle(ParticleTypes.PORTAL, player.getX(), player.getY() + player.getRandom().nextDouble() * 2.0, player.getZ(), player.getRandom().nextGaussian(), 0.0, player.getRandom().nextGaussian());
+                                }
+                            });
+                        });
+                        CaptureManager.enqueue(regularCapture);
+                    })
+                    .onImageCaptured(() -> {
                         Minecraft.getInstance().execute(() -> {
-                            ViewfinderClient.removeShader();
                             player.level().playSound(player, player, Exposure.SoundEvents.INTERPLANAR_PROJECT.get(),
-                                    SoundSource.PLAYERS, 0.8f, 0.6f);
+                                    SoundSource.PLAYERS, 0.8f, 1.1f);
                             for (int i = 0; i < 32; ++i) {
                                 player.level().addParticle(ParticleTypes.PORTAL, player.getX(), player.getY() + player.getRandom().nextDouble() * 2.0, player.getZ(), player.getRandom().nextGaussian(), 0.0, player.getRandom().nextGaussian());
                             }
                         });
                     });
-                }
-                CaptureManager.enqueue(regularCapture);
-            });
-            if (removeShaderWhenDone.get()) {
-                capture.whenImageCaptured(() -> {
-                    Minecraft.getInstance().execute(() -> {
-                        ViewfinderClient.removeShader();
-                        player.level().playSound(player, player, Exposure.SoundEvents.INTERPLANAR_PROJECT.get(),
-                                SoundSource.PLAYERS, 0.8f, 1.1f);
-                        for (int i = 0; i < 32; ++i) {
-                            player.level().addParticle(ParticleTypes.PORTAL, player.getX(), player.getY() + player.getRandom().nextDouble() * 2.0, player.getZ(), player.getRandom().nextGaussian(), 0.0, player.getRandom().nextGaussian());
-                        }
-                    });
-                });
-            }
-        }
-        else {
-            capture = createCapture(player, cameraStack, exposureId, flashHasFired);
+        } else {
+            capture = createRegularCapture(player, cameraStack, exposureId, flashHasFired);
         }
 
         CaptureManager.enqueue(capture);
     }
 
-    protected Capture createCapture(Player player, ItemStack cameraStack, String exposureId, boolean flash) {
+    protected Capture createRegularCapture(Player player, ItemStack cameraStack, String exposureId, boolean flash) {
         ItemAndStack<FilmRollItem> film = getFilm(cameraStack).orElseThrow();
         int frameSize = film.getItem().getFrameSize(film.getStack());
         float brightnessStops = getShutterSpeed(cameraStack).getStopsDifference(ShutterSpeed.DEFAULT);
 
-        ArrayList<ICaptureComponent> components = new ArrayList<>();
+        Capture capture = new ScreenshotCapture()
+                .setFilmType(film.getItem().getType())
+                .setSize(frameSize)
+                .setBrightnessStops(brightnessStops)
+                .setConverter(new DitheringColorConverter());
 
-        components.add(new ExposureStorageSaveComponent(exposureId, true));
+        capture.addComponent(new BaseComponent());
+        capture.addComponent(new ExposureStorageSaveComponent(exposureId, true));
 
-        components.add(new BaseComponent());
         if (flash) {
-            components.add(new FlashComponent());
+            capture.addComponent(new FlashComponent());
         }
         if (brightnessStops != 0) {
-            components.add(new BrightnessComponent(brightnessStops));
+            capture.addComponent(new BrightnessComponent(brightnessStops));
         }
         if (film.getItem().getType() == FilmType.BLACK_AND_WHITE) {
             Optional<ItemStack> filter = getAttachment(cameraStack, FILTER_ATTACHMENT);
             filter.flatMap(ColorChannel::fromStack).ifPresentOrElse(
-                    channel -> components.add(new SelectiveChannelBlackAndWhiteComponent(channel)),
-                    () -> components.add(new BlackAndWhiteComponent()));
+                    channel -> capture.addComponent(new SelectiveChannelBlackAndWhiteComponent(channel)),
+                    () -> capture.addComponent(new BlackAndWhiteComponent()));
         }
 
-        return new ScreenshotCapture()
-                .setFilmType(film.getItem().getType())
-                .setSize(frameSize)
-                .setBrightnessStops(brightnessStops)
-                .addComponents(components)
-                .setConverter(new DitheringColorConverter());
+        return capture;
     }
 
     protected Capture createFileCapture(Player player, ItemStack cameraStack, String exposureId,
@@ -661,14 +642,20 @@ public class CameraItem extends Item {
         FilmType filmType = film.getItem().getType();
         int frameSize = film.getItem().getFrameSize(film.getStack());
 
-        return new FileCapture(filepath,
+        Capture capture = new FileCapture(filepath,
                 error -> player.displayClientMessage(error.getCasualTranslation().withStyle(ChatFormatting.RED), false))
                 .setFilmType(filmType)
                 .setSize(frameSize)
-                .addComponents(new ExposureStorageSaveComponent(exposureId, true))
+                .addComponent(new ExposureStorageSaveComponent(exposureId, true))
                 .setConverter(dither ? new DitheringColorConverter() : new SimpleColorConverter())
                 .cropFactor(1)
                 .setAsyncCapturing(true);
+
+        if (filmType == FilmType.BLACK_AND_WHITE) {
+            capture.addComponent(new BlackAndWhiteComponent());
+        }
+
+        return capture;
     }
 
     public void addFrame(ServerPlayer player, ItemStack cameraStack, InteractionHand hand, CompoundTag frame, List<Entity> entities) {

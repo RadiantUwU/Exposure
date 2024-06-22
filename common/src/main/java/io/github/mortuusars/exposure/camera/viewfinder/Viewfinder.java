@@ -4,7 +4,6 @@ package io.github.mortuusars.exposure.camera.viewfinder;
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
-import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
@@ -17,16 +16,14 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostChain;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 
-public class ViewfinderClient {
+public class Viewfinder {
     public static final float ZOOM_STEP = 8f;
     public static final float ZOOM_PRECISE_MODIFIER = 0.25f;
     private static boolean isOpen;
@@ -35,9 +32,6 @@ public class ViewfinderClient {
     private static double targetFov = 90f;
     private static double currentFov = targetFov;
     private static boolean shouldRestoreFov;
-
-    @Nullable
-    private static String previousShaderEffect;
 
     public static boolean isOpen() {
         return isOpen;
@@ -66,58 +60,24 @@ public class ViewfinderClient {
 
         isOpen = true;
 
-        camera.getItem().getAttachment(camera.getStack(), CameraItem.FILTER_ATTACHMENT)
-                .flatMap(Filters::getShaderOf)
-                .ifPresent(ViewfinderClient::applyShader);
-
+        ViewfinderShader.setPrevious(ViewfinderShader.getCurrent().orElse(null));
         SelfieClient.update(camera, activeHand, false);
-
         ViewfinderOverlay.setup();
+    }
+
+    public static void update() {
+        @Nullable LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) return;
+
+        ViewfinderShader.update();
     }
 
     public static void close() {
         isOpen = false;
         targetFov = Minecraft.getInstance().options.fov().get();
 
-        removeShader();
-    }
-
-    public static Optional<ResourceLocation> getCurrentShader() {
-        PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
-        if (effect != null) {
-            return Optional.of(new ResourceLocation(effect.getName()));
-        }
-
-        return Optional.empty();
-    }
-
-    public static void applyShader(ResourceLocation shaderLocation) {
-        PostChain effect = Minecraft.getInstance().gameRenderer.currentEffect();
-        if (effect != null)
-            previousShaderEffect = effect.getName();
-
-        Minecraft.getInstance().gameRenderer.loadEffect(shaderLocation);
-    }
-
-    public static void removeShader() {
-        Minecraft.getInstance().gameRenderer.shutdownEffect();
-
-        if (shouldRestorePreviousShaderEffect() && previousShaderEffect != null)
-            Minecraft.getInstance().gameRenderer.loadEffect(new ResourceLocation(previousShaderEffect));
-
-        previousShaderEffect = null;
-    }
-
-    private static boolean shouldRestorePreviousShaderEffect() {
-        /*
-            Cold Sweat applies a shader effect when having high temperature.
-            If we restore effect after exiting viewfinder it will apply blur even if temp is normal.
-            Not restoring shader is fine, Cold Sweat will reapply it if needed.
-         */
-        if (PlatformHelper.isModLoaded("cold_sweat") && previousShaderEffect != null && previousShaderEffect.equals("minecraft:shaders/post/blobs2.json"))
-            return false;
-        else
-            return previousShaderEffect != null;
+        ViewfinderShader.removeShader();
+        ViewfinderShader.restorePrevious();
     }
 
     public static FocalRange getFocalRange() {
@@ -160,17 +120,6 @@ public class ViewfinderClient {
         double modifier = Mth.clamp(1f - (Config.Client.VIEWFINDER_ZOOM_SENSITIVITY_MODIFIER.get()
                 * ((Minecraft.getInstance().options.fov().get() - currentFov) / 5f)), 0.01, 2f);
         return sensitivity * modifier;
-    }
-
-    public static void onPlayerTick(Player player) {
-        if (!player.equals(Minecraft.getInstance().player))
-            return;
-
-        boolean cameraActive = CameraInHand.isActive(player);
-        if (cameraActive && !ViewfinderClient.isOpen())
-            ViewfinderClient.open();
-        else if (!cameraActive && ViewfinderClient.isOpen())
-            ViewfinderClient.close();
     }
 
     public static boolean handleMouseScroll(ZoomDirection direction) {

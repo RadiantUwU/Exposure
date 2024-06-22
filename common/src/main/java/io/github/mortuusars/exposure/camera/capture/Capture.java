@@ -3,23 +3,19 @@ package io.github.mortuusars.exposure.camera.capture;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
-import io.github.mortuusars.exposure.ExposureConstants;
 import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.IImageToMapColorsConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public abstract class Capture {
@@ -29,7 +25,7 @@ public abstract class Capture {
     protected float brightnessStops = 0f;
     protected boolean asyncCapturing = false;
     protected boolean asyncProcessing = true;
-    protected Collection<ICaptureComponent> components = Collections.emptyList();
+    protected ArrayList<ICaptureComponent> components = new ArrayList<>();
     protected IImageToMapColorsConverter converter = new SimpleColorConverter();
     protected Runnable onImageCaptured = () -> {};
     protected Runnable onCapturingFailed = () -> {};
@@ -103,13 +99,23 @@ public abstract class Capture {
         return this;
     }
 
-    public Capture addComponents(ICaptureComponent... components) {
-        this.components = List.of(components);
+    public Capture addComponent(ICaptureComponent component) {
+        this.components.add(component);
         return this;
     }
 
-    public Capture addComponents(Collection<ICaptureComponent> components) {
-        this.components = components;
+    public Capture addComponents(ICaptureComponent... components) {
+        this.components.addAll(Arrays.asList(components));
+        return this;
+    }
+
+    public Capture setComponents(ICaptureComponent... components) {
+        this.components = Arrays.stream(components).collect(Collectors.toCollection(ArrayList::new));
+        return this;
+    }
+
+    public Capture setComponents(Collection<ICaptureComponent> components) {
+        this.components = new ArrayList<>(components);
         return this;
     }
 
@@ -118,13 +124,13 @@ public abstract class Capture {
         return this;
     }
 
-    public Capture ifCapturingFailed(Runnable runnable) {
-        this.onCapturingFailed = runnable;
+    public Capture onImageCaptured(Runnable runnable) {
+        this.onImageCaptured = runnable;
         return this;
     }
 
-    public Capture whenImageCaptured(Runnable runnable) {
-        this.onImageCaptured = runnable;
+    public Capture onCapturingFailed(Runnable runnable) {
+        this.onCapturingFailed = runnable;
         return this;
     }
 
@@ -203,7 +209,7 @@ public abstract class Capture {
     protected void onImageCaptured(@Nullable NativeImage image) {
         if (image == null) {
             done = true;
-//            isCapturing = false;
+            isCapturing = false;
             onCapturingFailed.run();
             return;
         }
@@ -297,7 +303,6 @@ public abstract class Capture {
 
         return null;
     }
-
 
     /**
      * Resizes and applies component pixel modifications to every pixel.

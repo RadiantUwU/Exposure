@@ -2,7 +2,7 @@ package io.github.mortuusars.exposure.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.render.PhotographInHandRenderer;
 import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.item.StackedPhotographsItem;
@@ -39,7 +39,7 @@ public abstract class ItemInHandRendererMixin {
     private void renderPhotograph(AbstractClientPlayer player, float partialTicks, float pitch, InteractionHand hand,
                                   float swingProgress, ItemStack stack, float equipProgress, PoseStack poseStack,
                                   MultiBufferSource buffer, int combinedLight, CallbackInfo ci, boolean isMainHand, HumanoidArm arm) {
-        if (ViewfinderClient.isLookingThrough()) {
+        if (Viewfinder.isLookingThrough()) {
             poseStack.popPose();
             ci.cancel();
             return;

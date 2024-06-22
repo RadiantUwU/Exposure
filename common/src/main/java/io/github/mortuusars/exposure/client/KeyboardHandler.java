@@ -5,7 +5,7 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.SelfieClient;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.gui.ClientGUI;
 import io.github.mortuusars.exposure.gui.screen.camera.ViewfinderControlsScreen;
 import io.github.mortuusars.exposure.util.CameraInHand;
@@ -56,7 +56,7 @@ public class KeyboardHandler {
             return true;
         }
 
-        if (!ViewfinderClient.isLookingThrough())
+        if (!Viewfinder.isLookingThrough())
             return false;
 
         if (!(minecraft.screen instanceof ViewfinderControlsScreen)) {
@@ -67,12 +67,12 @@ public class KeyboardHandler {
 
             if (action == 1 || action == 2) { // Press or Hold
                 if (key == InputConstants.KEY_ADD || key == InputConstants.KEY_EQUALS) {
-                    ViewfinderClient.zoom(ZoomDirection.IN, false);
+                    Viewfinder.zoom(ZoomDirection.IN, false);
                     return true;
                 }
 
                 if (key == 333 /*KEY_SUBTRACT*/ || key == InputConstants.KEY_MINUS) {
-                    ViewfinderClient.zoom(ZoomDirection.OUT, false);
+                    Viewfinder.zoom(ZoomDirection.OUT, false);
                     return true;
                 }
             }

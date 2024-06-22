@@ -129,7 +129,7 @@
   "item.exposure.interplanar_projector": "Interplanar Projector",
   "item.exposure.interplanar_projector.mode.clear": "§6Clear",
   "item.exposure.interplanar_projector.mode.dithered": "§6Dithered",
-  "item.exposure.interplanar_projector.tooltip.consumed_info": "§7Consumed on use",
+  "item.exposure.interplanar_projector.tooltip.consumed_info": "§4Consumed on use",
   "item.exposure.interplanar_projector.tooltip.info": "§7When renamed to filepath, allows projecting an image from another plane",
   "item.exposure.interplanar_projector.tooltip.switch_info": "§8[§7Right Click§8] to change mode",
   "item.exposure.photograph": "Photograph",

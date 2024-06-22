@@ -2,6 +2,6 @@
   "item": {
     "item": "exposure:interplanar_projector"
   },
-  "tint_color": "#41CD34",
-  "shader": "minecraft:shaders/post/ntsc.json"
+  "attachment_texture": "exposure:textures/gui/filter/interplanar_projector.png",
+  "shader": "minecraft:shaders/post/invert.json"
 }

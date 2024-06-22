@@ -1,7 +1,7 @@
 package io.github.mortuusars.exposure.fabric.mixin;
 
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +23,7 @@ public abstract class GameRendererFabricMixin {
             return;
 
         double prevFov = cir.getReturnValue();
-        double modifiedFov = ViewfinderClient.modifyFov(prevFov);
+        double modifiedFov = Viewfinder.modifyFov(prevFov);
         if (prevFov != modifiedFov)
             cir.setReturnValue(modifiedFov);
     }

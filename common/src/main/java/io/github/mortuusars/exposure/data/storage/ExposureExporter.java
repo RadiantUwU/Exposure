@@ -8,6 +8,7 @@ import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
 import io.github.mortuusars.exposure.util.Color;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.level.material.MapColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,7 +81,7 @@ public class ExposureExporter {
             return save(image, properties);
         }
         catch (Exception e) {
-            Exposure.LOGGER.error("Cannot convert exposure pixels to NativeImage: " + e);
+            Exposure.LOGGER.error("Cannot convert exposure pixels to NativeImage: {}", e.toString());
             return false;
         }
     }
@@ -89,7 +90,7 @@ public class ExposureExporter {
         // Existing file would be overwritten
         try {
             File outputFile = new File(folder + "/" + (worldName != null ? worldName + "/" : "") + name + ".png");
-            boolean ignored = outputFile.mkdirs();
+            boolean ignored = outputFile.getParentFile().mkdirs();
 
             image.writeToFile(outputFile);
 
@@ -132,22 +133,21 @@ public class ExposureExporter {
                 if (modifier == ExposurePixelModifiers.NEGATIVE_FILM) {
                     @Nullable FilmType filmType = FilmType.byName(properties.getString(ExposureSavedData.TYPE_PROPERTY));
                     if (filmType != null) {
-                        int a = (bgr >> 24) & 0xFF;
-                        int b = (bgr >> 16) & 0xFF;
-                        int g = (bgr >> 8) & 0xFF;
-                        int r = bgr & 0xFF;
+
+                        int a = FastColor.ABGR32.alpha(bgr);
+                        int b = FastColor.ABGR32.blue(bgr);
+                        int g = FastColor.ABGR32.green(bgr);
+                        int r = FastColor.ABGR32.red(bgr);
 
                         b = b * filmType.frameB / 255;
                         g = g * filmType.frameG / 255;
                         r = r * filmType.frameR / 255;
 
-                        bgr = a << 24 | b << 16 | g << 8 | r;
+                        bgr = FastColor.ABGR32.color(a, b, g, r);
                     }
                 }
 
-                int rgb = Color.BGRtoRGB(bgr);
-
-                image.setPixelRGBA(x, y, rgb);
+                image.setPixelRGBA(x, y, bgr);
             }
         }
 

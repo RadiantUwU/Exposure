@@ -176,6 +176,7 @@ public class ChromaticSheetItem extends Item {
         return photograph;
     }
 
+    //TODO: move to dedicated class
     protected void processAndSaveTrichrome(ExposureSavedData red, ExposureSavedData green, ExposureSavedData blue, String id) {
         int width = Math.min(red.getWidth(), Math.min(green.getWidth(), blue.getWidth()));
         int height = Math.min(red.getHeight(), Math.min(green.getHeight(), blue.getHeight()));
@@ -185,9 +186,7 @@ public class ChromaticSheetItem extends Item {
             return;
         }
 
-        NativeImage image = new NativeImage(NativeImage.Format.RGB, width, height, false);
-
-//        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);/
+        NativeImage image = new NativeImage(width, height, false);
 
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {

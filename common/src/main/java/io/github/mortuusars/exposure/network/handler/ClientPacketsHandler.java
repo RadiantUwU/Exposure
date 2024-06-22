@@ -66,7 +66,7 @@ public class ClientPacketsHandler {
             Capture capture = new ScreenshotCapture()
                     .setSize(finalSize)
                     .cropFactor(1f)
-                    .addComponents(
+                    .setComponents(
                             new BaseComponent(true),
                             new ExposureExporterComponent(filename)
                                     .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(),
@@ -98,7 +98,7 @@ public class ClientPacketsHandler {
                             error.getTechnicalTranslation().withStyle(ChatFormatting.RED), false); })
                     .setSize(size)
                     .cropFactor(1f)
-                    .addComponents(new ExposureStorageSaveComponent(finalExposureId, true))
+                    .setComponents(new ExposureStorageSaveComponent(finalExposureId, true))
                     .setConverter(dither ? new DitheringColorConverter() : new SimpleColorConverter());
             CaptureManager.enqueue(capture);
 

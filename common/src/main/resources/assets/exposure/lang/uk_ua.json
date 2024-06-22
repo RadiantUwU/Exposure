@@ -129,7 +129,7 @@
   "item.exposure.interplanar_projector": "Міжпланарний проєктор",
   "item.exposure.interplanar_projector.mode.clear": "Чистий",
   "item.exposure.interplanar_projector.mode.dithered": "Зернистий",
-  "item.exposure.interplanar_projector.tooltip.consumed_info": "§7Буде витрачений при використанні",
+  "item.exposure.interplanar_projector.tooltip.consumed_info": "§4Буде витрачений при використанні",
   "item.exposure.interplanar_projector.tooltip.info": "§7Перейменуйте за допомогою шляху до файлу, щоб проєктувати зображення з іншої площини",
   "item.exposure.interplanar_projector.tooltip.switch_info": "§8[§7Клацніть правою кнопкою миші§8], щоб змінити режим",
   "item.exposure.photograph": "Фотографія",

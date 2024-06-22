@@ -90,7 +90,7 @@ public class ExportCommand {
             String name = id + look.getIdSuffix();
 
             boolean saved = new ExposureExporter(name)
-                    .withFolder(folder.getAbsolutePath())
+                    .withFolder(folder.getAbsolutePath().replace("\\.\\", "\\").replace("/./", "/"))
                     .withModifier(look.getModifier())
                     .withSize(size)
                     .save(exposureSavedData);

@@ -48,10 +48,10 @@ public class AttachmentSound {
     }
 
     public void playOnePerPlayer(Player player, boolean isRemoved) {
-        @Nullable Supplier<SoundEvent> sound = isRemoved ? removed : inserted;
+        @Nullable Supplier<SoundEvent> sound = isRemoved ? getRemoved() : getInserted();
         if (sound != null)
             OnePerPlayerSounds.play(player, sound.get(), SoundSource.PLAYERS,
-                    isRemoved ? removedVolume : insertedVolume, isRemoved ? removedPitch : insertedPitch);
+                    isRemoved ? getRemovedVolume() : getInsertedVolume(), isRemoved ? getRemovedPitch() : getInsertedPitch());
     }
 
     public @Nullable Supplier<SoundEvent> getInserted() {

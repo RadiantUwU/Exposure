@@ -1,7 +1,8 @@
 package io.github.mortuusars.exposure.mixin;
 
 import com.mojang.authlib.GameProfile;
-import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderClient;
+import io.github.mortuusars.exposure.camera.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -19,6 +20,9 @@ public abstract class LocalPlayerTickMixin extends Player {
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     private void onPlayerTickEnd(CallbackInfo ci) {
-        ViewfinderClient.onPlayerTick(this);
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (((LocalPlayer)(Object)this).equals(player)) {
+            Camera.getCamera(player).onLocalPlayerTick(player);
+        }
     }
 }
