@@ -1,22 +1,23 @@
 # Changelog
 
 ## Unreleased
-- Added Photograph Frames
-  - Photographs can no longer be hanged on the wall. Existing hanging photographs will not be removed.
-- Added Film Roll renaming. Use the item to open renaming UI. Renaming this way does not cost any experience.
-- Added Interplanar Projector filter. Allows loading custom images by renaming the item to filepath. 
+- Added **Photograph Frames**
+  - **Photographs** can no longer be hanged on the wall. Existing hanging photographs will not be removed.
+- Added **Film Roll renaming**. Use the item to open renaming UI. Renaming this way does not cost any experience.
+- Added **Interplanar Projector** filter. Allows loading custom images by renaming the item to filepath. 
 - Updated item textures.
 
 Updated Camera Attachments UI:
 - You can now hover over camera components to see tooltip with information about it.
-- All available Lenses and Filters can be viewed by clicking on the lens and filter respectively.
+- All available **Lenses** and **Filters** can be viewed by clicking on the lens and filter respectively.
 - Added ability to render custom Filter texture in Camera Attachments UI `//WIKI`
 
 
-- Lightroom comparator output now based on the number of Photographs in the output slot rather than the selected frame.
-- Chromatic Process can now be enabled for all black and white images by placing an Amethyst Cluster on top of a Lightroom.
-- Color Film recipe now requires Gold ingots and nuggets instead of Iron. 
-- Film developing recipe will now also accept potions defined without `minecraft:` namespace - i.e. `{Potion:thick}`.
+- **Lightroom** comparator output now based on the number of Photographs in the output slot rather than the selected frame.
+- **Chromatic Process** can now be enabled for all black and white images by placing an Amethyst Cluster on top of a Lightroom.
+- **Color Film** recipe now requires Gold ingots and nuggets instead of Iron.
+- **Camera** recipe now uses only Iron Ingots instead of Iron Nuggets and Pressure Plate. 
+- **Film** developing recipe will now also accept potions defined without `minecraft:` namespace - i.e. `{Potion:thick}`.
 - Viewfinder will now show an indicator for last three frames to remind you that the Film Roll is about to end.
 
 

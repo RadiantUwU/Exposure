@@ -14,18 +14,12 @@
     },
     "L": {
       "item": "minecraft:lever"
-    },
-    "N": {
-      "item": "minecraft:iron_nugget"
-    },
-    "P": {
-      "item": "minecraft:heavy_weighted_pressure_plate"
     }
   },
   "pattern": [
-    "LPB",
+    "BIL",
     "IGI",
-    "NIN"
+    "III"
   ],
   "result": {
     "item": "exposure:camera"
