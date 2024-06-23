@@ -8,6 +8,7 @@ import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.block.FlashBlock;
 import io.github.mortuusars.exposure.camera.AttachmentSound;
 import io.github.mortuusars.exposure.camera.AttachmentType;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.camera.capture.Capture;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.capture.FileCapture;
@@ -17,12 +18,11 @@ import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConv
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.*;
 import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
-import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.menu.CameraAttachmentsMenu;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
 import io.github.mortuusars.exposure.network.packet.client.StartExposureS2CP;
-import io.github.mortuusars.exposure.network.packet.server.CameraInHandAddFrameC2SP;
+import io.github.mortuusars.exposure.network.packet.server.CameraAddFrameC2SP;
 import io.github.mortuusars.exposure.network.packet.server.OpenCameraAttachmentsPacketC2SP;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSounds;
 import io.github.mortuusars.exposure.sound.OnePerPlayerSoundsClient;
@@ -79,7 +79,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CameraItem extends Item {
     public static final AttachmentType FILM_ATTACHMENT = new AttachmentType("Film", 0,
@@ -259,7 +258,7 @@ public class CameraItem extends Item {
     public void deactivate(Player player, ItemStack stack) {
         if (isActive(stack)) {
             setActive(stack, false);
-            player.gameEvent(GameEvent.EQUIP);
+            player.gameEvent(GameEvent.EQUIP); // Sends skulk vibrations
             playCameraSound(player, Exposure.SoundEvents.VIEWFINDER_CLOSE.get(), 0.35f, 0.9f, 0.2f);
         }
     }
@@ -281,8 +280,10 @@ public class CameraItem extends Item {
     }
 
     public void setSelfieModeWithEffects(Player player, ItemStack stack, boolean selfie) {
-        setSelfieMode(stack, selfie);
-        player.level().playSound(player, player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 1f, 1.5f);
+        if (isInSelfieMode(stack) != selfie) {
+            setSelfieMode(stack, selfie);
+            player.level().playSound(player, player, Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get(), SoundSource.PLAYERS, 1f, 1.5f);
+        }
     }
 
     public boolean isShutterOpen(ItemStack stack) {
@@ -395,8 +396,12 @@ public class CameraItem extends Item {
         Player player = context.getPlayer();
         if (player != null) {
             InteractionHand hand = context.getHand();
-            if (hand == InteractionHand.MAIN_HAND && CameraInHand.getActiveHand(player) == InteractionHand.OFF_HAND)
+
+            if (hand == InteractionHand.MAIN_HAND && Camera.getCamera(player)
+                    .filter(c -> c instanceof CameraInHand<?>)
+                    .map(c -> ((CameraInHand<?>) c).getHand() == InteractionHand.OFF_HAND).orElse(false)) {
                 return InteractionResult.PASS;
+            }
 
             return useCamera(player, hand);
         }
@@ -405,8 +410,11 @@ public class CameraItem extends Item {
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand hand) {
-        if (hand == InteractionHand.MAIN_HAND && CameraInHand.getActiveHand(player) == InteractionHand.OFF_HAND)
+        if (hand == InteractionHand.MAIN_HAND && Camera.getCamera(player)
+                .filter(c -> c instanceof CameraInHand<?>)
+                .map(c -> ((CameraInHand<?>) c).getHand() == InteractionHand.OFF_HAND).orElse(false)) {
             return InteractionResultHolder.pass(player.getItemInHand(hand));
+        }
 
         useCamera(player, hand);
         return InteractionResultHolder.consume(player.getItemInHand(hand));
@@ -544,26 +552,9 @@ public class CameraItem extends Item {
                     .toList();
         }
 
-        Packets.sendToServer(new CameraInHandAddFrameC2SP(hand, frame, entitiesInFrame));
+        Packets.sendToServer(new CameraAddFrameC2SP(hand, frame, entitiesInFrame));
 
         startCapture(player, cameraStack, exposureId, flashHasFired);
-
-//        if (ExposureClient.isShaderActive()) {
-//            getAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT).ifPresent(filter -> {
-//                if (filter.getItem() instanceof InterplanarProjectorItem interplanarProjector
-//                        && interplanarProjector.isConsumable(filter)) {
-//                    ViewfinderClient.getCurrentShader().ifPresent(current -> {
-//                        Filters.getShaderOf(filter).ifPresent(shader -> {
-//                            if (current.equals(shader))
-//                                ViewfinderClient.removeShader();
-//                        });
-//                    });
-//
-//                    filter.shrink(1);
-//                    setAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT, filter);
-//                }
-//            });
-//        }
     }
 
     protected void startCapture(Player player, ItemStack cameraStack, String exposureId, boolean flashHasFired) {
@@ -601,6 +592,9 @@ public class CameraItem extends Item {
                     });
         } else {
             capture = createRegularCapture(player, cameraStack, exposureId, flashHasFired);
+            if (flashHasFired) {
+                capture.onImageCaptured(() -> spawnClientsideFlashEffects(player, cameraStack));
+            }
         }
 
         CaptureManager.enqueue(capture);
@@ -658,7 +652,7 @@ public class CameraItem extends Item {
         return capture;
     }
 
-    public void addFrame(ServerPlayer player, ItemStack cameraStack, InteractionHand hand, CompoundTag frame, List<Entity> entities) {
+    public void addFrame(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entities) {
         if (!frame.getBoolean(FrameData.PROJECTED)) {
             addFrameData(player, cameraStack, frame, entities);
         }
@@ -670,9 +664,26 @@ public class CameraItem extends Item {
         player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
         Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(player, new ItemAndStack<>(cameraStack), frame);
 
-        Packets.sendToClient(new OnFrameAddedS2CP(frame), player);
-
         PlatformHelper.fireFrameAddedEvent(player, cameraStack, frame);
+
+        onFrameAdded(player, cameraStack, frame, entities);
+        Packets.sendToClient(new OnFrameAddedS2CP(frame), player);
+    }
+
+    public void onFrameAdded(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entities) {
+        if (frame.getBoolean(FrameData.PROJECTED)) {
+            getAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT).ifPresent(filter -> {
+                if (!(filter.getItem() instanceof InterplanarProjectorItem interplanarProjector)) return;
+
+                player.level().playSound(player, player, Exposure.SoundEvents.INTERPLANAR_PROJECT.get(),
+                        SoundSource.PLAYERS, 0.8f, 1f);
+
+                if (interplanarProjector.isConsumable(filter)) {
+                    filter.shrink(1);
+                    setAttachment(cameraStack, CameraItem.FILTER_ATTACHMENT, filter);
+                }
+            });
+        }
     }
 
     public void addFrameToFilm(ItemStack cameraStack, CompoundTag frame) {
@@ -717,7 +728,7 @@ public class CameraItem extends Item {
         level.setBlock(flashPos, Exposure.Blocks.FLASH.get().defaultBlockState()
                 .setValue(FlashBlock.WATERLOGGED, level.getFluidState(flashPos)
                         .isSourceOfType(Fluids.WATER)), Block.UPDATE_ALL_IMMEDIATE);
-        level.playSound(player, player, Exposure.SoundEvents.FLASH.get(), SoundSource.PLAYERS, 1f, 1f);
+        level.playSound(null, player, Exposure.SoundEvents.FLASH.get(), SoundSource.PLAYERS, 1f, 1f);
 
         player.gameEvent(GameEvent.PRIME_FUSE);
         player.awardStat(Exposure.Stats.FLASHES_TRIGGERED);

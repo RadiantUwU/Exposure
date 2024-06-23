@@ -5,9 +5,11 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.gui.screen.camera.ViewfinderControlsScreen;
+import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.FilmRollItem;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import io.github.mortuusars.exposure.util.GuiUtil;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import io.github.mortuusars.exposure.util.Rect2f;
@@ -16,6 +18,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
 import java.util.Optional;
@@ -64,9 +67,14 @@ public class ViewfinderOverlay {
         if (minecraft.options.hideGui)
             return;
 
-        CameraInHand camera = CameraInHand.getActive(player);
-        if (camera.isEmpty())
+        Optional<Camera<?>> cameraOpt = CameraClient.getCamera();
+        if (cameraOpt.isEmpty()) {
             return;
+        }
+
+        Camera<?> camera = cameraOpt.get();
+        CameraItem cameraItem = camera.get().getItem();
+        ItemStack cameraStack = camera.get().getStack();
 
         RenderSystem.enableBlend();
         RenderSystem.disableDepthTest();
@@ -122,7 +130,7 @@ public class ViewfinderOverlay {
         drawRect(poseStack, -9999, opening.y + opening.height, width + 9999, height + 9999, backgroundColor);
 
         // Shutter
-        if (camera.getItem().isShutterOpen(camera.getStack()))
+        if (cameraItem.isShutterOpen(cameraStack))
             drawRect(poseStack, opening.x, opening.y, opening.x + opening.width, opening.y + opening.height, 0xfa1f1d1b);
 
         // Opening Texture
@@ -135,18 +143,18 @@ public class ViewfinderOverlay {
 
         // Guide
         RenderSystem.setShaderTexture(0, Exposure.resource("textures/gui/viewfinder/composition_guide/" +
-                camera.getItem().getCompositionGuide(camera.getStack()).getId() + ".png"));
+                cameraItem.getCompositionGuide(cameraStack).getId() + ".png"));
         GuiUtil.blit(poseStack, opening.x, opening.x + opening.width, opening.y, opening.y + opening.height, -1f, 0f, 1f, 0f, 1f);
 
         if (!(minecraft.screen instanceof ViewfinderControlsScreen)) {
-            renderIcons(poseStack, camera);
+            renderIcons(poseStack, cameraItem, cameraStack);
         }
 
         poseStack.popPose();
     }
 
-    private static void renderIcons(PoseStack poseStack, CameraInHand camera) {
-        Optional<ItemAndStack<FilmRollItem>> film = camera.getItem().getFilm(camera.getStack());
+    private static void renderIcons(PoseStack poseStack, CameraItem cameraItem, ItemStack cameraStack) {
+        Optional<ItemAndStack<FilmRollItem>> film = cameraItem.getFilm(cameraStack);
         if (film.isEmpty() || !film.get().getItem().canAddFrame(film.get().getStack())) {
             RenderSystem.setShaderTexture(0, NO_FILM_ICON_TEXTURE);
             GuiUtil.blit(poseStack, (opening.x + (opening.width / 2) - 12), opening.y + opening.height - 19,

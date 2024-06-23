@@ -6,13 +6,11 @@ import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Supplier;
 
 public class ViewfinderShader {
     @Nullable
@@ -52,14 +50,14 @@ public class ViewfinderShader {
     }
 
     public static void update() {
-        Camera<?> camera = Camera.getCamera(Minecraft.getInstance().player);
+        Optional<Camera<?>> camera = Camera.getCamera(Minecraft.getInstance().player);
 
         if (camera.isEmpty()) {
             removeShader();
             return;
         }
 
-        ItemAndStack<? extends CameraItem> cameraItemAndStack = camera.getItem();
+        ItemAndStack<? extends CameraItem> cameraItemAndStack = camera.get().get();
         cameraItemAndStack.getItem().getAttachment(cameraItemAndStack.getStack(), CameraItem.FILTER_ATTACHMENT)
                     .flatMap(Filters::getShaderOf)
                     .ifPresentOrElse(ViewfinderShader::applyShader, ViewfinderShader::removeShader);

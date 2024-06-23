@@ -2,6 +2,7 @@ package io.github.mortuusars.exposure.network.packet.server;
 
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.camera.infrastructure.ShutterSpeed;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.packet.IPacket;
@@ -29,13 +30,8 @@ public record CameraSetShutterSpeedC2SP(ShutterSpeed shutterSpeed) implements IP
 
     @Override
     public boolean handle(PacketDirection direction, @Nullable Player player) {
-        Preconditions.checkState(player != null, "Cannot handle packet: Player was null");
-
-        CameraInHand camera = CameraInHand.getActive(player);
-        if (!camera.isEmpty()) {
-            camera.getItem().setShutterSpeed(camera.getStack(), shutterSpeed);
-        }
-
+        Preconditions.checkState(player != null, "Cannot handle packet {}: Player was null", ID);
+        Camera.getCamera(player).ifPresent(c -> c.get().getItem().setShutterSpeed(c.get().getStack(), shutterSpeed));
         return true;
     }
 }

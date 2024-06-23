@@ -2,44 +2,30 @@ package io.github.mortuusars.exposure.network.packet.server;
 
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.InterplanarProjectorItem;
 import io.github.mortuusars.exposure.network.PacketDirection;
-import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.IPacket;
-import io.github.mortuusars.exposure.network.packet.client.OnFrameAddedS2CP;
-import io.github.mortuusars.exposure.util.ItemAndStack;
-import it.unimi.dsi.fastutil.longs.LongSet;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, List<UUID> entitiesInFrameIds) implements IPacket {
-    public static final ResourceLocation ID = Exposure.resource("camera_in_hand_add_frame");
+public record CameraAddFrameC2SP(InteractionHand hand, CompoundTag frame, List<UUID> entitiesInFrameIds) implements IPacket {
+    public static final ResourceLocation ID = Exposure.resource("camera_add_frame");
 
     @Override
     public ResourceLocation getId() {
@@ -56,7 +42,7 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
         return buffer;
     }
 
-    public static CameraInHandAddFrameC2SP fromBuffer(FriendlyByteBuf buffer) {
+    public static CameraAddFrameC2SP fromBuffer(FriendlyByteBuf buffer) {
         InteractionHand hand = buffer.readEnum(InteractionHand.class);
         @Nullable CompoundTag frame = buffer.readAnySizeNbt();
         if (frame == null)
@@ -68,13 +54,19 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
             entities.add(buffer.readUUID());
         }
 
-        return new CameraInHandAddFrameC2SP(hand, frame, entities);
+        return new CameraAddFrameC2SP(hand, frame, entities);
     }
 
     @Override
     public boolean handle(PacketDirection direction, @Nullable Player player) {
         Preconditions.checkState(player != null, "Cannot handle packet: Player was null");
         ServerPlayer serverPlayer = ((ServerPlayer) player);
+
+        Camera.getCamera(player).ifPresentOrElse(camera -> {
+            CameraItem cameraItem = camera.get().getItem();
+            cameraItem.addFrame(serverPlayer, camera.get().getStack(), frame, getEntities(serverPlayer.serverLevel()));
+            cameraItem.onFrameAdded(serverPlayer, camera.get().getStack(), frame, getEntities(serverPlayer.serverLevel()));
+        }, () -> Exposure.LOGGER.error("Cannot add frame. Player is not using a Camera."));
 
         ItemStack cameraStack = player.getItemInHand(hand);
         if (!(cameraStack.getItem() instanceof CameraItem cameraItem))
@@ -93,8 +85,6 @@ public record CameraInHandAddFrameC2SP(InteractionHand hand, CompoundTag frame, 
                 }
             });
         }
-
-        cameraItem.addFrame(serverPlayer, cameraStack, hand, frame, getEntities(serverPlayer.serverLevel()));
         return true;
     }
 

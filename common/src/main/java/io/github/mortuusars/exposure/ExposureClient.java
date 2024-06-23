@@ -82,11 +82,7 @@ public class ExposureClient {
     }
 
     public static void onScreenAdded(Screen screen) {
-        if (Viewfinder.isOpen() && !(screen instanceof ViewfinderControlsScreen)) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player != null)
-                CameraInHand.deactivate(player);
-        }
+
     }
 
     public static KeyMapping getCameraControlsKey() {

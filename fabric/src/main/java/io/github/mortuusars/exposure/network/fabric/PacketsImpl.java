@@ -25,12 +25,12 @@ public class PacketsImpl {
         ServerPlayNetworking.registerGlobalReceiver(ExposureDataPartPacket.ID, new ServerHandler(ExposureDataPartPacket::fromBuffer));
 
         ServerPlayNetworking.registerGlobalReceiver(OpenCameraAttachmentsPacketC2SP.ID, new ServerHandler(OpenCameraAttachmentsPacketC2SP::fromBuffer));
-        ServerPlayNetworking.registerGlobalReceiver(DeactivateCamerasInHandC2SP.ID, new ServerHandler(DeactivateCamerasInHandC2SP::fromBuffer));
+        ServerPlayNetworking.registerGlobalReceiver(DeactivateCameraC2SP.ID, new ServerHandler(DeactivateCameraC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(CameraSetZoomC2SP.ID, new ServerHandler(CameraSetZoomC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(CameraSetCompositionGuideC2SP.ID, new ServerHandler(CameraSetCompositionGuideC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(CameraSetFlashModeC2SP.ID, new ServerHandler(CameraSetFlashModeC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(CameraSetShutterSpeedC2SP.ID, new ServerHandler(CameraSetShutterSpeedC2SP::fromBuffer));
-        ServerPlayNetworking.registerGlobalReceiver(CameraInHandAddFrameC2SP.ID, new ServerHandler(CameraInHandAddFrameC2SP::fromBuffer));
+        ServerPlayNetworking.registerGlobalReceiver(CameraAddFrameC2SP.ID, new ServerHandler(CameraAddFrameC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(CameraSetSelfieModeC2SP.ID, new ServerHandler(CameraSetSelfieModeC2SP::fromBuffer));
         ServerPlayNetworking.registerGlobalReceiver(QueryExposureDataC2SP.ID, new ServerHandler(QueryExposureDataC2SP::fromBuffer));
 

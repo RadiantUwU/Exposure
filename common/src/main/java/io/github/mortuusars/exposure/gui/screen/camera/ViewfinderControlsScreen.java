@@ -6,6 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.camera.viewfinder.ViewfinderOverlay;
@@ -28,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -68,10 +69,9 @@ public class ViewfinderControlsScreen extends Screen {
         int leftPos = (width - 256) / 2;
         int topPos = Math.round(ViewfinderOverlay.opening.y + ViewfinderOverlay.opening.height - 256);
 
-        CameraInHand camera = CameraInHand.getActive(player);
-        Preconditions.checkState(!camera.isEmpty(), "Player should hold an Active Camera at this point.");
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
 
-        boolean hasFlashAttached = camera.getItem().getAttachment(camera.getStack(), CameraItem.FLASH_ATTACHMENT).isPresent();
+        boolean hasFlashAttached = camera.get().getItem().getAttachment(camera.get().getStack(), CameraItem.FLASH_ATTACHMENT).isPresent();
 
         int sideButtonsWidth = 48;
         int buttonWidth = 15;
@@ -182,12 +182,11 @@ public class ViewfinderControlsScreen extends Screen {
             return true;
 
         if (button == InputConstants.MOUSE_BUTTON_RIGHT && Minecraft.getInstance().gameMode != null) {
-            InteractionHand activeHand = CameraInHand.getActiveHand(player);
-            if (activeHand != null) {
-                ItemStack itemInHand = player.getItemInHand(activeHand);
-                if (itemInHand.getItem() instanceof CameraItem) {
-                    Minecraft.getInstance().gameMode.useItem(player, activeHand);
-                }
+            Camera<?> camera = CameraClient.getCamera().orElseThrow();
+
+            if (camera instanceof CameraInHand<?> cameraInHand) {
+                InteractionHand hand = cameraInHand.getHand();
+                Minecraft.getInstance().gameMode.useItem(player, hand);
             }
 
             return true;

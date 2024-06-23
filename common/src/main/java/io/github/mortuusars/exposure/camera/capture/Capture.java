@@ -163,8 +163,10 @@ public abstract class Capture {
         isCapturing = true;
 
         if (asyncCapturing) {
-            CompletableFuture.supplyAsync(this::captureImage)
-                    .thenAccept(this::onImageCaptured);
+            new Thread(() -> {
+                @Nullable NativeImage image = captureImage();
+                onImageCaptured(image);
+            }).start();
         }
         else {
             @Nullable NativeImage image = captureImage();
@@ -230,7 +232,7 @@ public abstract class Capture {
         }
 
         if (asyncProcessing && !asyncCapturing) { // It's already async when asyncCapturing
-            CompletableFuture.runAsync((() -> processImage(image)));
+            new Thread(() -> processImage(image)).start();
         }
         else {
             processImage(image);

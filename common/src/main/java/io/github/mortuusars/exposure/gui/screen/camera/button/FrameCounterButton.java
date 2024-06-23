@@ -1,8 +1,9 @@
 package io.github.mortuusars.exposure.gui.screen.camera.button;
 
 import io.github.mortuusars.exposure.Config;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.gui.screen.element.IElementWithTooltip;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,9 +37,9 @@ public class FrameCounterButton extends ImageButton implements IElementWithToolt
     public void renderWidget(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float pPartialTick) {
         super.renderWidget(guiGraphics, mouseX, mouseY, pPartialTick);
 
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
 
-        String text = camera.isEmpty() ? "-" : camera.getItem().getFilm(camera.getStack()).map(film -> {
+        String text = camera.get().getItem().getFilm(camera.get().getStack()).map(film -> {
             int exposedFrames = film.getItem().getExposedFrames(film.getStack()).size();
             int totalFrames = film.getItem().getMaxFrameCount(film.getStack());
             return exposedFrames + "/" + totalFrames;
@@ -56,10 +57,9 @@ public class FrameCounterButton extends ImageButton implements IElementWithToolt
         List<Component> components = new ArrayList<>();
         components.add(Component.translatable("gui.exposure.viewfinder.film_frame_counter.tooltip"));
 
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
-        if (!camera.isEmpty() && camera.getItem().getFilm(camera.getStack()).isEmpty()) {
-            components.add(Component.translatable("gui.exposure.viewfinder.film_frame_counter.tooltip.no_film")
-                    .withStyle(Style.EMPTY.withColor(0xdd6357)));
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
+        if (camera.get().getItem().getFilm(camera.get().getStack()).isEmpty()) {
+            components.add(Component.translatable("gui.exposure.viewfinder.film_frame_counter.tooltip.no_film").withStyle(Style.EMPTY.withColor(0xdd6357)));
         }
 
         guiGraphics.renderTooltip(Minecraft.getInstance().font, components, Optional.empty(), mouseX, mouseY);

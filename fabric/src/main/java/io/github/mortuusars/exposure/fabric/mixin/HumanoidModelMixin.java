@@ -1,5 +1,7 @@
 package io.github.mortuusars.exposure.fabric.mixin;
 
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.item.CameraItemClientExtensions;
 import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.client.Minecraft;
@@ -10,12 +12,15 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(HumanoidModel.class)
 public abstract class HumanoidModelMixin<T extends LivingEntity> extends AgeableListModel<T> {
@@ -28,15 +33,15 @@ public abstract class HumanoidModelMixin<T extends LivingEntity> extends Ageable
         if (!(entity instanceof Player player))
             return;
 
-        CameraInHand camera = CameraInHand.getActive(player);
-        if (camera.isEmpty())
+        @Nullable Camera<CameraItem> camera = CameraInHand.ofPlayer(player, CameraItem.class);
+        if (!(camera instanceof CameraInHand<CameraItem> cameraInHand))
             return;
 
         HumanoidArm arm = Minecraft.getInstance().options.mainHand().get();
-        if (camera.getHand() == InteractionHand.OFF_HAND)
+        if (cameraInHand.getHand() == InteractionHand.OFF_HAND)
             arm = arm.getOpposite();
 
-        if (camera.getCamera().getItem().isInSelfieMode(camera.getStack()))
+        if (camera.get().getItem().isInSelfieMode(camera.get().getStack()))
             CameraItemClientExtensions.applySelfieHoldingPose((HumanoidModel<?>) (Object) this, entity, arm, false);
         else
             CameraItemClientExtensions.applyDefaultHoldingPose((HumanoidModel<?>) (Object) this, entity, arm);

@@ -194,7 +194,7 @@ public class ChromaticSheetItem extends Item {
                 int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
                 int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
 
-                int rgb = 0xFF << 24 | r << 16 | g << 8 | b;
+                int rgb = 0xFF << 24 | b << 16 | g << 8 | r;
 
                 image.setPixelRGBA(x, y, rgb);
             }

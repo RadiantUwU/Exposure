@@ -1,10 +1,9 @@
 package io.github.mortuusars.exposure.gui.screen.camera.button;
 
-import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FlashMode;
-import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,9 +28,8 @@ public class FlashModeButton extends CycleButton {
         super(screen, x, y, width, height, u, v, height, texture);
         flashModes = Arrays.stream(FlashMode.values()).toList();
 
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
-        Preconditions.checkState(!camera.isEmpty(), "Player must hold an active camera at this point.");
-        FlashMode guide = camera.getItem().getFlashMode(camera.getStack());
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
+        FlashMode guide = camera.get().getItem().getFlashMode(camera.get().getStack());
 
         int currentGuideIndex = 0;
 
@@ -73,6 +71,6 @@ public class FlashModeButton extends CycleButton {
 
     @Override
     protected void onCycle() {
-        SynchronizedCameraInHandActions.setFlashMode(flashModes.get(currentIndex));
+        CameraClient.setFlashMode(flashModes.get(currentIndex));
     }
 }

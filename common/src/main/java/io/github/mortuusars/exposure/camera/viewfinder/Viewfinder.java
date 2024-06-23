@@ -4,21 +4,19 @@ package io.github.mortuusars.exposure.camera.viewfinder;
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
-import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
-import io.github.mortuusars.exposure.data.filter.Filters;
 import io.github.mortuusars.exposure.item.CameraItem;
-import io.github.mortuusars.exposure.util.CameraInHand;
+import io.github.mortuusars.exposure.network.Packets;
+import io.github.mortuusars.exposure.network.packet.server.CameraSetSelfieModeC2SP;
 import io.github.mortuusars.exposure.util.Fov;
-import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.PostChain;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -50,18 +48,17 @@ public class Viewfinder {
         if (isOpen())
             return;
 
-        @Nullable InteractionHand activeHand = CameraInHand.getActiveHand(player);
-        Preconditions.checkState(activeHand != null, "Player should have active camera in hand.");
+        Camera<?> camera = Camera.getCamera(player).orElseThrow();
+        CameraItem cameraItem = camera.get().getItem();
+        ItemStack cameraStack = camera.get().getStack();
 
-        ItemAndStack<CameraItem> camera = new ItemAndStack<>(player.getItemInHand(activeHand));
-
-        focalRange = camera.getItem().getFocalRange(camera.getStack());
-        targetFov = Fov.focalLengthToFov(Mth.clamp(camera.getItem().getFocalLength(camera.getStack()), focalRange.min(), focalRange.max()));
+        focalRange = cameraItem.getFocalRange(cameraStack);
+        targetFov = Fov.focalLengthToFov(Mth.clamp(cameraItem.getFocalLength(cameraStack), focalRange.min(), focalRange.max()));
 
         isOpen = true;
 
         ViewfinderShader.setPrevious(ViewfinderShader.getCurrent().orElse(null));
-        SelfieClient.update(camera, activeHand, false);
+        ViewfinderShader.update();
         ViewfinderOverlay.setup();
     }
 
@@ -69,10 +66,20 @@ public class Viewfinder {
         @Nullable LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
 
+        updateSelfieMode();
         ViewfinderShader.update();
     }
 
+    public static void updateSelfieMode() {
+        boolean inSelfieMode = Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT;
+        CameraClient.setSelfieMode(inSelfieMode);
+    }
+
     public static void close() {
+        if (!isOpen()) {
+            return;
+        }
+
         isOpen = false;
         targetFov = Minecraft.getInstance().options.fov().get();
 
@@ -110,7 +117,8 @@ public class Viewfinder {
             Objects.requireNonNull(Minecraft.getInstance().player).playSound(Exposure.SoundEvents.CAMERA_LENS_RING_CLICK.get());
 
         targetFov = fov;
-        SynchronizedCameraInHandActions.setZoom(Fov.fovToFocalLength(fov));
+
+        CameraClient.setZoom(Fov.fovToFocalLength(fov));
     }
 
     public static double modifyMouseSensitivity(double sensitivity) {

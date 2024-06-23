@@ -40,9 +40,9 @@ public class PacketsImpl {
                 .decoder(OpenCameraAttachmentsPacketC2SP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
-        CHANNEL.messageBuilder(DeactivateCamerasInHandC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(DeactivateCamerasInHandC2SP::toBuffer)
-                .decoder(DeactivateCamerasInHandC2SP::fromBuffer)
+        CHANNEL.messageBuilder(DeactivateCameraC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(DeactivateCameraC2SP::toBuffer)
+                .decoder(DeactivateCameraC2SP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
         CHANNEL.messageBuilder(CameraSetZoomC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
@@ -65,9 +65,9 @@ public class PacketsImpl {
                 .decoder(CameraSetShutterSpeedC2SP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
-        CHANNEL.messageBuilder(CameraInHandAddFrameC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(CameraInHandAddFrameC2SP::toBuffer)
-                .decoder(CameraInHandAddFrameC2SP::fromBuffer)
+        CHANNEL.messageBuilder(CameraAddFrameC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(CameraAddFrameC2SP::toBuffer)
+                .decoder(CameraAddFrameC2SP::fromBuffer)
                 .consumerMainThread(PacketsImpl::handlePacket)
                 .add();
         CHANNEL.messageBuilder(CameraSetSelfieModeC2SP.class, id++, NetworkDirection.PLAY_TO_SERVER)

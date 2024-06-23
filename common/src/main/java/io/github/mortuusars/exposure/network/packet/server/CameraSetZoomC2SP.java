@@ -2,6 +2,7 @@ package io.github.mortuusars.exposure.network.packet.server;
 
 import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.packet.IPacket;
 import io.github.mortuusars.exposure.util.CameraInHand;
@@ -29,13 +30,8 @@ public record CameraSetZoomC2SP(double focalLength) implements IPacket {
 
     @Override
     public boolean handle(PacketDirection direction, @Nullable Player player) {
-        Preconditions.checkState(player != null, "Cannot handle packet: Player was null");
-
-        CameraInHand camera = CameraInHand.getActive(player);
-        if (!camera.isEmpty()) {
-            camera.getItem().setZoom(camera.getStack(), focalLength);
-        }
-
+        Preconditions.checkState(player != null, "Cannot handle packet {}: Player was null", ID);
+        Camera.getCamera(player).ifPresent(c -> c.get().getItem().setZoom(c.get().getStack(), focalLength));
         return true;
     }
 }

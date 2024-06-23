@@ -3,8 +3,9 @@ package io.github.mortuusars.exposure.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
-import io.github.mortuusars.exposure.camera.viewfinder.SelfieClient;
 import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
 import io.github.mortuusars.exposure.gui.ClientGUI;
 import io.github.mortuusars.exposure.gui.screen.camera.ViewfinderControlsScreen;
@@ -14,13 +15,20 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class KeyboardHandler {
     public static boolean handleViewfinderKeyPress(long windowId, int key, int scanCode, int action, int modifiers) {
         Minecraft minecraft = Minecraft.getInstance();
         @Nullable LocalPlayer player = minecraft.player;
-
-        if (player == null || !CameraInHand.isActive(player))
+        if (player == null) {
             return false;
+        }
+
+        Optional<Camera<?>> cameraOptional = CameraClient.getCamera();
+        if (cameraOptional.isEmpty()) {
+            return false;
+        }
 
         if (!Config.Common.CAMERA_VIEWFINDER_ATTACK.get()
                 && Minecraft.getInstance().options.keyAttack.matches(key, scanCode)
@@ -37,21 +45,17 @@ public class KeyboardHandler {
                     : CameraType.FIRST_PERSON;
 
             minecraft.options.setCameraType(newCameraType);
-
-            CameraInHand camera = CameraInHand.getActive(player);
-
-            SelfieClient.update(camera.getCamera(), camera.getHand(), true);
-
             return true;
         }
 
 
         if (key == InputConstants.KEY_ESCAPE || minecraft.options.keyInventory.matches(key, scanCode)) {
-            if (action == 0) { // Release
-                if (minecraft.screen instanceof ViewfinderControlsScreen viewfinderControlsScreen)
+            if (action == InputConstants.PRESS) { // TODO: Check if activating on release is not causing problems
+                if (minecraft.screen instanceof ViewfinderControlsScreen viewfinderControlsScreen) {
                     viewfinderControlsScreen.onClose();
-                else
-                    CameraInHand.deactivate(player);
+                } else {
+                    CameraClient.deactivate(player);
+                }
             }
             return true;
         }

@@ -7,6 +7,7 @@ import io.github.mortuusars.exposure.block.FlashBlock;
 import io.github.mortuusars.exposure.block.LightroomBlock;
 import io.github.mortuusars.exposure.block.entity.FlashBlockEntity;
 import io.github.mortuusars.exposure.block.entity.LightroomBlockEntity;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.command.argument.ExposureLookArgument;
 import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
@@ -19,6 +20,7 @@ import io.github.mortuusars.exposure.menu.*;
 import io.github.mortuusars.exposure.recipe.FilmDevelopingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographAgingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographCopyingRecipe;
+import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
@@ -64,6 +66,8 @@ public class Exposure {
         RecipeSerializers.init();
         SoundEvents.init();
         ArgumentTypes.init();
+
+        Camera.registerCameraGetter(Exposure.resource("camera_in_hand"), player -> CameraInHand.ofPlayer(player, CameraItem.class));
     }
 
     public static void initServer(MinecraftServer server) {

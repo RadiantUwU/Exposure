@@ -22,7 +22,7 @@ public abstract class LocalPlayerTickMixin extends Player {
     private void onPlayerTickEnd(CallbackInfo ci) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (((LocalPlayer)(Object)this).equals(player)) {
-            Camera.getCamera(player).onLocalPlayerTick(player);
+            Camera.onLocalPlayerTick(player);
         }
     }
 }

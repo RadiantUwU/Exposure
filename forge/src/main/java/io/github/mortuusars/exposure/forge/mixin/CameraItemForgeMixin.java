@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.forge.mixin;
 
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.item.CameraItem;
 import io.github.mortuusars.exposure.forge.item.CameraItemForgeClientExtensions;
 import io.github.mortuusars.exposure.util.CameraInHand;
@@ -31,8 +32,12 @@ public abstract class CameraItemForgeMixin extends Item implements IForgeItem {
         Player player = context.getPlayer();
         if (player != null) {
             InteractionHand hand = context.getHand();
-            if (hand == InteractionHand.MAIN_HAND && CameraInHand.getActiveHand(player) == InteractionHand.OFF_HAND)
+
+            if (hand == InteractionHand.MAIN_HAND && Camera.getCamera(player)
+                    .filter(c -> c instanceof CameraInHand<?>)
+                    .map(c -> ((CameraInHand<?>) c).getHand() == InteractionHand.OFF_HAND).orElse(false)) {
                 return InteractionResult.PASS;
+            }
 
             return useCamera(player, hand);
         }

@@ -1,11 +1,10 @@
 package io.github.mortuusars.exposure.gui.screen.camera.button;
 
-import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.CompositionGuide;
 import io.github.mortuusars.exposure.camera.infrastructure.CompositionGuides;
-import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -28,9 +27,9 @@ public class CompositionGuideButton extends CycleButton {
         super(screen, x, y, width, height, u, v, height, texture);
         guides = CompositionGuides.getGuides();
 
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
-        Preconditions.checkState(!camera.isEmpty(), "Player must hold an active camera at this point.");
-        CompositionGuide guide = camera.getItem().getCompositionGuide(camera.getStack());
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
+
+        CompositionGuide guide = camera.get().getItem().getCompositionGuide(camera.get().getStack());
 
         int currentGuideIndex = 0;
 
@@ -72,6 +71,6 @@ public class CompositionGuideButton extends CycleButton {
 
     @Override
     protected void onCycle() {
-        SynchronizedCameraInHandActions.setCompositionGuide(guides.get(currentIndex));
+        CameraClient.setCompositionGuide(guides.get(currentIndex));
     }
 }

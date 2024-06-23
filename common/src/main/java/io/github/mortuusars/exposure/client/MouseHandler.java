@@ -3,10 +3,13 @@ package io.github.mortuusars.exposure.client;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.gui.ClientGUI;
 import io.github.mortuusars.exposure.gui.screen.camera.ViewfinderControlsScreen;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+
+import java.util.Optional;
 
 public class MouseHandler {
     private static final boolean[] heldMouseButtons = new boolean[12];
@@ -15,9 +18,17 @@ public class MouseHandler {
         if (button >= 0 && button < heldMouseButtons.length)
             heldMouseButtons[button] = action == InputConstants.PRESS;
 
-        if (Minecraft.getInstance().player != null && CameraInHand.isActive(Minecraft.getInstance().player)
-                && !(Minecraft.getInstance().screen instanceof ViewfinderControlsScreen)) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return false;
+        }
 
+        Optional<Camera<?>> cameraOpt = Camera.getCamera(player);
+        if (cameraOpt.isEmpty()) {
+            return false;
+        }
+
+        if (!(Minecraft.getInstance().screen instanceof ViewfinderControlsScreen)) {
             if (!Config.Common.CAMERA_VIEWFINDER_ATTACK.get() && Minecraft.getInstance().options.keyAttack.matchesMouse(button))
                 return true; // Block attacks
 

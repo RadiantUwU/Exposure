@@ -1,11 +1,10 @@
 package io.github.mortuusars.exposure.gui.screen.camera.button;
 
-import com.google.common.base.Preconditions;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.Camera;
+import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.ShutterSpeed;
-import io.github.mortuusars.exposure.camera.infrastructure.SynchronizedCameraInHandActions;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,16 +28,15 @@ public class ShutterSpeedButton extends CycleButton {
     public ShutterSpeedButton(Screen screen, int x, int y, int width, int height, int u, int v, ResourceLocation texture) {
         super(screen, x, y, width, height, u, v, height, texture);
 
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
-        Preconditions.checkState(!camera.isEmpty(), "Player must hold an active camera at this point.");
+        Camera<?> camera = CameraClient.getCamera().orElseThrow();
 
-        List<ShutterSpeed> speeds = new ArrayList<>(camera.getItem().getAllShutterSpeeds(camera.getStack()));
+        List<ShutterSpeed> speeds = new ArrayList<>(camera.get().getItem().getAllShutterSpeeds(camera.get().getStack()));
         Collections.reverse(speeds);
         shutterSpeeds = speeds;
 
-        ShutterSpeed shutterSpeed = camera.getItem().getShutterSpeed(camera.getStack());
+        ShutterSpeed shutterSpeed = camera.get().getItem().getShutterSpeed(camera.get().getStack());
         if (!shutterSpeeds.contains(shutterSpeed)) {
-            throw new IllegalStateException("Camera {" + camera.getStack() + "} has invalid shutter speed.");
+            throw new IllegalStateException("Camera {" + camera.get().getStack() + "} has invalid shutter speed.");
         }
 
         int currentShutterSpeedIndex = 0;
@@ -83,11 +81,6 @@ public class ShutterSpeedButton extends CycleButton {
 
     @Override
     protected void onCycle() {
-        CameraInHand camera = CameraInHand.getActive(Minecraft.getInstance().player);
-        if (!camera.isEmpty()) {
-            if (camera.getItem().getShutterSpeed(camera.getStack()) != shutterSpeeds.get(currentIndex)) {
-                SynchronizedCameraInHandActions.setShutterSpeed(shutterSpeeds.get(currentIndex));
-            }
-        }
+        CameraClient.setShutterSpeed(shutterSpeeds.get(currentIndex));
     }
 }

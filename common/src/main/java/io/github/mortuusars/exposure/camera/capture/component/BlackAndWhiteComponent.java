@@ -14,10 +14,10 @@ public class BlackAndWhiteComponent implements ICaptureComponent {
         int blue = FastColor.ARGB32.blue(color);
 
         // Weights adding up to more than 1 - to make the image slightly brighter
-        int luma = Mth.clamp((int) (0.4 * red + 0.6 * green + 0.15 * blue), 0, 255);
+        int luma = Mth.clamp((int) (0.299 * red + 0.587 * green + 0.114 * blue), 0, 255);
 
         // Slightly increase the contrast
-        int contrast = 136;
+        int contrast = 145;
         luma = Mth.clamp((luma - 128) * contrast / 128 + 128, 0, 255);
 
         return FastColor.ARGB32.color(255, luma, luma, luma);
