@@ -260,11 +260,11 @@ public abstract class Capture {
                 component.teardown(this);
             }
 
-            CompoundTag properties = new CompoundTag();
-            properties.putString(ExposureSavedData.TYPE_PROPERTY, getFilmType().getSerializedName());
+            CompoundTag propertiesTag = new CompoundTag();
+            addSavedDataProperties(propertiesTag);
 
             for (ICaptureComponent component : components) {
-                component.save(pixels, modifiedImage.getWidth(), modifiedImage.getHeight(), properties);
+                component.save(pixels, modifiedImage.getWidth(), modifiedImage.getHeight(), propertiesTag);
             }
         } catch (Exception e) {
             Exposure.LOGGER.error(e.toString());
@@ -279,6 +279,10 @@ public abstract class Capture {
 
             isCapturing = false;
         }
+    }
+
+    protected void addSavedDataProperties(CompoundTag tag) {
+        tag.putString(ExposureSavedData.TYPE_PROPERTY, getFilmType().getSerializedName());
     }
 
     protected @Nullable NativeImage scaleCropAndProcess(@NotNull NativeImage sourceImage) {

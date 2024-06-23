@@ -4,7 +4,8 @@ import com.google.common.io.Files;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Either;
 import io.github.mortuusars.exposure.Exposure;
-import io.github.mortuusars.exposure.data.ImageLoader;
+import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringUtil;
@@ -32,6 +33,12 @@ public class FileCapture extends Capture {
 
     public String getFilepath() {
         return filepath;
+    }
+
+    @Override
+    protected void addSavedDataProperties(CompoundTag tag) {
+        super.addSavedDataProperties(tag);
+        tag.putBoolean(ExposureSavedData.FROM_FILE_PROPERTY, true);
     }
 
     @Override

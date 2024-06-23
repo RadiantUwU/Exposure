@@ -12,6 +12,7 @@ public class ExposureSavedData extends SavedData {
     public static final String TYPE_PROPERTY = "Type";
     public static final String WAS_PRINTED_PROPERTY = "WasPrinted";
     public static final String TIMESTAMP_PROPERTY = "Timestamp";
+    public static final String FROM_FILE_PROPERTY = "FromFile";
 
     private final int width;
     private final int height;
