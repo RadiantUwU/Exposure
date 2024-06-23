@@ -58,6 +58,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -793,6 +794,10 @@ public class CameraItem extends Item {
             ListTag entities = new ListTag();
 
             for (Entity entity : entitiesInFrame) {
+                if (entity instanceof EnderMan enderMan && player.equals(enderMan.getTarget()) && enderMan.isLookingAtMe(player)) {
+                    Exposure.Advancements.SNAP_ENDERMAN_EYES.trigger(player);
+                }
+
                 CompoundTag entityInfoTag = createEntityInFrameTag(entity, player, cameraStack);
                 if (entityInfoTag.isEmpty())
                     continue;

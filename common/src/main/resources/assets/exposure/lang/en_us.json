@@ -171,5 +171,7 @@
   "subtitle.exposure.photograph_frame.remove_item": "Photograph Frame empties",
   "subtitle.exposure.photograph_frame.rotate_item": "Photograph Frame clicks",
   "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details",
-  "subtitle.exposure.interplanar_projector.project": "Interplanar Projector activates"
+  "subtitle.exposure.interplanar_projector.project": "Interplanar Projector activates",
+  "advancement.exposure.snap_enderman.title": "Unforeseen Consequences",
+  "advancement.exposure.snap_enderman.description": "Anger an Enderman by taking a photograph of him"
 }

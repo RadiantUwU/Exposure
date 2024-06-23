@@ -171,5 +171,7 @@
   "subtitle.exposure.photograph_frame.remove_item": "Рамку для фотографії спустошено",
   "subtitle.exposure.photograph_frame.rotate_item": "Рамка для фотографії клацає",
   "tooltip.exposure.hold_for_details": "§8Утримуйте [§7Shift§8] для подробиць",
-  "subtitle.exposure.interplanar_projector.project": "Міжпланарний проєктор активується"
+  "subtitle.exposure.interplanar_projector.project": "Міжпланарний проєктор активується",
+  "advancement.exposure.snap_enderman.title": "Непередбачені наслідки",
+  "advancement.exposure.snap_enderman.description": "Розлютіть Ендермена, сфотографувавши його"
 }

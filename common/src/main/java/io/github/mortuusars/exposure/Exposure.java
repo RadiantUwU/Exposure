@@ -22,6 +22,7 @@ import io.github.mortuusars.exposure.recipe.PhotographAgingRecipe;
 import io.github.mortuusars.exposure.recipe.PhotographCopyingRecipe;
 import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.critereon.PlayerTrigger;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.Registry;
@@ -274,9 +275,11 @@ public class Exposure {
 
     public static class Advancements {
         public static CameraFilmFrameExposedTrigger FILM_FRAME_EXPOSED = new CameraFilmFrameExposedTrigger();
+        public static PlayerTrigger SNAP_ENDERMAN_EYES = new PlayerTrigger(Exposure.resource("snap_enderman_eyes"));
 
         public static void register() {
             CriteriaTriggers.register(FILM_FRAME_EXPOSED);
+            CriteriaTriggers.register(SNAP_ENDERMAN_EYES);
         }
     }
 

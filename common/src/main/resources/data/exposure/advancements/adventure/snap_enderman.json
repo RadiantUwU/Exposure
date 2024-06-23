@@ -1,0 +1,29 @@
+{
+  "parent": "exposure:adventure/expose_film",
+  "criteria": {
+    "snap_enderman": {
+      "trigger": "exposure:snap_enderman_eyes"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.exposure.snap_enderman.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:ender_eye"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.exposure.snap_enderman.title"
+    }
+  },
+  "requirements": [
+    [
+      "snap_enderman"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

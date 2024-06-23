@@ -24,3 +24,5 @@ accessible field net/minecraft/world/entity/decoration/ItemFrame DATA_ITEM Lnet/
 accessible field net/minecraft/world/entity/decoration/ItemFrame DATA_ROTATION Lnet/minecraft/network/syncher/EntityDataAccessor;
 accessible method net/minecraft/world/entity/decoration/ItemFrame setRotation (IZ)V
 accessible field net/minecraft/world/entity/decoration/ItemFrame fixed Z
+
+accessible method net/minecraft/world/entity/monster/EnderMan isLookingAtMe (Lnet/minecraft/world/entity/player/Player;)Z
