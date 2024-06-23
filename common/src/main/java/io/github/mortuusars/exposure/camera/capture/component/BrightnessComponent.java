@@ -12,7 +12,7 @@ import java.util.Objects;
 @SuppressWarnings("unused")
 public class BrightnessComponent implements ICaptureComponent {
     public float gammaPerStop = 0.01f;
-    public float brightenPerStop = 0.4f;
+    public float brightenPerStop = 0.3f;
     public float darkenPerStop = 0.3f;
 
     private final float brightnessStops;
