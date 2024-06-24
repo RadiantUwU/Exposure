@@ -1,0 +1,34 @@
+{
+  "parent": "exposure:adventure/flash",
+  "criteria": {
+    "project": {
+      "conditions": {
+        "exposure": {
+          "nbt": "{Projected:1b}"
+        }
+      },
+      "trigger": "exposure:frame_exposed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.exposure.use_interplanar_projector.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "exposure:interplanar_projector"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.exposure.use_interplanar_projector.title"
+    }
+  },
+  "requirements": [
+    [
+      "project"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

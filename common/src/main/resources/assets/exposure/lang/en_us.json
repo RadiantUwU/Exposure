@@ -7,8 +7,12 @@
   "advancement.exposure.get_chromatic_photograph.title": "Composite Confounded Compound",
   "advancement.exposure.get_photograph.description": "Get a Photograph",
   "advancement.exposure.get_photograph.title": "A Moment in Time",
+  "advancement.exposure.snap_enderman.description": "Anger an Enderman by taking a photograph of him",
+  "advancement.exposure.snap_enderman.title": "Unforeseen Consequences",
   "advancement.exposure.take_selfie.description": "Take a selfie using third-person view",
   "advancement.exposure.take_selfie.title": "Was that a spotlight? On me?",
+  "advancement.exposure.use_interplanar_projector.description": "Use Interplanar Projector to capture an image from another plane",
+  "advancement.exposure.use_interplanar_projector.title": "A Piercing Gaze",
   "advancement.exposure.void.description": "Take a Photograph in the End",
   "advancement.exposure.void.title": "It's a Brilliant Surface in That Void!",
   "block.exposure.lightroom": "Lightroom",
@@ -161,6 +165,7 @@
   "subtitle.exposure.camera.shutter": "Camera shutter clangs",
   "subtitle.exposure.camera.viewfinder_close": "Camera viewfinder closes",
   "subtitle.exposure.camera.viewfinder_open": "Camera viewfinder opens",
+  "subtitle.exposure.interplanar_projector.project": "Interplanar Projector activates",
   "subtitle.exposure.lightroom.print": "Lightroom prints a Photograph",
   "subtitle.exposure.photograph.break": "Photograph broken",
   "subtitle.exposure.photograph.place": "Photograph placed",
@@ -170,8 +175,5 @@
   "subtitle.exposure.photograph_frame.place": "Photograph Frame placed",
   "subtitle.exposure.photograph_frame.remove_item": "Photograph Frame empties",
   "subtitle.exposure.photograph_frame.rotate_item": "Photograph Frame clicks",
-  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details",
-  "subtitle.exposure.interplanar_projector.project": "Interplanar Projector activates",
-  "advancement.exposure.snap_enderman.title": "Unforeseen Consequences",
-  "advancement.exposure.snap_enderman.description": "Anger an Enderman by taking a photograph of him"
+  "tooltip.exposure.hold_for_details": "§8Hold [§7Shift§8] for Details"
 }
