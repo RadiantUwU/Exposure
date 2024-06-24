@@ -244,7 +244,7 @@ public class Config {
                 FLASH_CAPTURE_DELAY_TICKS = builder
                         .comment("Delay in ticks before capturing an image when shooting with flash." +
                                 "\nIf you experience flash synchronization issues (Flash having no effect on the image) - try increasing the value.")
-                        .defineInRange("FlashCaptureDelayTicks", 3, 1, 6);
+                        .defineInRange("FlashCaptureDelayTicks", 4, 1, 7);
                 builder.pop();
             }
 

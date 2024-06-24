@@ -15,7 +15,7 @@ public class FlashBlockEntity extends BlockEntity {
     private int ticks;
     public FlashBlockEntity(BlockPos pos, BlockState blockState) {
         super(Exposure.BlockEntityTypes.FLASH.get(), pos, blockState);
-        ticks = 6;
+        ticks = 7;
     }
 
     @SuppressWarnings("unused")
