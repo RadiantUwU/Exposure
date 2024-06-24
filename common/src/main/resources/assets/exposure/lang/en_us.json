@@ -1,4 +1,6 @@
 {
+  "advancement.exposure.exposed_paparazzi.description": "Forget to turn off the Flash while sneakily photographing a Villager",
+  "advancement.exposure.exposed_paparazzi.title": "Exposed Paparazzi",
   "advancement.exposure.exposure.description": "Use Camera to expose a Film frame",
   "advancement.exposure.exposure.title": "Exposure",
   "advancement.exposure.flash.description": "Use flash when taking a photograph in the dark",
@@ -9,6 +11,8 @@
   "advancement.exposure.get_photograph.title": "A Moment in Time",
   "advancement.exposure.snap_enderman.description": "Anger an Enderman by taking a photograph of him",
   "advancement.exposure.snap_enderman.title": "Unforeseen Consequences",
+  "advancement.exposure.spider_man.description": "Photograph a Spider Jockey",
+  "advancement.exposure.spider_man.title": "I need photos of Spider...Man?",
   "advancement.exposure.take_selfie.description": "Take a selfie using third-person view",
   "advancement.exposure.take_selfie.title": "Was that a spotlight? On me?",
   "advancement.exposure.use_interplanar_projector.description": "Use Interplanar Projector to capture an image from another plane",

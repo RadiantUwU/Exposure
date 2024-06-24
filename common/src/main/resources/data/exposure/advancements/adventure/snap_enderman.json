@@ -1,5 +1,5 @@
 {
-  "parent": "exposure:adventure/expose_film",
+  "parent": "exposure:adventure/exposed_paparazzi",
   "criteria": {
     "snap_enderman": {
       "trigger": "exposure:snap_enderman_eyes"

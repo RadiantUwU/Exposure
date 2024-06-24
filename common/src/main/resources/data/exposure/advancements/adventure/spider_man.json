@@ -1,0 +1,39 @@
+{
+  "parent": "exposure:adventure/snap_enderman",
+  "criteria": {
+    "spider_man": {
+      "conditions": {
+        "exposure": {
+          "entity_in_frame": {
+            "type": "minecraft:skeleton",
+            "vehicle": {
+              "type": "minecraft:spider"
+            }
+          }
+        }
+      },
+      "trigger": "exposure:frame_exposed"
+    }
+  },
+  "display": {
+    "frame": "task",
+    "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": true,
+    "icon": {
+      "item": "minecraft:cobweb"
+    },
+    "title": {
+      "translate": "advancement.exposure.spider_man.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.spider_man.description"
+    }
+  },
+  "requirements": [
+    [
+      "spider_man"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

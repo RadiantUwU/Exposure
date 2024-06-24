@@ -43,8 +43,8 @@ public class FrameExposedTrigger extends SimpleCriterionTrigger<FrameExposedTrig
         public TriggerInstance(ContextAwarePredicate predicate, CameraPredicate cameraPredicate, ExposurePredicate exposurePredicate, LocationPredicate locationPredicate) {
             super(ID, predicate);
             this.cameraPredicate = cameraPredicate;
-            this.locationPredicate = locationPredicate;
             this.exposurePredicate = exposurePredicate;
+            this.locationPredicate = locationPredicate;
         }
 
         public boolean matches(ServerPlayer player, ItemAndStack<CameraItem> camera, CompoundTag frame, List<Entity> entitiesInFrame) {

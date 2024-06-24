@@ -1,0 +1,44 @@
+{
+  "parent": "exposure:adventure/expose_film",
+  "criteria": {
+    "shoot_with_flash": {
+      "conditions": {
+        "exposure": {
+          "day_time": {
+            "min": 13000,
+            "max": 23000
+          },
+          "nbt": "{Flash:1b}",
+          "entity_in_frame": {
+            "type": "minecraft:villager",
+            "distance": {
+              "min": 5
+            }
+          }
+        }
+      },
+      "trigger": "exposure:frame_exposed"
+    }
+  },
+  "display": {
+    "frame": "task",
+    "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": true,
+    "icon": {
+      "item": "minecraft:jack_o_lantern"
+    },
+    "title": {
+      "translate": "advancement.exposure.exposed_paparazzi.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.exposed_paparazzi.description"
+    }
+  },
+  "requirements": [
+    [
+      "shoot_with_flash"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

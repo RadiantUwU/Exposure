@@ -1,4 +1,6 @@
 {
+  "advancement.exposure.exposed_paparazzi.description": "Забудьте вимкнути спалах намагаючись тихенько сфотографувати селянина",
+  "advancement.exposure.exposed_paparazzi.title": "Викритий папараці",
   "advancement.exposure.exposure.description": "Проекспонуйте кадр плівки",
   "advancement.exposure.exposure.title": "Експозиція",
   "advancement.exposure.flash.description": "Використайте спалах під час фотографування в темряві",
@@ -9,6 +11,8 @@
   "advancement.exposure.get_photograph.title": "Момент у часі",
   "advancement.exposure.snap_enderman.description": "Розлютіть Ендермена, сфотографувавши його",
   "advancement.exposure.snap_enderman.title": "Непередбачені наслідки",
+  "advancement.exposure.spider_man.description": "Сфотографуйте павука-жокея",
+  "advancement.exposure.spider_man.title": "Мені потрібні фото Людини?...-Павука!",
   "advancement.exposure.take_selfie.description": "Зробіть селфі використовуючи вид від третьої особи",
   "advancement.exposure.take_selfie.title": "Я не лише зірка, але й центр галактики!",
   "advancement.exposure.use_interplanar_projector.description": "Спроєктуйте зображення за допомогою Міжпланарного проєктора",
