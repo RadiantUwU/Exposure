@@ -4,25 +4,29 @@
     "take_selfie": {
       "conditions": {
         "exposure": {
-          "nbt": "{Selfie:1b}"
+          "nbt": "{Selfie:1b}",
+          "entities_count": 1,
+          "entity_in_frame": {
+            "type": "minecraft:player"
+          }
         }
       },
       "trigger": "exposure:frame_exposed"
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.take_selfie.description"
-    },
     "frame": "task",
     "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "minecraft:player_head"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.take_selfie.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.take_selfie.description"
     }
   },
   "requirements": [

@@ -17,18 +17,18 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.get_photograph.description"
-    },
     "frame": "task",
     "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "exposure:photograph"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.get_photograph.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.get_photograph.description"
     }
   },
   "requirements": [

@@ -11,18 +11,18 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.void.description"
-    },
     "frame": "task",
     "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "minecraft:end_stone_bricks"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.void.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.void.description"
     }
   },
   "requirements": [

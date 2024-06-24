@@ -11,18 +11,18 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.use_interplanar_projector.description"
-    },
     "frame": "task",
     "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "exposure:interplanar_projector"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.use_interplanar_projector.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.use_interplanar_projector.description"
     }
   },
   "requirements": [

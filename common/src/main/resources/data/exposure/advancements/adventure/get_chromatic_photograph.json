@@ -17,19 +17,19 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.get_chromatic_photograph.description"
-    },
     "frame": "task",
     "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "exposure:chromatic_sheet",
       "nbt": "{Exposures:[{Id:\"1\"},{Id:\"2\"},{Id:\"3\"}]}"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.get_chromatic_photograph.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.get_chromatic_photograph.description"
     }
   },
   "requirements": [

@@ -7,19 +7,19 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.exposure.description"
-    },
     "frame": "task",
     "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "exposure:camera",
       "nbt": "{Active:1b}"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.exposure.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.exposure.description"
     }
   },
   "requirements": [

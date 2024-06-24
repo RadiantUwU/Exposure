@@ -5,7 +5,7 @@
       "conditions": {
         "exposure": {
           "light_level": {
-            "max": 4
+            "max": 3
           },
           "nbt": "{Flash:1b}"
         }
@@ -14,18 +14,18 @@
     }
   },
   "display": {
-    "announce_to_chat": true,
-    "description": {
-      "translate": "advancement.exposure.flash.description"
-    },
     "frame": "task",
     "hidden": false,
+    "show_toast": true,
+    "announce_to_chat": true,
     "icon": {
       "item": "minecraft:redstone_lamp"
     },
-    "show_toast": true,
     "title": {
       "translate": "advancement.exposure.flash.title"
+    },
+    "description": {
+      "translate": "advancement.exposure.flash.description"
     }
   },
   "requirements": [

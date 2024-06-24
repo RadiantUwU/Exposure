@@ -51,6 +51,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -521,6 +522,7 @@ public class CameraItem extends Item {
         frame.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
 
         if (!projectingFile) {
+            frame.putInt(FrameData.FOCAL_LENGTH, Mth.ceil(getFocalLength(cameraStack)));
             frame.putInt(FrameData.LIGHT_LEVEL, lightLevel);
             frame.putFloat(FrameData.SUN_ANGLE, player.level().getSunAngle(0));
             if (flashHasFired)
@@ -653,22 +655,22 @@ public class CameraItem extends Item {
         return capture;
     }
 
-    public void addFrame(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entities) {
-        if (!frame.getBoolean(FrameData.PROJECTED)) {
-            addFrameData(player, cameraStack, frame, entities);
+    public void addFrame(ServerPlayer player, ItemStack cameraStack, CompoundTag frameTag, List<Entity> entities) {
+        if (!frameTag.getBoolean(FrameData.PROJECTED)) {
+            addFrameData(player, cameraStack, frameTag, entities);
         }
 
-        PlatformHelper.fireModifyFrameDataEvent(player, cameraStack, frame, entities);
+        PlatformHelper.fireModifyFrameDataEvent(player, cameraStack, frameTag, entities);
 
-        addFrameToFilm(cameraStack, frame);
+        addFrameToFilm(cameraStack, frameTag);
 
         player.awardStat(Exposure.Stats.FILM_FRAMES_EXPOSED);
-        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(player, new ItemAndStack<>(cameraStack), frame);
+        Exposure.Advancements.FILM_FRAME_EXPOSED.trigger(player, new ItemAndStack<>(cameraStack), frameTag, entities);
 
-        PlatformHelper.fireFrameAddedEvent(player, cameraStack, frame);
+        PlatformHelper.fireFrameAddedEvent(player, cameraStack, frameTag);
 
-        onFrameAdded(player, cameraStack, frame, entities);
-        Packets.sendToClient(new OnFrameAddedS2CP(frame), player);
+        onFrameAdded(player, cameraStack, frameTag, entities);
+        Packets.sendToClient(new OnFrameAddedS2CP(frameTag), player);
     }
 
     public void onFrameAdded(ServerPlayer player, ItemStack cameraStack, CompoundTag frame, List<Entity> entities) {
@@ -764,6 +766,8 @@ public class CameraItem extends Item {
         pos.add(IntTag.valueOf(player.blockPosition().getZ()));
         frame.put(FrameData.POSITION, pos);
 
+        frame.putInt(FrameData.DAYTIME, (int) level.getDayTime());
+
         frame.putString(FrameData.DIMENSION, player.level().dimension().location().toString());
 
         player.level().getBiome(player.blockPosition()).unwrapKey().map(ResourceKey::location)
@@ -795,6 +799,9 @@ public class CameraItem extends Item {
 
             for (Entity entity : entitiesInFrame) {
                 if (entity instanceof EnderMan enderMan && player.equals(enderMan.getTarget()) && enderMan.isLookingAtMe(player)) {
+                    // I wanted to implement this in a predicate,
+                    // but it's tricky because EntitySubPredicates do not get the player in their 'match' method.
+                    // So it's just easier to hardcode it like this.
                     Exposure.Advancements.SNAP_ENDERMAN_EYES.trigger(player);
                 }
 

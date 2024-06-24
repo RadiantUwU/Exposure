@@ -36,10 +36,11 @@ public class FrameData {
     public static final String ENTITY_POSITION = "Pos";
     public static final String ENTITY_DISTANCE = "Distance";
     public static final String ENTITY_PLAYER_NAME = "Name";
+    public static final String DAYTIME = "DayTime";
 
     /**
-     * If both are defined - 'Id' takes priority.
-     * @return 'Either.left("")' if not found.
+     * If both are defined - ID takes priority.
+     * @return 'Either.left("")' if nothing is defined.
      */
     public static Either<String, ResourceLocation> getIdOrTexture(@NotNull CompoundTag tag) {
         String id = tag.getString(ID);

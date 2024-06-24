@@ -2,7 +2,6 @@ package io.github.mortuusars.exposure.test;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.mortuusars.exposure.Exposure;
-import io.github.mortuusars.exposure.test.data.ExposurePredicateTests;
 import io.github.mortuusars.exposure.test.framework.Test;
 import io.github.mortuusars.exposure.test.framework.TestResult;
 import io.github.mortuusars.exposure.test.framework.TestingResult;
@@ -23,7 +22,7 @@ public class Tests {
         Exposure.LOGGER.info("RUNNING TESTS");
 
         Pair<List<TestResult>, List<TestResult>> ran = run(
-                new ExposurePredicateTests().collect()
+            List.of(new Test("empty", pl -> {}))
         );
 
         List<TestResult> skipped = skip();

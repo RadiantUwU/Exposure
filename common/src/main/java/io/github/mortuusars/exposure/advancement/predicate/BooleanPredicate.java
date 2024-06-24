@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.advancement;
+package io.github.mortuusars.exposure.advancement.predicate;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;

@@ -2,7 +2,7 @@ package io.github.mortuusars.exposure;
 
 import com.google.common.base.Preconditions;
 import com.mojang.logging.LogUtils;
-import io.github.mortuusars.exposure.advancement.trigger.CameraFilmFrameExposedTrigger;
+import io.github.mortuusars.exposure.advancement.trigger.FrameExposedTrigger;
 import io.github.mortuusars.exposure.block.FlashBlock;
 import io.github.mortuusars.exposure.block.LightroomBlock;
 import io.github.mortuusars.exposure.block.entity.FlashBlockEntity;
@@ -274,7 +274,7 @@ public class Exposure {
     }
 
     public static class Advancements {
-        public static CameraFilmFrameExposedTrigger FILM_FRAME_EXPOSED = new CameraFilmFrameExposedTrigger();
+        public static FrameExposedTrigger FILM_FRAME_EXPOSED = new FrameExposedTrigger();
         public static PlayerTrigger SNAP_ENDERMAN_EYES = new PlayerTrigger(Exposure.resource("snap_enderman_eyes"));
 
         public static void register() {
