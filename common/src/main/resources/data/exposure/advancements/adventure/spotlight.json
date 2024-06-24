@@ -1,5 +1,5 @@
 {
-  "parent": "exposure:adventure/expose_film",
+  "parent": "exposure:adventure/exposure",
   "criteria": {
     "take_selfie": {
       "conditions": {
@@ -23,10 +23,10 @@
       "item": "minecraft:player_head"
     },
     "title": {
-      "translate": "advancement.exposure.take_selfie.title"
+      "translate": "advancement.exposure.spotlight.title"
     },
     "description": {
-      "translate": "advancement.exposure.take_selfie.description"
+      "translate": "advancement.exposure.spotlight.description"
     }
   },
   "requirements": [

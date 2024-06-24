@@ -1,7 +1,7 @@
 {
-  "parent": "exposure:adventure/snap_enderman",
+  "parent": "exposure:adventure/unforeseen_consequences",
   "criteria": {
-    "spider_man": {
+    "photograph_spider_man": {
       "conditions": {
         "exposure": {
           "entity_in_frame": {
@@ -24,15 +24,15 @@
       "item": "minecraft:cobweb"
     },
     "title": {
-      "translate": "advancement.exposure.spider_man.title"
+      "translate": "advancement.exposure.photos_of_spider_man.title"
     },
     "description": {
-      "translate": "advancement.exposure.spider_man.description"
+      "translate": "advancement.exposure.photos_of_spider_man.description"
     }
   },
   "requirements": [
     [
-      "spider_man"
+      "photograph_spider_man"
     ]
   ],
   "sends_telemetry_event": true

@@ -1,10 +1,13 @@
 {
-  "parent": "exposure:adventure/expose_film",
+  "parent": "exposure:adventure/spotlight",
   "criteria": {
-    "project": {
+    "flash_in_darkness": {
       "conditions": {
         "exposure": {
-          "nbt": "{Projected:1b}"
+          "light_level": {
+            "max": 3
+          },
+          "nbt": "{Flash:1b}"
         }
       },
       "trigger": "exposure:frame_exposed"
@@ -16,18 +19,18 @@
     "show_toast": true,
     "announce_to_chat": true,
     "icon": {
-      "item": "exposure:interplanar_projector"
+      "item": "minecraft:redstone_lamp"
     },
     "title": {
-      "translate": "advancement.exposure.use_interplanar_projector.title"
+      "translate": "advancement.exposure.lights_up.title"
     },
     "description": {
-      "translate": "advancement.exposure.use_interplanar_projector.description"
+      "translate": "advancement.exposure.lights_up.description"
     }
   },
   "requirements": [
     [
-      "project"
+      "flash_in_darkness"
     ]
   ],
   "sends_telemetry_event": true

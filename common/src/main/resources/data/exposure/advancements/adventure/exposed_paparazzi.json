@@ -1,5 +1,5 @@
 {
-  "parent": "exposure:adventure/expose_film",
+  "parent": "exposure:adventure/lights_up",
   "criteria": {
     "shoot_with_flash": {
       "conditions": {

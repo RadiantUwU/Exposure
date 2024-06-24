@@ -1,5 +1,5 @@
 {
-  "parent": "exposure:adventure/get_photograph",
+  "parent": "exposure:adventure/moment_in_time",
   "criteria": {
     "get_chromatic_photograph": {
       "conditions": {
@@ -26,10 +26,10 @@
       "nbt": "{Exposures:[{Id:\"1\"},{Id:\"2\"},{Id:\"3\"}]}"
     },
     "title": {
-      "translate": "advancement.exposure.get_chromatic_photograph.title"
+      "translate": "advancement.exposure.composite_confounded_compound.title"
     },
     "description": {
-      "translate": "advancement.exposure.get_chromatic_photograph.description"
+      "translate": "advancement.exposure.composite_confounded_compound.description"
     }
   },
   "requirements": [

@@ -1,13 +1,10 @@
 {
-  "parent": "exposure:adventure/take_selfie",
+  "parent": "exposure:adventure/exposure",
   "criteria": {
-    "flash_in_darkness": {
+    "use_interplanar_projector": {
       "conditions": {
         "exposure": {
-          "light_level": {
-            "max": 3
-          },
-          "nbt": "{Flash:1b}"
+          "nbt": "{Projected:1b}"
         }
       },
       "trigger": "exposure:frame_exposed"
@@ -19,18 +16,18 @@
     "show_toast": true,
     "announce_to_chat": true,
     "icon": {
-      "item": "minecraft:redstone_lamp"
+      "item": "exposure:interplanar_projector"
     },
     "title": {
-      "translate": "advancement.exposure.flash.title"
+      "translate": "advancement.exposure.piercing_gaze.title"
     },
     "description": {
-      "translate": "advancement.exposure.flash.description"
+      "translate": "advancement.exposure.piercing_gaze.description"
     }
   },
   "requirements": [
     [
-      "flash_in_darkness"
+      "use_interplanar_projector"
     ]
   ],
   "sends_telemetry_event": true

@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:adventure/root",
   "criteria": {
-    "expose_film": {
+    "expose_frame": {
       "conditions": {},
       "trigger": "exposure:frame_exposed"
     }
@@ -24,7 +24,7 @@
   },
   "requirements": [
     [
-      "expose_film"
+      "expose_frame"
     ]
   ],
   "sends_telemetry_event": true

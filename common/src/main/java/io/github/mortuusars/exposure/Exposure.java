@@ -275,11 +275,11 @@ public class Exposure {
 
     public static class Advancements {
         public static FrameExposedTrigger FILM_FRAME_EXPOSED = new FrameExposedTrigger();
-        public static PlayerTrigger SNAP_ENDERMAN_EYES = new PlayerTrigger(Exposure.resource("snap_enderman_eyes"));
+        public static PlayerTrigger PHOTOGRAPH_ENDERMAN_EYES = new PlayerTrigger(Exposure.resource("photograph_enderman_eyes"));
 
         public static void register() {
             CriteriaTriggers.register(FILM_FRAME_EXPOSED);
-            CriteriaTriggers.register(SNAP_ENDERMAN_EYES);
+            CriteriaTriggers.register(PHOTOGRAPH_ENDERMAN_EYES);
         }
     }
 

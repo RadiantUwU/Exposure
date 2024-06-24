@@ -6,6 +6,9 @@
 - Added **Film Roll renaming**. Use the item to open renaming UI. Renaming this way does not cost any experience.
 - Added **Interplanar Projector** filter. Allows loading custom images by renaming the item to filepath. 
 - Updated item textures.
+- Added several new advancements
+  - Existing advancements have been modified internally, players will have to complete them again
+  - Internal changes have been made to exposure:frame_exposed trigger
 
 Updated Camera Attachments UI:
 - You can now hover over camera components to see tooltip with information about it.
