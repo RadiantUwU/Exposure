@@ -24,13 +24,13 @@ public class RGBToMapColorConverter {
                 int B = FastColor.ABGR32.blue(pixelRGBA);
                 int A = FastColor.ABGR32.alpha(pixelRGBA);
 
-                byte mapColorIndex = (byte)nearestColor(mapColors, R, G, B, A);
-
-                if (MapColor.getColorFromPackedId(mapColorIndex) == 0xFFFFFF) {
-                    Exposure.LOGGER.error("asd");
+                if (A == 0) {
+                    bytes[x + y * width] = (byte)MapColor.NONE.id;
                 }
-
-                bytes[x + y * width] = mapColorIndex;
+                else {
+                    byte mapColorIndex = (byte)nearestColor(mapColors, R, G, B, A);
+                    bytes[x + y * width] = mapColorIndex;
+                }
             }
         }
 

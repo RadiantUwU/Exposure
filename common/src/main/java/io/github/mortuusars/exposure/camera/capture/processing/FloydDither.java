@@ -21,8 +21,13 @@ public class FloydDither {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                Color imageColor = new Color(pixels[y][x], false);
+                Color imageColor = new Color(pixels[y][x], true);
+
                 byte b = (byte) floydDither(mapColors, pixels, x, y, imageColor);
+
+                if (imageColor.getAlpha() == 0)
+                    b = (byte)MapColor.NONE.id;
+
                 bytes[x + y * width] = b;
             }
         }
@@ -84,6 +89,9 @@ public class FloydDither {
     }
 
     private static int nearestColor(MapColor[] colors, Color imageColor) {
+//        if (imageColor.getAlpha() == 0)
+//            return MapColor.NONE.id;
+
         double[] imageVec = { (double) imageColor.getRed() / 255.0, (double) imageColor.getGreen() / 255.0,
                 (double) imageColor.getBlue() / 255.0 };
         int best_color = 0;
@@ -119,8 +127,8 @@ public class FloydDither {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int rgb = Color.BGRtoRGB(image.getPixelRGBA(x, y));
-                result[y][x] = rgb;
+                int rgba = Color.BGRtoRGB(image.getPixelRGBA(x, y));
+                result[y][x] = rgba;
             }
         }
 
