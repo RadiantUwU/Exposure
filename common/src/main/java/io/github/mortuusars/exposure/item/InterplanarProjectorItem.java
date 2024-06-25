@@ -60,6 +60,7 @@ public class InterplanarProjectorItem extends Item {
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess access) {
         if (other.isEmpty() && action == ClickAction.SECONDARY) {
             setDithered(stack, !isDithered(stack));
+            slot.setChanged();
             if (player.level().isClientSide) {
                 player.playSound(Exposure.SoundEvents.CAMERA_GENERIC_CLICK.get(), 0.6f, 1f);
             }

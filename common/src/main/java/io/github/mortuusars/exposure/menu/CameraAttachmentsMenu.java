@@ -8,6 +8,7 @@ import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerListener;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -44,6 +45,22 @@ public class CameraAttachmentsMenu extends AbstractContainerMenu {
                 return 1;
             }
         };
+
+        container.addListener(new ContainerListener() {
+            @Override
+            public void containerChanged(Container container) {
+                for (int slotId = 0; slotId < container.getContainerSize(); slotId++) {
+                    AttachmentType attachmentType = camera.getItem().getAttachmentTypeForSlot(camera.getStack(), slotId).orElseThrow();
+
+                    camera.getItem().setAttachment(camera.getStack(), attachmentType, container.getItem(slotId));
+
+                    if (!player.level().isClientSide() && player.isCreative()) {
+                        // Fixes item not updating properly when not in "Inventory" tab of creative inventory
+                        player.getInventory().setItem(cameraSlotIndex, camera.getStack());
+                    }
+                }
+            }
+        });
 
         this.attachmentSlotsCount = addAttachmentSlots(container);
         addPlayerSlots(playerInventory);
