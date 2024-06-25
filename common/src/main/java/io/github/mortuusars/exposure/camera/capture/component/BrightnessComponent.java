@@ -75,9 +75,9 @@ public class BrightnessComponent implements ICaptureComponent {
         // BUT, it does not look perfect (idk, maybe because of dithering), so we blend them together.
         // This makes transitions smoother, subtler. Which looks good imo.
         return FastColor.ABGR32.color(alpha,
-                Mth.clamp((int) ((b + rdst[0]) / 2), 0, 255),
+                Mth.clamp((int) ((b + rdst[2]) / 2), 0, 255),
                 Mth.clamp((int) ((g + rdst[1]) / 2), 0, 255),
-                Mth.clamp((int) ((r + rdst[2]) / 2), 0, 255));
+                Mth.clamp((int) ((r + rdst[0]) / 2), 0, 255));
     }
 
     @Override
