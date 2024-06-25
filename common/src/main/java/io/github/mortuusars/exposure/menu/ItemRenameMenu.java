@@ -93,15 +93,6 @@ public class ItemRenameMenu extends AbstractContainerMenu {
 
         this.itemName = string;
 
-//        if (this.getSlot(2).hasItem()) {
-//            ItemStack itemStack = this.getSlot(2).getItem();
-//            if (Util.isBlank(string)) {
-//                itemStack.resetHoverName();
-//            } else {
-//                itemStack.setHoverName(Component.literal(string));
-//            }
-//        }
-
         updateResult();
         return true;
     }

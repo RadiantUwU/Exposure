@@ -5,7 +5,6 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.camera.Camera;
 import io.github.mortuusars.exposure.network.PacketDirection;
 import io.github.mortuusars.exposure.network.packet.IPacket;
-import io.github.mortuusars.exposure.util.CameraInHand;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;

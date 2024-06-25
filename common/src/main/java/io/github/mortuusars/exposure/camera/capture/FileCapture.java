@@ -91,6 +91,7 @@ public class FileCapture extends Capture {
             return Optional.of(Error.NO_EXTENSION);
         }
 
+        //TODO: supported formats
 //        List<String> formats = getSupportedFormats();
 //        String ext = extension.replace(".", "");
 //        if (!formats.contains(ext)) {

@@ -3,7 +3,6 @@ package io.github.mortuusars.exposure.gui.screen.album;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Either;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
 import io.github.mortuusars.exposure.gui.screen.element.TextBlock;
@@ -41,7 +40,6 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -506,7 +504,7 @@ public class AlbumScreen extends AbstractContainerScreen<AlbumMenu> {
             }
             return true;
         } catch (Exception e) {
-            Exposure.LOGGER.error("Cannot force page: " + e);
+            Exposure.LOGGER.error("Cannot force page: {}", e.toString());
         }
         return false;
     }

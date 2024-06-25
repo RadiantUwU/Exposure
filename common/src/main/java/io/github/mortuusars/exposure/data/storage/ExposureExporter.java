@@ -6,7 +6,6 @@ import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
-import io.github.mortuusars.exposure.util.Color;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.level.material.MapColor;

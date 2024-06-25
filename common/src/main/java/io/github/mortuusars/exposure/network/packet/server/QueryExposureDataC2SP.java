@@ -1,7 +1,6 @@
 package io.github.mortuusars.exposure.network.packet.server;
 
 import com.google.common.base.Preconditions;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
@@ -11,7 +10,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.Optional;
 

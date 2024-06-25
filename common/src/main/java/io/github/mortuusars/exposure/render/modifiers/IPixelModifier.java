@@ -7,5 +7,5 @@ public interface IPixelModifier {
     String getIdSuffix();
     default int modifyPixel(int ABGR) {
         return ABGR;
-    };
+    }
 }

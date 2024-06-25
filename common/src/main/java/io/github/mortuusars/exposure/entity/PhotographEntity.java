@@ -2,7 +2,6 @@ package io.github.mortuusars.exposure.entity;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Either;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.item.PhotographItem;
@@ -39,7 +38,6 @@ import net.minecraft.world.phys.AABB;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 public class PhotographEntity extends HangingEntity {
     

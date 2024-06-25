@@ -36,6 +36,7 @@ public interface IFilmItem {
             return getDefaultFrameSize();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     default boolean hasExposedFrame(ItemStack filmStack, int index) {
         if (index < 0 || filmStack.getTag() == null || !filmStack.getTag().contains(FRAMES_TAG, Tag.TAG_LIST))
             return false;

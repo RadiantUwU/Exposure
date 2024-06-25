@@ -9,8 +9,6 @@ import io.github.mortuusars.exposure.camera.CameraClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FocalRange;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.item.CameraItem;
-import io.github.mortuusars.exposure.network.Packets;
-import io.github.mortuusars.exposure.network.packet.server.CameraSetSelfieModeC2SP;
 import io.github.mortuusars.exposure.util.Fov;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;

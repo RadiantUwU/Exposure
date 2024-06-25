@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ExposureIdSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
     @Override
-    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) throws CommandSyntaxException {
+    public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
         List<String> ids = ExposureServer.getExposureStorage().getAllIds();
         return SharedSuggestionProvider.suggest(ids, builder);
     }

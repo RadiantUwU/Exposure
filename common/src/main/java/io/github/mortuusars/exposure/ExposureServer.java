@@ -1,6 +1,5 @@
 package io.github.mortuusars.exposure;
 
-import io.github.mortuusars.exposure.data.storage.IExposureStorage;
 import io.github.mortuusars.exposure.data.storage.IServersideExposureStorage;
 import io.github.mortuusars.exposure.data.storage.ServersideExposureStorage;
 import io.github.mortuusars.exposure.data.transfer.ExposureReceiver;

@@ -3,7 +3,6 @@ package io.github.mortuusars.exposure.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.datafixers.util.Either;
-import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
 import net.minecraft.client.Minecraft;

@@ -482,7 +482,7 @@ public class CameraItem extends Item {
             return InteractionResult.FAIL;
 
         int lightLevel = LevelUtil.getLightLevelAt(player.level(), player.blockPosition());
-        boolean shouldFlashFire = shouldFlashFire(player, cameraStack);
+        boolean shouldFlashFire = shouldFlashFire(player, cameraStack, lightLevel);
         ShutterSpeed shutterSpeed = getShutterSpeed(cameraStack);
 
         if (PlatformHelper.fireShutterOpeningEvent(player, cameraStack, lightLevel, shouldFlashFire))
@@ -695,14 +695,14 @@ public class CameraItem extends Item {
         setFilm(cameraStack, film.getStack());
     }
 
-    protected boolean shouldFlashFire(Player player, ItemStack cameraStack) {
+    protected boolean shouldFlashFire(Player player, ItemStack cameraStack, int lightLevel) {
         if (getAttachment(cameraStack, FLASH_ATTACHMENT).isEmpty())
             return false;
 
         return switch (getFlashMode(cameraStack)) {
             case OFF -> false;
             case ON -> true;
-            case AUTO -> LevelUtil.getLightLevelAt(player.level(), player.blockPosition()) < 8;
+            case AUTO -> lightLevel < 8;
         };
     }
 

@@ -2,9 +2,7 @@ package io.github.mortuusars.exposure.item;
 
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;

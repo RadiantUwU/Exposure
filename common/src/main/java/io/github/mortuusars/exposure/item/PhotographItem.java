@@ -2,7 +2,6 @@ package io.github.mortuusars.exposure.item;
 
 import com.google.common.base.Preconditions;
 import com.mojang.datafixers.util.Either;
-import com.mojang.logging.LogUtils;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;

@@ -1,6 +1,5 @@
 package io.github.mortuusars.exposure.item;
 
-import io.github.mortuusars.exposure.Exposure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
