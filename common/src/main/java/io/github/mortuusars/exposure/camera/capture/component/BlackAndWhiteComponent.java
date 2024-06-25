@@ -4,8 +4,6 @@ import io.github.mortuusars.exposure.camera.capture.Capture;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
-import java.awt.*;
-
 public class BlackAndWhiteComponent implements ICaptureComponent {
     @Override
     public int modifyPixel(Capture capture, int colorABGR) {
