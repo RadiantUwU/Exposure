@@ -7,4 +7,5 @@ import java.awt.image.BufferedImage;
 
 public interface IImageToMapColorsConverter {
     byte[] convert(Capture capture, NativeImage image);
+    byte[] convert(NativeImage image);
 }

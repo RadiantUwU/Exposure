@@ -17,17 +17,19 @@ public class SelectiveChannelBlackAndWhiteComponent implements ICaptureComponent
     }
 
     @Override
-    public int modifyPixel(Capture capture, int color) {
+    public int modifyPixel(Capture capture, int colorABGR) {
+        int alpha = FastColor.ABGR32.alpha(colorABGR);
+
         if (channel == ColorChannel.RED) {
-            int red = FastColor.ABGR32.red(color);
-            return FastColor.ABGR32.color(255, red, red, red);
+            int red = FastColor.ABGR32.red(colorABGR);
+            return FastColor.ABGR32.color(alpha, red, red, red);
         }
         if (channel == ColorChannel.GREEN) {
-            int green = FastColor.ABGR32.green(color);
-            return FastColor.ABGR32.color(255, green, green, green);
+            int green = FastColor.ABGR32.green(colorABGR);
+            return FastColor.ABGR32.color(alpha, green, green, green);
         } else {
-            int blue = FastColor.ABGR32.blue(color);
-            return FastColor.ABGR32.color(255, blue, blue, blue);
+            int blue = FastColor.ABGR32.blue(colorABGR);
+            return FastColor.ABGR32.color(alpha, blue, blue, blue);
         }
     }
 }

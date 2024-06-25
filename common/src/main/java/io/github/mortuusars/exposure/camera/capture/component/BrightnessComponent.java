@@ -42,19 +42,20 @@ public class BrightnessComponent implements ICaptureComponent {
     }
 
     @Override
-    public int modifyPixel(Capture capture, int color) {
+    public int modifyPixel(Capture capture, int colorABGR) {
         float stopsDif = brightnessStops;
         if (stopsDif == 0f)
-            return color;
+            return colorABGR;
 
-        int red = FastColor.ARGB32.red(color);
-        int green = FastColor.ARGB32.green(color);
-        int blue = FastColor.ARGB32.blue(color);
+        int alpha = FastColor.ABGR32.alpha(colorABGR);
+        int blue = FastColor.ABGR32.blue(colorABGR);
+        int green = FastColor.ABGR32.green(colorABGR);
+        int red = FastColor.ABGR32.red(colorABGR);
 
         float brightness = 1f + (stopsDif * (stopsDif < 0 ? darkenPerStop : brightenPerStop));
 
         // We simulate bright light by not modifying all pixels equally
-        float lightness = (red + green + blue) / 765f; // from 0.0 to 1.0
+        float lightness = (blue + green + red) / 765f; // from 0.0 to 1.0
         float bias;
         if (stopsDif < 0)
             bias = (1f - lightness) * 0.8f + 0.2f;
@@ -63,9 +64,9 @@ public class BrightnessComponent implements ICaptureComponent {
             bias = lightness > 0.5f ? curve * 0.8f + 0.2f : curve * 0.5f + 0.5f;
         }
 
-        float r = Mth.lerp(bias, red, red * brightness);
-        float g = Mth.lerp(bias, green, green * brightness);
         float b = Mth.lerp(bias, blue, blue * brightness);
+        float g = Mth.lerp(bias, green, green * brightness);
+        float r = Mth.lerp(bias, red, red * brightness);
 
         // Above values are not clamped at 255 purposely.
         // Excess is redistributed to other channels. As a result - color gets less saturated, which gives more natural color.
@@ -73,14 +74,14 @@ public class BrightnessComponent implements ICaptureComponent {
 
         // BUT, it does not look perfect (idk, maybe because of dithering), so we blend them together.
         // This makes transitions smoother, subtler. Which looks good imo.
-        return FastColor.ARGB32.color(255,
-                Mth.clamp((int) ((r + rdst[0]) / 2), 0, 255),
+        return FastColor.ABGR32.color(alpha,
+                Mth.clamp((int) ((b + rdst[0]) / 2), 0, 255),
                 Mth.clamp((int) ((g + rdst[1]) / 2), 0, 255),
-                Mth.clamp((int) ((b + rdst[2]) / 2), 0, 255));
+                Mth.clamp((int) ((r + rdst[2]) / 2), 0, 255));
     }
 
     @Override
-    public void imageTaken(Capture capture, NativeImage screenshot) {
+    public void imageTaken(Capture capture, NativeImage image) {
         GammaModifier.setAdditionalBrightness(0f);
     }
 

@@ -125,29 +125,29 @@ public class ExposureExporter {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                int bgr = MapColor.getColorFromPackedId(MapColorPixels[x + y * width]); // Mojang returns BGR color
-                bgr = modifier.modifyPixel(bgr);
+                int ABGR = MapColor.getColorFromPackedId(MapColorPixels[x + y * width]); // Mojang returns BGR color
+                ABGR = modifier.modifyPixel(ABGR);
 
                 // Tint image like it's rendered in LightroomScreen or NegativeExposureScreen:
-                // This is not the best place for it, but I haven't found better place.
+                // This is not the best place for it, but I haven't found better a better one.
                 if (modifier == ExposurePixelModifiers.NEGATIVE_FILM) {
                     @Nullable FilmType filmType = FilmType.byName(properties.getString(ExposureSavedData.TYPE_PROPERTY));
                     if (filmType != null) {
 
-                        int a = FastColor.ABGR32.alpha(bgr);
-                        int b = FastColor.ABGR32.blue(bgr);
-                        int g = FastColor.ABGR32.green(bgr);
-                        int r = FastColor.ABGR32.red(bgr);
+                        int a = FastColor.ABGR32.alpha(ABGR);
+                        int b = FastColor.ABGR32.blue(ABGR);
+                        int g = FastColor.ABGR32.green(ABGR);
+                        int r = FastColor.ABGR32.red(ABGR);
 
                         b = b * filmType.frameB / 255;
                         g = g * filmType.frameG / 255;
                         r = r * filmType.frameR / 255;
 
-                        bgr = FastColor.ABGR32.color(a, b, g, r);
+                        ABGR = FastColor.ABGR32.color(a, b, g, r);
                     }
                 }
 
-                image.setPixelRGBA(x, y, bgr);
+                image.setPixelRGBA(x, y, ABGR);
             }
         }
 

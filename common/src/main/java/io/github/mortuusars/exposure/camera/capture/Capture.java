@@ -325,13 +325,15 @@ public abstract class Capture {
                 float ratioY = y / (float)resultHeight;
                 int sourcePosY = (int)(sourceY + (sourceHeight * ratioY));
 
-                int color = source.getPixelRGBA(sourcePosX, sourcePosY);
+                // NativeImage#getPixelAGBA returns big-endian value - 0xAABBGGRR
+                // So for us it's ABGR
+                int colorABGR = source.getPixelRGBA(sourcePosX, sourcePosY);
 
                 for (ICaptureComponent component : components) {
-                    color = component.modifyPixel(this, color);
+                    colorABGR = component.modifyPixel(this, colorABGR);
                 }
 
-                result.setPixelRGBA(x, y, color);
+                result.setPixelRGBA(x, y, colorABGR);
             }
         }
 

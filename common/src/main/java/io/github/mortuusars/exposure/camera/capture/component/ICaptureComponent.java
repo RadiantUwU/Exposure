@@ -51,8 +51,8 @@ public interface ICaptureComponent {
     /**
      * Allows modifying a single pixel. Will be called for every pixel in the image.
      */
-    default int modifyPixel(Capture capture, int color) {
-        return color;
+    default int modifyPixel(Capture capture, int colorABGR) {
+        return colorABGR;
     }
 
     /**

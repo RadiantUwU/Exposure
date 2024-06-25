@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.render.modifiers;
 
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 
 @SuppressWarnings("ClassCanBeRecord")
@@ -17,10 +18,10 @@ public class NegativeFilmPixelModifier implements IPixelModifier {
 
     @Override
     public int modifyPixel(int ABGR) {
-        int alpha = ABGR >> 24 & 0xFF;
-        int blue = ABGR >> 16 & 0xFF;
-        int green = ABGR >> 8 & 0xFF;
-        int red = ABGR & 0xFF;
+        int alpha = FastColor.ABGR32.alpha(ABGR);
+        int blue = FastColor.ABGR32.blue(ABGR);
+        int green = FastColor.ABGR32.green(ABGR);
+        int red = FastColor.ABGR32.red(ABGR);
 
         if (simulateFilmTransparency) {
             // Modify opacity to make lighter colors transparent, like in real film.
@@ -34,7 +35,7 @@ public class NegativeFilmPixelModifier implements IPixelModifier {
         green = 255 - green;
         red = 255 - red;
 
-        return (alpha << 24) | (blue << 16) | (green << 8) | red;
+        return FastColor.ABGR32.color(alpha, blue, green, red);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureServer;
-import io.github.mortuusars.exposure.camera.capture.processing.FloydDither;
+import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
@@ -18,6 +18,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -176,43 +177,46 @@ public class ChromaticSheetItem extends Item {
         return photograph;
     }
 
-    //TODO: move to dedicated class
-    protected void processAndSaveTrichrome(ExposureSavedData red, ExposureSavedData green, ExposureSavedData blue, String id) {
+    @SuppressWarnings("UnusedReturnValue")
+    protected boolean processAndSaveTrichrome(ExposureSavedData red, ExposureSavedData green, ExposureSavedData blue, String id) {
         int width = Math.min(red.getWidth(), Math.min(green.getWidth(), blue.getWidth()));
         int height = Math.min(red.getHeight(), Math.min(green.getHeight(), blue.getHeight()));
         if (width <= 0 ||height <= 0) {
             Exposure.LOGGER.error("Cannot create Chromatic Photograph: Width and Height should be larger than 0. " +
                     "Width '{}', Height: '{}'.", width, height);
-            return;
+            return false;
         }
 
-        NativeImage image = new NativeImage(width, height, false);
+        byte[] mapColorPixels;
 
-        for (int x = 0; x < image.getWidth(); x++) {
-            for (int y = 0; y < image.getHeight(); y++) {
-                int r = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
-                int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
-                int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
+        try (NativeImage image = new NativeImage(width, height, false)) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                for (int y = 0; y < image.getHeight(); y++) {
+                    int a = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 24 & 0xFF;
+                    int r = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
+                    int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
+                    int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
 
-                int rgb = 0xFF << 24 | b << 16 | g << 8 | r;
+                    int abgr = FastColor.ABGR32.color(a, b, g, r);
 
-                image.setPixelRGBA(x, y, rgb);
+                    image.setPixelRGBA(x, y, abgr);
+                }
             }
-        }
 
-        byte[] mapColorPixels = FloydDither.ditherWithMapColors(image);
-        image.close();
+            mapColorPixels = new DitheringColorConverter().convert(image);
+        }
 
         CompoundTag properties = new CompoundTag();
         properties.putString(ExposureSavedData.TYPE_PROPERTY, FilmType.COLOR.getSerializedName());
         long unixTime = System.currentTimeMillis() / 1000L;
         properties.putLong(ExposureSavedData.TIMESTAMP_PROPERTY, unixTime);
 
-        ExposureSavedData resultData = new ExposureSavedData(image.getWidth(), image.getHeight(), mapColorPixels, properties);
+        ExposureSavedData resultData = new ExposureSavedData(width, height, mapColorPixels, properties);
         ExposureServer.getExposureStorage().put(id, resultData);
 
         // Because we save exposure off-thread, and item was already created before chromatic processing has even begun -
         // we need to update clients, otherwise, client wouldn't know that and will think that the exposure is missing.
         ExposureServer.getExposureStorage().sendExposureChanged(id);
+        return true;
     }
 }

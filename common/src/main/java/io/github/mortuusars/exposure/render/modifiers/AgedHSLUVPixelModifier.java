@@ -1,6 +1,7 @@
 package io.github.mortuusars.exposure.render.modifiers;
 
 import io.github.mortuusars.exposure.util.HUSLColorConverter;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.StringUtils;
 
@@ -33,15 +34,15 @@ public class AgedHSLUVPixelModifier implements IPixelModifier {
 
     @Override
     public int modifyPixel(int ABGR) {
-        int alpha = (ABGR >> 24) & 0xFF;
-        int red = (ABGR >> 16) & 0xFF;
-        int green = (ABGR >> 8) & 0xFF;
-        int blue = ABGR & 0xFF;
+        int alpha = FastColor.ABGR32.alpha(ABGR);
+        int blue = FastColor.ABGR32.blue(ABGR);
+        int green = FastColor.ABGR32.green(ABGR);
+        int red = FastColor.ABGR32.red(ABGR);
 
-        // Raise black point to make the image appear faded:
-        red = (int) Mth.map(red, 0, 255, blackPoint, whitePoint);
-        green = (int) Mth.map(green, 0, 255, blackPoint, whitePoint);
+        // Modify black and white points to make the image appear faded:
         blue = (int) Mth.map(blue, 0, 255, blackPoint, whitePoint);
+        green = (int) Mth.map(green, 0, 255, blackPoint, whitePoint);
+        red = (int) Mth.map(red, 0, 255, blackPoint, whitePoint);
 
         // Apply sepia tone with 'color' blending mode:
         double[] hsluv = HUSLColorConverter.rgbToHsluv(new double[] { red / 255f, green / 255f, blue / 255f });
@@ -50,12 +51,12 @@ public class AgedHSLUVPixelModifier implements IPixelModifier {
 
         double[] rgb = HUSLColorConverter.hsluvToRgb(hsluv);
 
-        int newRed = Mth.clamp((int) Mth.lerp(tintOpacity, red, rgb[2] * 255), 0, 255);
+        // Blend two colors together:
+        int newBlue = Mth.clamp((int) Mth.lerp(tintOpacity, blue, rgb[2] * 255), 0, 255);
         int newGreen = Mth.clamp((int) Mth.lerp(tintOpacity, green, rgb[1] * 255), 0, 255);
-        int newBlue = Mth.clamp((int) Mth.lerp(tintOpacity, blue, rgb[0] * 255), 0, 255);
+        int newRed = Mth.clamp((int) Mth.lerp(tintOpacity, red, rgb[0] * 255), 0, 255);
 
-        ABGR = (alpha << 24) | (newRed << 16) | (newGreen << 8) | newBlue;
-        return ABGR;
+        return FastColor.ABGR32.color(alpha, newBlue, newGreen, newRed);
     }
 
     @Override
