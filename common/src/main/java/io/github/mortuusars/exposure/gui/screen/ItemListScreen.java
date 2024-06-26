@@ -3,12 +3,15 @@ package io.github.mortuusars.exposure.gui.screen;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.render.ExposureImage;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
@@ -20,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ItemListScreen extends Screen {
     public static final ResourceLocation TEXTURE = Exposure.resource("textures/gui/item_list.png");
@@ -39,10 +43,14 @@ public class ItemListScreen extends Screen {
     protected Slot hoveredSlot;
     protected List<Slot> slots = new ArrayList<>();
 
+    protected long openedAt;
+
     public ItemListScreen(Screen parent, Component title, List<ItemStack> items) {
         super(title);
         this.parent = parent;
         this.items = items;
+
+        this.openedAt = Util.getMillis();
 
         SimpleContainer container = new SimpleContainer(items.toArray(ItemStack[]::new));
 
@@ -76,6 +84,8 @@ public class ItemListScreen extends Screen {
 
             rowY += 18;
         }
+
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Exposure.SoundEvents.CAMERA_GENERIC_CLICK.get(), 1f));
     }
 
     @Override
@@ -93,31 +103,45 @@ public class ItemListScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        long currentTime = Util.getMillis();
+        float animProgress = Math.min(1f, (currentTime - openedAt) / (float) 200);
+
+        animProgress = 1f - (float)Math.pow(1f - animProgress, 3.5f);
+
         int left = leftPos;
         int top = topPos;
         renderBackground(guiGraphics);
+
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate((width / 2f), (height / 2f), 0.0f);
+        guiGraphics.pose().scale(animProgress, animProgress, animProgress);
+        guiGraphics.pose().translate(-(width / 2f), -(height / 2f), 0.0f);
+
         renderBg(guiGraphics, partialTick, mouseX, mouseY);
         RenderSystem.disableDepthTest();
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(left, top, 0.0f);
-        hoveredSlot = null;
-        for (Slot slot : slots) {
-            if (slot.isActive()) {
-                renderSlot(guiGraphics, slot);
+        {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(left, top, 0.0f);
+            hoveredSlot = null;
+            for (Slot slot : slots) {
+                if (slot.isActive()) {
+                    renderSlot(guiGraphics, slot);
+                }
+                if (!isHovering(slot, mouseX, mouseY) || !slot.isActive()) {
+                    continue;
+                }
+                this.hoveredSlot = slot;
+                if (!hoveredSlot.isHighlightable()) {
+                    continue;
+                }
+                renderSlotHighlight(guiGraphics, slot.x, slot.y, 0);
             }
-            if (!isHovering(slot, mouseX, mouseY) || !slot.isActive()) {
-                continue;
-            }
-            this.hoveredSlot = slot;
-            if (!hoveredSlot.isHighlightable()) {
-                continue;
-            }
-            renderSlotHighlight(guiGraphics, slot.x, slot.y, 0);
+            this.renderLabels(guiGraphics, mouseX, mouseY);
+            guiGraphics.pose().popPose();
         }
-        this.renderLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.pose().popPose();
         RenderSystem.enableDepthTest();
+        guiGraphics.pose().popPose();
 
         renderTooltip(guiGraphics, mouseX, mouseY);
     }
@@ -175,7 +199,7 @@ public class ItemListScreen extends Screen {
     protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
         int i = this.leftPos;
         int j = this.topPos;
-        return (mouseX -= (double)i) >= (double)(x - 1) && mouseX < (double)(x + width + 1) && (mouseY -= (double)j) >= (double)(y - 1) && mouseY < (double)(y + height + 1);
+        return (mouseX -= (double) i) >= (double) (x - 1) && mouseX < (double) (x + width + 1) && (mouseY -= (double) j) >= (double) (y - 1) && mouseY < (double) (y + height + 1);
     }
 
     @Override
