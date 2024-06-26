@@ -6,7 +6,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import net.minecraft.nbt.CompoundTag;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class CapturedFramesHistory {
@@ -14,13 +14,13 @@ public class CapturedFramesHistory {
     private static final ArrayList<CompoundTag> lastExposures = new ArrayList<>();
     private static int limit = 32;
 
-    public static Collection<CompoundTag> get() {
+    public static List<CompoundTag> get() {
         return ImmutableList.copyOf(lastExposures);
     }
 
     public static void add(CompoundTag frame) {
         if (frame.getString(FrameData.ID).isEmpty())
-            Exposure.LOGGER.warn(frame + " - frame might not be valid. No ID is present.");
+            Exposure.LOGGER.warn("{} - frame might not be valid. No ID is present.", frame);
 
         lastExposures.add(0, frame);
 

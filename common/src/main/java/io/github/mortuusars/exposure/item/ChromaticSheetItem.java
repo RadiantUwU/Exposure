@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.item;
 import com.google.common.base.Preconditions;
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.ExposureServer;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
@@ -10,6 +11,8 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.WaitForExposureChangeS2CP;
+import io.github.mortuusars.exposure.render.ExposureImage;
+import io.github.mortuusars.exposure.render.ExposureTexture;
 import io.github.mortuusars.exposure.util.ColorChannel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -32,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ChromaticSheetItem extends Item {
@@ -96,7 +99,7 @@ public class ChromaticSheetItem extends Item {
         ItemStack stack = player.getItemInHand(usedHand);
 
         if (!level.isClientSide && getExposures(stack).size() >= 3) {
-            ItemStack result = finalize(level, stack);
+            ItemStack result = finalize(level, stack, player.getScoreboardName());
             player.setItemInHand(usedHand, result);
             return InteractionResultHolder.success(result);
         }
@@ -104,7 +107,7 @@ public class ChromaticSheetItem extends Item {
         return super.use(level, player, usedHand);
     }
 
-    public ItemStack finalize(@NotNull Level level, ItemStack stack) {
+    public ItemStack finalize(@NotNull Level level, ItemStack stack, String idPrefix) {
         Preconditions.checkState(!level.isClientSide, "Can only finalize server-side.");
 
         List<CompoundTag> exposures = getExposures(stack);
@@ -112,63 +115,53 @@ public class ChromaticSheetItem extends Item {
         Preconditions.checkState(exposures.size() >= 3, 
                 "Finalizing Chromatic Fragment requires 3 exposures. " + stack);
 
-        CompoundTag redTag = exposures.get(0);
-        String redId = redTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> redOpt = ExposureServer.getExposureStorage().getOrQuery(redId);
-        if (redOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Red channel exposure '{}' is not found.", redId);
+        CompoundTag redFrame = exposures.get(0);
+        @Nullable ExposureImage redImage = getFrameImage(redFrame);
+        if (redImage == null) {
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Red channel image is not found in frame {}.", redFrame);
             return stack;
         }
 
-        CompoundTag greenTag = exposures.get(1);
-        String greenId = greenTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> greenOpt = ExposureServer.getExposureStorage().getOrQuery(greenId);
-        if (greenOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Green channel exposure '{}' is not found.", greenId);
+        CompoundTag greenFrame = exposures.get(1);
+        @Nullable ExposureImage greenImage = getFrameImage(greenFrame);
+        if (greenImage == null) {
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Green channel image is not found in frame {}.", greenFrame);
             return stack;
         }
 
-        CompoundTag blueTag = exposures.get(2);
-        String blueId = blueTag.getString(FrameData.ID);
-        Optional<ExposureSavedData> blueOpt = ExposureServer.getExposureStorage().getOrQuery(blueId);
-        if (blueOpt.isEmpty()) {
-            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Blue channel exposure '{}' is not found.", blueId);
+        CompoundTag blueFrame = exposures.get(2);
+        @Nullable ExposureImage blueImage = getFrameImage(blueFrame);
+        if (blueImage == null) {
+            Exposure.LOGGER.error("Cannot create Chromatic Photograph: Blue channel image is not found in frame {}.", blueFrame);
             return stack;
         }
 
-        String name;
-        int underscoreIndex = redId.lastIndexOf("_");
-        if (underscoreIndex != -1)
-            name = redId.substring(0, underscoreIndex);
-        else
-            name = Integer.toString(redId.hashCode());
-
-        String id = String.format("%s_chromatic_%s", name, level.getGameTime());
+        String exposureId = String.format("%s_chromatic_%s", idPrefix, level.getGameTime());
         
         ItemStack photograph = new ItemStack(Exposure.Items.PHOTOGRAPH.get());
 
         // It would probably be better to make a tag that contains properties common to all 3 tags,
         // but it's tricky to implement, and it wouldn't be noticed most of the time.
-        CompoundTag tag = redTag.copy();
-        tag = tag.merge(greenTag);
-        tag = tag.merge(blueTag);
+        CompoundTag tag = redFrame.copy();
+        tag = tag.merge(greenFrame);
+        tag = tag.merge(blueFrame);
 
         tag.remove(FrameData.CHROMATIC_CHANNEL);
 
-        tag.putString(FrameData.ID, id);
+        tag.putString(FrameData.ID, exposureId);
         tag.putBoolean(FrameData.CHROMATIC, true);
-        tag.putString(FrameData.RED_CHANNEL, redId);
-        tag.putString(FrameData.GREEN_CHANNEL, greenId);
-        tag.putString(FrameData.BLUE_CHANNEL, blueId);
+        tag.putString(FrameData.RED_CHANNEL, redImage.getName());
+        tag.putString(FrameData.GREEN_CHANNEL, greenImage.getName());
+        tag.putString(FrameData.BLUE_CHANNEL, blueImage.getName());
         tag.putString(FrameData.TYPE, FilmType.COLOR.getSerializedName());
 
         photograph.setTag(tag);
 
-        Packets.sendToAllClients(new WaitForExposureChangeS2CP(id));
+        Packets.sendToAllClients(new WaitForExposureChangeS2CP(exposureId));
 
         new Thread(() -> {
             try {
-                processAndSaveTrichrome(redOpt.get(), greenOpt.get(), blueOpt.get(), id);
+                processAndSaveTrichrome(redImage, greenImage, blueImage, exposureId);
             } catch (Exception e) {
                 Exposure.LOGGER.error("Cannot process and save Chromatic Photograph: {}", e.toString());
             }
@@ -177,8 +170,23 @@ public class ChromaticSheetItem extends Item {
         return photograph;
     }
 
+    protected @Nullable ExposureImage getFrameImage(CompoundTag frame) {
+        if (frame.contains(FrameData.ID, Tag.TAG_STRING)) {
+            String exposureId = frame.getString(FrameData.ID);
+            return ExposureClient.getExposureStorage().getOrQuery(exposureId)
+                    .map(data -> new ExposureImage(exposureId, data))
+                    .orElse(null);
+        }
+        else if (frame.contains(FrameData.TEXTURE, Tag.TAG_STRING)) {
+            ResourceLocation texture = new ResourceLocation(frame.getString(FrameData.TEXTURE));
+            @Nullable ExposureTexture exposureTexture = ExposureTexture.getTexture(texture);
+            return exposureTexture != null ? new ExposureImage(texture.toString(), exposureTexture) : null;
+        }
+        return null;
+    }
+
     @SuppressWarnings("UnusedReturnValue")
-    protected boolean processAndSaveTrichrome(ExposureSavedData red, ExposureSavedData green, ExposureSavedData blue, String id) {
+    protected boolean processAndSaveTrichrome(ExposureImage red, ExposureImage green, ExposureImage blue, String id) {
         int width = Math.min(red.getWidth(), Math.min(green.getWidth(), blue.getWidth()));
         int height = Math.min(red.getHeight(), Math.min(green.getHeight(), blue.getHeight()));
         if (width <= 0 ||height <= 0) {
@@ -192,10 +200,10 @@ public class ChromaticSheetItem extends Item {
         try (NativeImage image = new NativeImage(width, height, false)) {
             for (int x = 0; x < image.getWidth(); x++) {
                 for (int y = 0; y < image.getHeight(); y++) {
-                    int a = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 24 & 0xFF;
-                    int r = MapColor.getColorFromPackedId(red.getPixel(x, y)) >> 16 & 0xFF;
-                    int g = MapColor.getColorFromPackedId(green.getPixel(x, y)) >> 8 & 0xFF;
-                    int b = MapColor.getColorFromPackedId(blue.getPixel(x, y)) & 0xFF;
+                    int a = FastColor.ABGR32.alpha(red.getPixelABGR(x, y));
+                    int b = FastColor.ABGR32.blue(blue.getPixelABGR(x, y));
+                    int g = FastColor.ABGR32.green(green.getPixelABGR(x, y));
+                    int r = FastColor.ABGR32.red(red.getPixelABGR(x, y));
 
                     int abgr = FastColor.ABGR32.color(a, b, g, r);
 

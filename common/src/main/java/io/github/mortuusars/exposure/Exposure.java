@@ -140,7 +140,7 @@ public class Exposure {
                 () -> new PhotographItem(new Item.Properties()
                         .stacksTo(1)));
 
-        public static final Supplier<Item> CHROMATIC_SHEET = Register.item("chromatic_sheet",
+        public static final Supplier<ChromaticSheetItem> CHROMATIC_SHEET = Register.item("chromatic_sheet",
                 () -> new ChromaticSheetItem(new Item.Properties()
                         .stacksTo(1)));
 

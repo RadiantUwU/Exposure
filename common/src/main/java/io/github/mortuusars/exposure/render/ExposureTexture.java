@@ -34,7 +34,7 @@ public class ExposureTexture extends SimpleTexture {
             return texture;
         }
         catch (Exception e) {
-            Exposure.LOGGER.error("Cannot load texture [" + location + "]. " + e);
+            Exposure.LOGGER.error("Cannot load texture [{}]. {}", location, e);
             return null;
         }
     }

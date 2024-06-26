@@ -1,5 +1,7 @@
 package io.github.mortuusars.exposure.data.transfer;
 
+import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
+import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import io.github.mortuusars.exposure.data.storage.IExposureStorage;
 import net.minecraft.nbt.CompoundTag;

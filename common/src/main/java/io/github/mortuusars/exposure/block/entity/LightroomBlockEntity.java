@@ -21,6 +21,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
@@ -79,6 +80,7 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
     protected NonNullList<ItemStack> items = NonNullList.withSize(Lightroom.SLOTS, ItemStack.EMPTY);
 
+    protected @Nullable String lastPlayerName = null;
     protected int selectedFrame;
     protected int progress;
     protected int printTime;
@@ -93,6 +95,10 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
     public static <T extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, T blockEntity) {
         if (blockEntity instanceof LightroomBlockEntity lightroomBlockEntity)
             lightroomBlockEntity.tick();
+    }
+
+    public void setLastPlayer(Player player) {
+        lastPlayerName = player.getScoreboardName();
     }
 
     protected void tick() {
@@ -517,8 +523,10 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
             chromaticFragment.getItem().addExposure(chromaticFragment.getStack(), frame);
 
-            if (chromaticFragment.getItem().getExposures(chromaticFragment.getStack()).size() >= 3)
-                return chromaticFragment.getItem().finalize(Objects.requireNonNull(level), chromaticFragment.getStack());
+            if (chromaticFragment.getItem().getExposures(chromaticFragment.getStack()).size() >= 3) {
+                assert level != null;
+                return chromaticFragment.getItem().finalize(level, chromaticFragment.getStack(), lastPlayerName != null ? lastPlayerName : "Exposure");
+            }
 
             return chromaticFragment.getStack();
         }
@@ -634,6 +642,9 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
         this.storedExperience = tag.getInt("PrintedPhotographsCount");
         this.advanceFrame = tag.getBoolean("AdvanceFrame");
         this.process = Lightroom.Process.fromStringOrDefault(tag.getString("Process"), Lightroom.Process.REGULAR);
+        if (tag.contains("LastPlayerName", Tag.TAG_STRING)) {
+            this.lastPlayerName = tag.getString("LastPlayerName");
+        }
     }
 
     @Override
@@ -652,6 +663,8 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
             tag.putBoolean("AdvanceFrame", true);
         if (process != Lightroom.Process.REGULAR)
             tag.putString("Process", process.getSerializedName());
+        if (lastPlayerName != null)
+            tag.putString("LastPlayerName", lastPlayerName);
     }
 
     protected NonNullList<ItemStack> getItems() {

@@ -1,9 +1,14 @@
 package io.github.mortuusars.exposure.data.storage;
 
 import io.github.mortuusars.exposure.Exposure;
+import io.github.mortuusars.exposure.camera.capture.CapturedFramesHistory;
+import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.network.Packets;
 import io.github.mortuusars.exposure.network.packet.client.ExposureChangedS2CP;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -19,12 +24,15 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
     
     private static final String EXPOSURE_DIR = "exposures";
 
+    private final MinecraftServer server;
+
     private final Supplier<DimensionDataStorage> levelStorageSupplier;
     private final Supplier<Path> worldPathSupplier;
 
-    public ServersideExposureStorage(Supplier<DimensionDataStorage> levelStorageSupplier, Supplier<Path> worldPathSupplier) {
-        this.levelStorageSupplier = levelStorageSupplier;
-        this.worldPathSupplier = worldPathSupplier;
+    public ServersideExposureStorage(MinecraftServer server) {
+        this.server = server;
+        this.levelStorageSupplier = () -> server.overworld().getDataStorage();
+        this.worldPathSupplier = () -> server.getWorldPath(LevelResource.ROOT);
     }
 
     @Override
@@ -44,6 +52,12 @@ public class ServersideExposureStorage implements IServersideExposureStorage {
             DimensionDataStorage dataStorage = levelStorageSupplier.get();
             dataStorage.set(getSaveId(id), data);
             data.setDirty();
+
+            if (server.isDedicatedServer()) {
+                CompoundTag frameTag = new CompoundTag();
+                frameTag.putString(FrameData.ID, id);
+                CapturedFramesHistory.add(frameTag);
+            }
         }
     }
 

@@ -124,6 +124,7 @@ public class LightroomBlock extends Block implements EntityBlock {
         player.awardStat(Exposure.Stats.INTERACT_WITH_LIGHTROOM);
 
         if (player instanceof ServerPlayer serverPlayer) {
+            lightroomBlockEntity.setLastPlayer(serverPlayer);
             lightroomBlockEntity.setChanged(); // Updates state for client. Without this GUI buttons have some problems. (PrintButton active state)
             PlatformHelper.openMenu(serverPlayer, lightroomBlockEntity, buffer -> buffer.writeBlockPos(pos));
         }
