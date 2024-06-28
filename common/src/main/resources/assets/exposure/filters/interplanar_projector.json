@@ -3,5 +3,5 @@
     "item": "exposure:interplanar_projector"
   },
   "attachment_texture": "exposure:textures/gui/filter/interplanar_projector.png",
-  "shader": "minecraft:shaders/post/invert.json"
+  "shader": "exposure:shaders/invert.json"
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.1 - 2024-06-28
+- Fixed Interplanar Projector not working when Supplementaries is installed.
+
 ## 1.7.0 - 2024-06-28
 - Added **Photograph Frames**
   - **Photographs** can no longer be hanged on the wall. Existing hanging photographs will not be removed.
