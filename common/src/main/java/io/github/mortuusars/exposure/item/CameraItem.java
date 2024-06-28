@@ -292,19 +292,17 @@ public class CameraItem extends Item {
         return stack.getTag() != null && stack.getTag().getBoolean("ShutterOpen");
     }
 
-    public void setShutterOpen(Level level, ItemStack stack, ShutterSpeed shutterSpeed, boolean exposingFrame, boolean flashHasFired) {
+    public void setShutterOpen(Level level, ItemStack stack, ShutterSpeed shutterSpeed, boolean flashHasFired) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putBoolean("ShutterOpen", true);
         tag.putInt("ShutterTicks", Math.max(shutterSpeed.getTicks(), 1));
         tag.putLong("ShutterCloseTimestamp", level.getGameTime() + Math.max(shutterSpeed.getTicks(), 1));
-        if (exposingFrame)
-            tag.putBoolean("ExposingFrame", true);
         if (flashHasFired)
             tag.putBoolean("FlashHasFired", true);
     }
 
     public void setShutterClosed(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
+        @Nullable CompoundTag tag = stack.getTag();
         if (tag != null) {
             tag.remove("ShutterOpen");
             tag.remove("ShutterTicks");
@@ -314,19 +312,17 @@ public class CameraItem extends Item {
         }
     }
 
-    public void openShutter(Player player, Level level, ItemStack stack, ShutterSpeed shutterSpeed, boolean exposingFrame, boolean flashHasFired) {
-        setShutterOpen(player.level(), stack, shutterSpeed, exposingFrame, flashHasFired);
+    public void openShutter(Player player, Level level, ItemStack stack, ShutterSpeed shutterSpeed, boolean flashHasFired) {
+        setShutterOpen(player.level(), stack, shutterSpeed, flashHasFired);
 
         player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
-        playCameraSound(null, player, Exposure.SoundEvents.SHUTTER_OPEN.get(), exposingFrame ? 0.7f : 0.5f,
-                exposingFrame ? 1.1f : 1.25f, 0.2f);
+        playCameraSound(null, player, Exposure.SoundEvents.SHUTTER_OPEN.get(), 0.7f, 1.1f, 0.2f);
         if (shutterSpeed.getMilliseconds() > 500) // More than 1/2
             OnePerPlayerSounds.playForAllClients(player, Exposure.SoundEvents.SHUTTER_TICKING.get(), SoundSource.PLAYERS, 1f, 1f);
     }
 
     public void closeShutter(Player player, ItemStack stack) {
         long closedAtTimestamp = stack.getTag() != null ? stack.getTag().getLong("ShutterCloseTimestamp") : -1;
-        boolean exposingFrame = stack.getTag() != null && stack.getTag().getBoolean("ExposingFrame");
         boolean flashHasFired = stack.getTag() != null && stack.getTag().getBoolean("FlashHasFired");
 
         setShutterClosed(stack);
@@ -335,10 +331,9 @@ public class CameraItem extends Item {
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
             player.getCooldowns().addCooldown(this, flashHasFired ? 10 : 2);
             playCameraSound(player, player, Exposure.SoundEvents.SHUTTER_CLOSE.get(), 0.7f, 1.1f, 0.2f);
-            if (exposingFrame) {
-                ItemAndStack<FilmRollItem> film = getFilm(stack).orElseThrow();
 
-                float fullness = (float) film.getItem().getExposedFramesCount(film.getStack()) / film.getItem().getMaxFrameCount(film.getStack());
+            getFilm(stack).ifPresent(f -> {
+                float fullness = (float) f.getItem().getExposedFramesCount(f.getStack()) / f.getItem().getMaxFrameCount(f.getStack());
                 boolean lastFrame = fullness == 1f;
 
                 if (lastFrame)
@@ -347,7 +342,7 @@ public class CameraItem extends Item {
                     OnePerPlayerSounds.play(player, Exposure.SoundEvents.FILM_ADVANCING.get(), SoundSource.PLAYERS,
                             1f, 0.9f + 0.1f * fullness);
                 }
-            }
+            });
         }
     }
 
@@ -490,7 +485,7 @@ public class CameraItem extends Item {
 
         boolean flashHasFired = shouldFlashFire && tryUseFlash(player, cameraStack);
 
-        openShutter(player, player.level(), cameraStack, shutterSpeed, true, flashHasFired);
+        openShutter(player, player.level(), cameraStack, shutterSpeed, flashHasFired);
 
         if (player instanceof ServerPlayer serverPlayer) {
             Packets.sendToClient(new StartExposureS2CP(createExposureId(player), hand, flashHasFired, lightLevel), serverPlayer);
