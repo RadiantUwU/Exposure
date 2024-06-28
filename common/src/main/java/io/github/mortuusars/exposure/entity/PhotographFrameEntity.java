@@ -19,6 +19,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -370,6 +371,27 @@ public class PhotographFrameEntity extends HangingEntity {
             itemInHand.shrink(1);
             if (!level().isClientSide) {
                 playSound(SoundEvents.GLOW_INK_SAC_USE);
+                gameEvent(GameEvent.BLOCK_CHANGE, player);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        if (isInvisible()) {
+            if (itemInHand.is(ItemTags.PLANKS)) {
+                setInvisible(false);
+                itemInHand.shrink(1);
+                if (!level().isClientSide) {
+                    playPlacementSound();
+                    gameEvent(GameEvent.BLOCK_CHANGE, player);
+                }
+                return InteractionResult.SUCCESS;
+            }
+        }
+        else if (itemInHand.is(Items.GLASS_PANE)) {
+            setInvisible(true);
+            itemInHand.shrink(1);
+            if (!level().isClientSide) {
+                playSound(Exposure.SoundEvents.FILTER_INSERT.get(), 0.8f, 1.0f);
                 gameEvent(GameEvent.BLOCK_CHANGE, player);
             }
             return InteractionResult.SUCCESS;

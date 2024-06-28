@@ -57,7 +57,7 @@
   "exposure.file_capture.error.technical.path_empty": "Cannot load from file: filepath is empty.",
   "exposure.file_capture.error.technical.path_invalid": "Cannot load from file: filepath is not valid.",
   "exposure.file_capture.error.technical.path_is_directory": "Cannot load from file: filepath points to a directory instead of specific file",
-  "exposure.jei.info.photograph_frame": "Has three sizes: 1x1, 2x2 and 3x3. Placed like a Painting but can be placed on floors and ceilings as well. Glow Ink Sac will make it glow. Axe can be used to strip the frame, Stick will restore it.",
+  "exposure.jei.info.photograph_frame": "Has three sizes: 1x1, 2x2 and 3x3. Placed like a Painting, but can be placed on floors and ceilings as well. Glow Ink Sac will make it glow. Axe can be used to strip the frame, Stick will restore it. Glass Pane will make the frame invisible, Wooden Planks will restore it.",
   "gui.exposure.album.add_photograph": "Add Photograph",
   "gui.exposure.album.by_author": "by %1$s",
   "gui.exposure.album.cancel_signing": "Cancel",
