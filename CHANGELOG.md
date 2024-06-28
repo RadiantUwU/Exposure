@@ -29,6 +29,7 @@
 - Slightly reduced brightness increase per shutter speed.
 - Improved player arms positions in selfie pose.
 - Fixed player selfie pose sometimes not applying when activating/deactivating Camera rapidly.  
+- Loaded exposures now support images with transparency, but only when the pixel is fully transparent.
 
 ---
 
