@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.6.0 - 2024-06-28
+## 1.7.0 - 2024-06-28
 - Added **Photograph Frames**
   - **Photographs** can no longer be hanged on the wall. Existing hanging photographs will not be removed.
 - Added **Film Roll renaming**. Use the item to open renaming UI. Renaming this way does not cost any experience.
