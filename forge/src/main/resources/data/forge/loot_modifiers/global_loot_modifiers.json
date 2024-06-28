@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "entries": [
+    "exposure:simple_dungeon",
+    "exposure:abandoned_mineshaft",
+    "exposure:stronghold",
+    "exposure:shipwreck_map",
+    "exposure:village_plains_house"
+  ]
+}

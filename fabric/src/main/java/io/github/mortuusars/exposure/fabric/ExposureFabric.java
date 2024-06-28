@@ -15,10 +15,20 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableSource;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootDataManager;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntries;
+import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraftforge.fml.config.ModConfig;
 
 public class ExposureFabric implements ModInitializer {
@@ -72,6 +82,40 @@ public class ExposureFabric implements ModInitializer {
 
         ServerLifecycleEvents.SYNC_DATA_PACK_CONTENTS.register((player, joined) -> Lenses.onDatapackSync(player));
 
+        LootTableEvents.MODIFY.register(ExposureFabric::modifyLoot);
+
         PacketsImpl.registerC2SPackets();
+    }
+
+    private static void modifyLoot(ResourceManager resourceManager, LootDataManager manager,
+                                   ResourceLocation table, LootTable.Builder builder, LootTableSource source) {
+        if (!Config.Common.LOOT_ADDITION.get() || !source.isBuiltin())
+            return;
+
+        if (BuiltInLootTables.SIMPLE_DUNGEON.equals(table)) {
+            builder.pool(LootPool.lootPool()
+                    .add(LootTableReference.lootTableReference(Exposure.resource("chests/simple_dungeon")))
+                    .build());
+        }
+        if (BuiltInLootTables.ABANDONED_MINESHAFT.equals(table)) {
+            builder.pool(LootPool.lootPool()
+                    .add(LootTableReference.lootTableReference(Exposure.resource("chests/abandoned_mineshaft")))
+                    .build());
+        }
+        if (BuiltInLootTables.STRONGHOLD_CROSSING.equals(table)) {
+            builder.pool(LootPool.lootPool()
+                    .add(LootTableReference.lootTableReference(Exposure.resource("chests/stronghold")))
+                    .build());
+        }
+        if (BuiltInLootTables.VILLAGE_PLAINS_HOUSE.equals(table)) {
+            builder.pool(LootPool.lootPool()
+                    .add(LootTableReference.lootTableReference(Exposure.resource("chests/village_plains_house")))
+                    .build());
+        }
+        if (BuiltInLootTables.SHIPWRECK_MAP.equals(table)) {
+            builder.pool(LootPool.lootPool()
+                    .add(LootTableReference.lootTableReference(Exposure.resource("chests/shipwreck_map")))
+                    .build());
+        }
     }
 }

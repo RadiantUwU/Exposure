@@ -1,0 +1,121 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "exposure:aged_photograph",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{Texture:\"exposure:textures/exposure/shipwreck/ship_dock_1.png\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "exposure:aged_photograph",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{Texture:\"exposure:textures/exposure/shipwreck/ship_dock_2.png\"}"
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.1
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "exposure:aged_photograph",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{Texture:\"exposure:textures/exposure/shipwreck/ship_dock_3.png\"}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "exposure:aged_photograph",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{Texture:\"exposure:textures/exposure/shipwreck/ship_dock_4.png\"}"
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.1
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "exposure:developed_black_and_white_film",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{FrameSize:56, Frames:[{Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_crates_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_crates_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_crates_b.png\"}, {Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_1_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_1_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_1_b.png\"}, {Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_2_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_2_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_2_b.png\"}]}"
+            }
+          ]
+        },
+        {
+          "type": "minecraft:item",
+          "name": "exposure:developed_black_and_white_film",
+          "functions": [
+            {
+              "function": "minecraft:set_nbt",
+              "tag": "{FrameSize:56, Frames:[{Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_1_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_1_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_1_b.png\"}, {Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_2_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_2_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/cargo_gold_2_b.png\"}, {Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_3_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_3_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_3_b.png\"}, {Chromatic:1b, ChromaticChannel:\"red\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_4_r.png\"}, {Chromatic:1b, ChromaticChannel:\"green\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_4_g.png\"}, {Chromatic:1b, ChromaticChannel:\"blue\", Texture:\"exposure:textures/exposure/shipwreck/chromatic/deck_sunset_4_b.png\"}]}"
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.15
+        }
+      ]
+    },
+    {
+      "rolls": 2,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:red_stained_glass_pane"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:green_stained_glass_pane"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:blue_stained_glass_pane"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.3
+        }
+      ]
+    }
+  ]
+}

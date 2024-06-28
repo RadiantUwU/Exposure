@@ -1,0 +1,10 @@
+{
+  "type": "exposure:loot_table_addition",
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "minecraft:chests/village/village_plains_house"
+    }
+  ],
+  "lootTable": "exposure:chests/village_plains_house"
+}

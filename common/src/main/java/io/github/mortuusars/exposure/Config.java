@@ -34,6 +34,7 @@ public class Config {
 
         // Misc
         public static final ForgeConfigSpec.BooleanValue FILM_ROLL_RENAMING;
+        public static final ForgeConfigSpec.BooleanValue LOOT_ADDITION;
 
         // Compatibility
         public static final ForgeConfigSpec.BooleanValue CREATE_SPOUT_DEVELOPING_ENABLED;
@@ -105,6 +106,10 @@ public class Config {
                 FILM_ROLL_RENAMING = builder
                         .comment("Film rolls can be renamed by using the item. Default: true")
                         .define("FilmRollRenaming", true);
+
+                LOOT_ADDITION = builder
+                        .comment("Generate items in loot chests. Default: true")
+                        .define("AddItemsToLootChests", true);
             }
             builder.pop();
 

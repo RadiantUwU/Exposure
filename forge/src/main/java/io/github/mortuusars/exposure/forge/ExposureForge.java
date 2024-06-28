@@ -1,12 +1,15 @@
 package io.github.mortuusars.exposure.forge;
 
+import com.mojang.serialization.Codec;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.forge.event.ClientEvents;
 import io.github.mortuusars.exposure.forge.event.CommonEvents;
 import io.github.mortuusars.exposure.forge.integration.create.CreateFilmDeveloping;
+import io.github.mortuusars.exposure.forge.loot.LootTableAdditionModifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
@@ -15,6 +18,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 @Mod(Exposure.ID)
 public class ExposureForge {
@@ -37,6 +43,8 @@ public class ExposureForge {
         RegisterImpl.SOUND_EVENTS.register(modEventBus);
         RegisterImpl.COMMAND_ARGUMENT_TYPES.register(modEventBus);
 
+        LootModifiers.LOOT_MODIFIERS.register(modEventBus);
+
         modEventBus.register(CommonEvents.ModBus.class);
         MinecraftForge.EVENT_BUS.register(CommonEvents.ForgeBus.class);
 
@@ -44,6 +52,13 @@ public class ExposureForge {
             modEventBus.register(ClientEvents.ModBus.class);
             MinecraftForge.EVENT_BUS.register(ClientEvents.ForgeBus.class);
         });
+    }
+
+    public static class LootModifiers {
+        private static final DeferredRegister<Codec<? extends IGlobalLootModifier>> LOOT_MODIFIERS =
+                DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, Exposure.ID);
+        public static final RegistryObject<Codec<LootTableAdditionModifier>> LOOT_TABLE_ADDITION =
+                LOOT_MODIFIERS.register("loot_table_addition", LootTableAdditionModifier.CODEC);
     }
 
     private void onConfigReloading(ModConfigEvent.Reloading event) {
