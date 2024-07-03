@@ -5,6 +5,7 @@ import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.capture.CaptureManager;
 import io.github.mortuusars.exposure.camera.infrastructure.ZoomDirection;
 import io.github.mortuusars.exposure.camera.viewfinder.Viewfinder;
+import io.github.mortuusars.exposure.client.ComplicatedChromaticFinalizer;
 import io.github.mortuusars.exposure.client.ExposureClientReloadListener;
 import io.github.mortuusars.exposure.client.MouseHandler;
 import io.github.mortuusars.exposure.data.filter.Filters;
@@ -127,6 +128,14 @@ public class ClientEvents {
                 return;
 
             CaptureManager.onRenderTickEnd();
+        }
+
+        @SubscribeEvent
+        public static void onRenderTick(TickEvent.ClientTickEvent event) {
+            if (!event.phase.equals(TickEvent.Phase.END))
+                return;
+
+            ComplicatedChromaticFinalizer.clientTick();
         }
     }
 }

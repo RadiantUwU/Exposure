@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.2 - 
+- Fixed dedicated server crash when chromatic photograph is printed.
+- 
+
 ## 1.7.1 - 2024-06-28
 - Fixed Interplanar Projector not working when Supplementaries is installed.
 

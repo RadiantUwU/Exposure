@@ -8,8 +8,9 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
-import io.github.mortuusars.exposure.render.ExposureImage;
-import io.github.mortuusars.exposure.render.ExposureTexture;
+import io.github.mortuusars.exposure.render.ExposureDataImage;
+import io.github.mortuusars.exposure.render.IImage;
+import io.github.mortuusars.exposure.render.TextureImage;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.GuiUtil;
@@ -85,15 +86,10 @@ public class NegativeExposureScreen extends ZoomableScreen {
         if (type == null)
             type = FilmType.BLACK_AND_WHITE;
 
-        @Nullable ExposureImage exposure = idOrTexture.map(
-                id -> ExposureClient.getExposureStorage().getOrQuery(id).map(data -> new ExposureImage(id, data)).orElse(null),
-                texture -> {
-                    @Nullable ExposureTexture exposureTexture = ExposureTexture.getTexture(texture);
-                    if (exposureTexture != null)
-                        return new ExposureImage(texture.toString(), exposureTexture);
-                    else
-                        return null;
-                }
+        @Nullable IImage exposure = idOrTexture.map(
+                id -> ExposureClient.getExposureStorage().getOrQuery(id)
+                        .map(data -> new ExposureDataImage(id, data)).orElse(null),
+                TextureImage::getTexture
         );
 
         if (exposure == null)

@@ -13,6 +13,7 @@ import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
 import io.github.mortuusars.exposure.camera.capture.converter.SimpleColorConverter;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
+import io.github.mortuusars.exposure.client.ComplicatedChromaticFinalizer;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.data.ExposureSize;
 import io.github.mortuusars.exposure.gui.screen.NegativeExposureScreen;
@@ -214,6 +215,10 @@ public class ClientPacketsHandler {
 
     public static void onFrameAdded(OnFrameAddedS2CP packet) {
         executeOnMainThread(() -> CapturedFramesHistory.add(packet.frame()));
+    }
+
+    public static void createChromaticExposure(CreateChromaticExposureS2CP packet) {
+        executeOnMainThread(() -> ComplicatedChromaticFinalizer.finalizeChromatic(packet.red(), packet.green(), packet.blue(), packet.exposureId()));
     }
 
     private static void executeOnMainThread(Runnable runnable) {

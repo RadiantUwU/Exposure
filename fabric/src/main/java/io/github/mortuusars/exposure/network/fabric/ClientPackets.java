@@ -29,6 +29,7 @@ public class ClientPackets {
         ClientPlayNetworking.registerGlobalReceiver(ExposureChangedS2CP.ID, new ClientHandler(ExposureChangedS2CP::fromBuffer));
         ClientPlayNetworking.registerGlobalReceiver(WaitForExposureChangeS2CP.ID, new ClientHandler(WaitForExposureChangeS2CP::fromBuffer));
         ClientPlayNetworking.registerGlobalReceiver(OnFrameAddedS2CP.ID, new ClientHandler(OnFrameAddedS2CP::fromBuffer));
+        ClientPlayNetworking.registerGlobalReceiver(CreateChromaticExposureS2CP.ID, new ClientHandler(CreateChromaticExposureS2CP::fromBuffer));
     }
 
     public static void sendToServer(IPacket packet) {

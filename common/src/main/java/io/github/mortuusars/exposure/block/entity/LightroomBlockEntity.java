@@ -525,7 +525,16 @@ public class LightroomBlockEntity extends BaseContainerBlockEntity implements Wo
 
             if (chromaticFragment.getItem().getExposures(chromaticFragment.getStack()).size() >= 3) {
                 assert level != null;
-                return chromaticFragment.getItem().finalize(level, chromaticFragment.getStack(), lastPlayerName != null ? lastPlayerName : "Exposure");
+                if (lastPlayerName == null) {
+                    return chromaticFragment.getItem().finalize(level, chromaticFragment.getStack(), "Exposure", null);
+                }
+                else if (level.getServer() == null) {
+                    return chromaticFragment.getItem().finalize(level, chromaticFragment.getStack(), lastPlayerName, null);
+                }
+                else {
+                    @Nullable ServerPlayer player = level.getServer().getPlayerList().getPlayerByName(lastPlayerName);
+                    return chromaticFragment.getItem().finalize(level, chromaticFragment.getStack(), lastPlayerName, player);
+                }
             }
 
             return chromaticFragment.getStack();

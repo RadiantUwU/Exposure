@@ -54,17 +54,11 @@ public class ExposureRenderer implements AutoCloseable {
     public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier,
                        PoseStack poseStack, MultiBufferSource bufferSource, float minX, float minY, float maxX, float maxY,
                        float minU, float minV, float maxU, float maxV, int packedLight, int r, int g, int b, int a) {
-        @Nullable ExposureImage exposure = idOrTexture.map(
+        @Nullable IImage exposure = idOrTexture.map(
                 id -> ExposureClient.getExposureStorage().getOrQuery(id)
-                        .map(data -> new ExposureImage(id, data))
+                        .map(data -> new ExposureDataImage(id, data))
                         .orElse(null),
-                texture -> {
-                    @Nullable ExposureTexture exposureTexture = ExposureTexture.getTexture(texture);
-                    if (exposureTexture != null)
-                        return new ExposureImage(texture.toString(), exposureTexture);
-                    else
-                        return null;
-                }
+                TextureImage::getTexture
         );
 
         if (exposure != null) {
@@ -74,7 +68,7 @@ public class ExposureRenderer implements AutoCloseable {
         }
     }
 
-    private ExposureInstance getOrCreateExposureInstance(String id, ExposureImage exposure, IPixelModifier modifier) {
+    private ExposureInstance getOrCreateExposureInstance(String id, IImage exposure, IPixelModifier modifier) {
         String instanceId = id + modifier.getIdSuffix();
         return (this.cache).compute(instanceId, (expId, expData) -> {
             if (expData == null) {
@@ -116,12 +110,12 @@ public class ExposureRenderer implements AutoCloseable {
     static class ExposureInstance implements AutoCloseable {
         private final RenderType renderType;
 
-        private ExposureImage exposure;
+        private IImage exposure;
         private DynamicTexture texture;
         private final IPixelModifier pixelModifier;
         private boolean requiresUpload = true;
 
-        ExposureInstance(String id, ExposureImage exposure, IPixelModifier modifier) {
+        ExposureInstance(String id, IImage exposure, IPixelModifier modifier) {
             this.exposure = exposure;
             this.texture = new DynamicTexture(exposure.getWidth(), exposure.getHeight(), true);
             this.pixelModifier = modifier;
@@ -149,7 +143,7 @@ public class ExposureRenderer implements AutoCloseable {
             return sb.toString();
         }
 
-        private void replaceData(ExposureImage exposure) {
+        private void replaceData(IImage exposure) {
             boolean hasChanged = !this.exposure.getName().equals(exposure.getName());
             this.exposure = exposure;
             if (hasChanged) {

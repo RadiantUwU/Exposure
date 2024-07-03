@@ -12,24 +12,49 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
-public class ExposureTexture extends SimpleTexture {
+public class TextureImage extends SimpleTexture implements IImage {
+    private final String name;
     @Nullable
     private NativeImage image;
 
-    public ExposureTexture(ResourceLocation location) {
+    public TextureImage(ResourceLocation location) {
         super(location);
+        name = location.toString();
     }
 
-    public static @Nullable ExposureTexture getTexture(ResourceLocation location) {
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public int getWidth() {
+        @Nullable NativeImage image = getImage();
+        return image != null ? image.getWidth() : 1;
+    }
+
+    @Override
+    public int getHeight() {
+        @Nullable NativeImage image = getImage();
+        return image != null ? image.getHeight() : 1;
+    }
+
+    @Override
+    public int getPixelABGR(int x, int y) {
+        @Nullable NativeImage image = getImage();
+        return image != null ? image.getPixelRGBA(x, y) : 0x00000000;
+    }
+
+    public static @Nullable io.github.mortuusars.exposure.render.TextureImage getTexture(ResourceLocation location) {
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
         @Nullable AbstractTexture existingTexture = textureManager.byPath.get(location);
         if (existingTexture != null) {
-            return existingTexture instanceof ExposureTexture exposureTexture ? exposureTexture : null;
+            return existingTexture instanceof io.github.mortuusars.exposure.render.TextureImage exposureTexture ? exposureTexture : null;
         }
 
         try {
-            ExposureTexture texture = new ExposureTexture(location);
+            io.github.mortuusars.exposure.render.TextureImage texture = new io.github.mortuusars.exposure.render.TextureImage(location);
             textureManager.register(location, texture);
             return texture;
         }
@@ -48,7 +73,7 @@ public class ExposureTexture extends SimpleTexture {
             this.image = image;
             return image;
         } catch (IOException e) {
-            Exposure.LOGGER.error("Cannot load texture: " + e);
+            Exposure.LOGGER.error("Cannot load texture: {}", e.toString());
             return null;
         }
     }
@@ -56,7 +81,10 @@ public class ExposureTexture extends SimpleTexture {
     @Override
     public void reset(@NotNull TextureManager pTextureManager, @NotNull ResourceManager pResourceManager, @NotNull ResourceLocation pPath, @NotNull Executor pExecutor) {
         super.reset(pTextureManager, pResourceManager, pPath, pExecutor);
-        image = null;
+        if (image != null) {
+            image.close();
+            image = null;
+        }
     }
 
     @Override

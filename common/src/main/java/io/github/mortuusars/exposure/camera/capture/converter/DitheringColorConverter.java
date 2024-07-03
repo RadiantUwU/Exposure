@@ -27,15 +27,41 @@ public class DitheringColorConverter implements IImageToMapColorsConverter {
 
     @Override
     public byte[] convert(NativeImage image) {
-        int width = image.getWidth();
-        int height = image.getHeight();
         int[][] pixels = convertToPixelArray(image);
+        return convert(pixels);
+
+//        int width = image.getWidth();
+//        int height = image.getHeight();
+//        MapColor[] mapColors = Arrays.stream(getMapColors()).filter(Objects::nonNull).toArray(MapColor[]::new);
+//
+//        byte[] bytes = new byte[width * height];
+//
+//        for (int x = 0; x < width; x++) {
+//            for (int y = 0; y < height; y++) {
+//                Color imageColor = new Color(pixels[y][x], true);
+//
+//                byte b = (byte) floydDither(mapColors, pixels, x, y, imageColor);
+//
+//                if (imageColor.getAlpha() == 0)
+//                    b = (byte)MapColor.NONE.id;
+//
+//                bytes[x + y * width] = b;
+//            }
+//        }
+//
+//        return bytes;
+    }
+
+    public byte[] convert(int[][] pixels) {
         MapColor[] mapColors = Arrays.stream(getMapColors()).filter(Objects::nonNull).toArray(MapColor[]::new);
+
+        int width = pixels[0].length;
+        int height = pixels.length;
 
         byte[] bytes = new byte[width * height];
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 Color imageColor = new Color(pixels[y][x], true);
 
                 byte b = (byte) floydDither(mapColors, pixels, x, y, imageColor);

@@ -54,7 +54,7 @@ public class DebugCommand {
             item.addExposure(itemStack, frames.get(1)); // Green
             item.addExposure(itemStack, frames.get(0)); // Blue
 
-            ItemStack photographStack = item.finalize(player.level(), itemStack, player.getScoreboardName());
+            ItemStack photographStack = item.finalize(player.level(), itemStack, player.getScoreboardName(), player);
 
             CompoundTag frame = photographStack.getTag();
             Preconditions.checkState(frame != null);
