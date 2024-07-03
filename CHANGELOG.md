@@ -2,6 +2,7 @@
 
 ## 1.7.2 - 
 - Fixed dedicated server crash when chromatic photograph is printed.
+- [Forge] Fixed Camera recipe change from 1.7.0 not being applied. 
 - Viewfinder zooming animation is now slightly faster.
 
 ## 1.7.1 - 2024-06-28
