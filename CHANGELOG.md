@@ -4,6 +4,7 @@
 - Fixed dedicated server crash when chromatic photograph is printed.
 - [Forge] Fixed Camera recipe change from 1.7.0 not being applied. 
 - Viewfinder zooming animation is now slightly faster.
+- Photograph Frame and Interplanar Projector recipes now added to recipe book if player has required items. 
 
 ## 1.7.1 - 2024-06-28
 - Fixed Interplanar Projector not working when Supplementaries is installed.
