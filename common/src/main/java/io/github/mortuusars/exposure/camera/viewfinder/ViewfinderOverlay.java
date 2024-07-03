@@ -59,7 +59,7 @@ public class ViewfinderOverlay {
         final int width = minecraft.getWindow().getGuiScaledWidth();
         final int height = minecraft.getWindow().getGuiScaledHeight();
 
-        scale = Mth.lerp(Math.min(0.5f * minecraft.getDeltaFrameTime(), 0.5f), scale, 1f);
+        scale = Mth.lerp(Math.min(0.8f * minecraft.getDeltaFrameTime(), 0.8f), scale, 1f);
         float openingSize = Math.min(width, height);
 
         opening = new Rect2f((width - openingSize) / 2f, (height - openingSize) / 2f, openingSize, openingSize);

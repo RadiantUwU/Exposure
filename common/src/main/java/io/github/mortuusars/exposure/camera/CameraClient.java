@@ -24,36 +24,41 @@ public class CameraClient {
 
     public static void setZoom(double focalLength) {
         getCamera()
-                .orElseThrow()
-                .apply((item, stack) -> item.setZoom(stack, focalLength));
-        Packets.sendToServer(new CameraSetZoomC2SP(focalLength));
+                .ifPresent(c -> {
+                    c.apply((item, stack) -> item.setZoom(stack, focalLength));
+                    Packets.sendToServer(new CameraSetZoomC2SP(focalLength));
+                });
     }
 
     public static void setShutterSpeed(ShutterSpeed shutterSpeed) {
         getCamera()
-                .orElseThrow()
-                .apply((item, stack) -> item.setShutterSpeed(stack, shutterSpeed));
-        Packets.sendToServer(new CameraSetShutterSpeedC2SP(shutterSpeed));
+                .ifPresent(c -> {
+                    c.apply((item, stack) -> item.setShutterSpeed(stack, shutterSpeed));
+                    Packets.sendToServer(new CameraSetShutterSpeedC2SP(shutterSpeed));
+                });
     }
 
     public static void setFlashMode(FlashMode flashMode) {
         getCamera()
-                .orElseThrow()
-                .apply((item, stack) -> item.setFlashMode(stack, flashMode));
-        Packets.sendToServer(new CameraSetFlashModeC2SP(flashMode));
+                .ifPresent(c -> {
+                    c.apply((item, stack) -> item.setFlashMode(stack, flashMode));
+                    Packets.sendToServer(new CameraSetFlashModeC2SP(flashMode));
+                });
     }
 
     public static void setCompositionGuide(CompositionGuide guide) {
         getCamera()
-                .orElseThrow()
-                .apply((item, stack) -> item.setCompositionGuide(stack, guide));
-        Packets.sendToServer(new CameraSetCompositionGuideC2SP(guide));
+                .ifPresent(c -> {
+                    c.apply((item, stack) -> item.setCompositionGuide(stack, guide));
+                    Packets.sendToServer(new CameraSetCompositionGuideC2SP(guide));
+                });
     }
 
     public static void setSelfieMode(boolean inSelfieMode) {
         getCamera()
-                .orElseThrow()
-                .apply((item, stack) -> item.setSelfieModeWithEffects(Minecraft.getInstance().player, stack, inSelfieMode));
-        Packets.sendToServer(new CameraSetSelfieModeC2SP(inSelfieMode));
+                .ifPresent(c -> {
+                    c.apply((item, stack) -> item.setSelfieModeWithEffects(Minecraft.getInstance().player, stack, inSelfieMode));
+                    Packets.sendToServer(new CameraSetSelfieModeC2SP(inSelfieMode));
+                });
     }
 }

@@ -139,12 +139,12 @@ public class Viewfinder {
 
     public static double modifyFov(double fov) {
         if (isLookingThrough()) {
-            currentFov = Mth.lerp(Math.min(0.6f * Minecraft.getInstance().getDeltaFrameTime(), 0.6f), currentFov, targetFov);
+            currentFov = Mth.lerp(Math.min(0.8f * Minecraft.getInstance().getDeltaFrameTime(), 0.8f), currentFov, targetFov);
             shouldRestoreFov = true;
             return currentFov;
         }
         else if (shouldRestoreFov && Math.abs(currentFov - fov) > 0.00001) {
-            currentFov = Mth.lerp(Math.min(0.8f * Minecraft.getInstance().getDeltaFrameTime(), 0.8f), currentFov, fov);
+            currentFov = Mth.lerp(Math.min(0.95f * Minecraft.getInstance().getDeltaFrameTime(), 0.95f), currentFov, fov);
             return currentFov;
         } else {
             currentFov = fov;
