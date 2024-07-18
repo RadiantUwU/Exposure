@@ -3,6 +3,7 @@
 ## 1.7.3 - Unreleased
 - Fixed `export` command not working/crashing on a dedicated server.
 - Added config options to hide projected/all photographs made by other players.
+- [Real Camera compat] Player model will not be rendered while looking through viewfinder. 
 
 ## 1.7.2 - 2024-07-04
 - Fixed dedicated server crash when chromatic photograph is printed.

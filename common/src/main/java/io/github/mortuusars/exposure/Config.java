@@ -174,6 +174,7 @@ public class Config {
 
         // INTEGRATION
         public static final ForgeConfigSpec.BooleanValue SHOW_JEI_INFORMATION;
+        public static final ForgeConfigSpec.BooleanValue REAL_CAMERA_DISABLE_IN_VIEWFINDER;
 
         // IMAGE SAVING
         public static final ForgeConfigSpec.BooleanValue SAVE_EXPOSURE_TO_FILE_WHEN_VIEWED;
@@ -279,8 +280,10 @@ public class Config {
                 SHOW_JEI_INFORMATION = builder
                         .comment("Useful information about some items will be shown in JEI description category. Default: true")
                         .define("JeiInformation", true);
+                REAL_CAMERA_DISABLE_IN_VIEWFINDER = builder
+                        .comment("[Real Camera] Disable player model rendering when looking through viewfinder. Default: true")
+                        .define("RealCameraDisableInViewfinder", true);
                 builder.pop();
-
             }
 
             {

@@ -1,5 +1,6 @@
 package io.github.mortuusars.exposure.item;
 
+import io.github.mortuusars.exposure.PlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AnimationUtils;
 import net.minecraft.client.model.HumanoidModel;
@@ -11,6 +12,10 @@ import net.minecraft.world.item.ItemStack;
 
 public class CameraItemClientExtensions {
     public static void applyDefaultHoldingPose(HumanoidModel<?> model, LivingEntity entity, HumanoidArm arm) {
+        if (PlatformHelper.isModLoaded("realcamera")) {
+            return;
+        }
+
         model.head.xRot += 0.4f; // If we turn head down completely - arms will be too low.
         if (arm == HumanoidArm.RIGHT) {
             AnimationUtils.animateCrossbowHold(model.rightArm, model.leftArm, model.head, true);
