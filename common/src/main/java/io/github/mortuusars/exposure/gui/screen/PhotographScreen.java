@@ -9,7 +9,7 @@ import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
-import io.github.mortuusars.exposure.data.storage.ExposureExporter;
+import io.github.mortuusars.exposure.data.storage.ClientsideExposureExporter;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
 import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.render.PhotographRenderProperties;
@@ -197,7 +197,7 @@ public class PhotographScreen extends ZoomableScreen {
             ExposureClient.getExposureStorage().getOrQuery(id).ifPresent(exposure -> {
                 savedExposures.add(filename);
 
-                new Thread(() -> new ExposureExporter(filename)
+                new Thread(() -> new ClientsideExposureExporter(filename)
                         .withDefaultFolder()
                         .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(), ClientsideWorldNameGetter::getWorldName)
                         .withModifier(properties.getModifier())

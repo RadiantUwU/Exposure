@@ -7,7 +7,6 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.capture.*;
 import io.github.mortuusars.exposure.camera.capture.component.BaseComponent;
-import io.github.mortuusars.exposure.camera.capture.component.ExposureExporterComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ExposureStorageSaveComponent;
 import io.github.mortuusars.exposure.camera.capture.component.ICaptureComponent;
 import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConverter;
@@ -16,6 +15,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.client.ComplicatedChromaticFinalizer;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.data.ExposureSize;
+import io.github.mortuusars.exposure.data.storage.ClientsideExposureExporter;
 import io.github.mortuusars.exposure.gui.screen.NegativeExposureScreen;
 import io.github.mortuusars.exposure.gui.screen.PhotographScreen;
 import io.github.mortuusars.exposure.item.CameraItem;
@@ -69,7 +69,7 @@ public class ClientPacketsHandler {
                     .cropFactor(1f)
                     .setComponents(
                             new BaseComponent(true),
-                            new ExposureExporterComponent(filename)
+                            new ClientsideExposureExporter(filename)
                                     .organizeByWorld(Config.Client.EXPOSURE_SAVING_LEVEL_SUBFOLDER.get(),
                                             ClientsideWorldNameGetter::getWorldName)
                                     .withModifier(ExposurePixelModifiers.EMPTY)

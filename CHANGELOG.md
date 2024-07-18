@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.7.3 - Unreleased
+- Fixed `export` command not working/crashing on a dedicated server.
+
 ## 1.7.2 - 2024-07-04
 - Fixed dedicated server crash when chromatic photograph is printed.
 - [Forge] Fixed Camera recipe change from 1.7.0 not being applied. 

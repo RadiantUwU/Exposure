@@ -10,8 +10,8 @@ import io.github.mortuusars.exposure.command.argument.ExposureSizeArgument;
 import io.github.mortuusars.exposure.command.suggestion.ExposureIdSuggestionProvider;
 import io.github.mortuusars.exposure.data.ExposureLook;
 import io.github.mortuusars.exposure.data.ExposureSize;
-import io.github.mortuusars.exposure.data.storage.ExposureExporter;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
+import io.github.mortuusars.exposure.data.storage.ServersideExposureExporter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
@@ -89,7 +89,7 @@ public class ExportCommand {
             ExposureSavedData exposureSavedData = data.get();
             String name = id + look.getIdSuffix();
 
-            boolean saved = new ExposureExporter(name)
+            boolean saved = new ServersideExposureExporter(name)
                     .withFolder(folder.getAbsolutePath().replace("\\.\\", "\\").replace("/./", "/"))
                     .withModifier(look.getModifier())
                     .withSize(size)
