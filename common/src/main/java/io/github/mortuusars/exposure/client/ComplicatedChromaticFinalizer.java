@@ -8,9 +8,9 @@ import io.github.mortuusars.exposure.camera.capture.converter.DitheringColorConv
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
-import io.github.mortuusars.exposure.render.ExposureDataImage;
-import io.github.mortuusars.exposure.render.IImage;
-import io.github.mortuusars.exposure.render.TextureImage;
+import io.github.mortuusars.exposure.render.image.ExposureDataImage;
+import io.github.mortuusars.exposure.render.image.IImage;
+import io.github.mortuusars.exposure.render.image.TextureImage;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.Nullable;
@@ -118,7 +118,7 @@ public class ComplicatedChromaticFinalizer {
 
         private @Nullable IImage tryGetData(CompoundTag frame) {
             return FrameData.getIdOrTexture(frame)
-                    .map(id -> ExposureClient.getExposureStorage().getOrQuery(id)
+                    .map(id ->  ExposureClient.getExposureStorage().getOrQuery(id)
                                     .map(data -> new ExposureDataImage(id, data))
                                     .orElse(null),
                             TextureImage::new);

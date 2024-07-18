@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.render;
+package io.github.mortuusars.exposure.render.image;
 
 public interface IImage {
     String getName();

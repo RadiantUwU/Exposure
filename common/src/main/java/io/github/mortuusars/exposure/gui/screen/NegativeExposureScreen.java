@@ -8,9 +8,10 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
-import io.github.mortuusars.exposure.render.ExposureDataImage;
-import io.github.mortuusars.exposure.render.IImage;
-import io.github.mortuusars.exposure.render.TextureImage;
+import io.github.mortuusars.exposure.render.RenderedImageProvider;
+import io.github.mortuusars.exposure.render.image.ExposureDataImage;
+import io.github.mortuusars.exposure.render.image.IImage;
+import io.github.mortuusars.exposure.render.image.TextureImage;
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.GuiUtil;
@@ -86,17 +87,17 @@ public class NegativeExposureScreen extends ZoomableScreen {
         if (type == null)
             type = FilmType.BLACK_AND_WHITE;
 
-        @Nullable IImage exposure = idOrTexture.map(
+        @Nullable IImage image = idOrTexture.map(
                 id -> ExposureClient.getExposureStorage().getOrQuery(id)
                         .map(data -> new ExposureDataImage(id, data)).orElse(null),
                 TextureImage::getTexture
         );
 
-        if (exposure == null)
+        if (image == null)
             return;
 
-        int width = exposure.getWidth();
-        int height = exposure.getHeight();
+        int width = image.getWidth();
+        int height = image.getHeight();
 
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(x + this.width / 2f, y + this.height / 2f, 0);
@@ -124,9 +125,9 @@ public class NegativeExposureScreen extends ZoomableScreen {
         }
 
         MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        ExposureClient.getExposureRenderer().render(idOrTexture, ExposurePixelModifiers.NEGATIVE_FILM, guiGraphics.pose(), bufferSource,
-                0, 0, width, height, 0, 0, 1, 1, LightTexture.FULL_BRIGHT,
-                type.frameR, type.frameG, type.frameB, 255);
+        ExposureClient.getExposureRenderer().render(new RenderedImageProvider(image), ExposurePixelModifiers.NEGATIVE_FILM,
+                guiGraphics.pose(), bufferSource, 0, 0, width, height, 0, 0, 1, 1,
+                LightTexture.FULL_BRIGHT, type.frameR, type.frameG, type.frameB, 255);
         bufferSource.endBatch();
 
         guiGraphics.pose().popPose();

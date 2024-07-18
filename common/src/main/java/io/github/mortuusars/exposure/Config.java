@@ -168,6 +168,8 @@ public class Config {
         public static final ForgeConfigSpec.BooleanValue VIEWFINDER_MIDDLE_CLICK_CONTROLS;
 
         // RENDER
+        public static final ForgeConfigSpec.BooleanValue HIDE_PHOJECTED_PHOTOGRAPHS_MADE_BY_OTHERS;
+        public static final ForgeConfigSpec.BooleanValue HIDE_ALL_PHOTOGRAPHS_MADE_BY_OTHERS;
         public static final ForgeConfigSpec.IntValue PHOTOGRAPH_FRAME_CULLING_DISTANCE;
 
         // INTEGRATION
@@ -255,10 +257,20 @@ public class Config {
 
             {
                 builder.push("Render");
+
+                HIDE_PHOJECTED_PHOTOGRAPHS_MADE_BY_OTHERS = builder
+                        .comment("Projected photographs (using Interplanar Projector) made by other players will not be rendered.")
+                        .define("HideProjectedPhotographsMadeByOthers", false);
+
+                HIDE_ALL_PHOTOGRAPHS_MADE_BY_OTHERS = builder
+                        .comment("All photographs made by other players will not be rendered.")
+                        .define("HideAllPhotographsMadeByOthers", false);
+
                 PHOTOGRAPH_FRAME_CULLING_DISTANCE = builder
                         .comment("Distance from the player beyond which Photograph Frame would not be rendered. Default: 64",
                                 "Note: this number may not relate to distance in blocks exactly. It's influenced by onRender distance and entity distance settings.")
                         .defineInRange("PhotographFrameCullingDistance", 64, 8, 128);
+
                 builder.pop();
             }
 

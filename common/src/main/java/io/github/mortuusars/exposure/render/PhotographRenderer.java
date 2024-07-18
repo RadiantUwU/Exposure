@@ -12,6 +12,7 @@ import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +36,9 @@ public class PhotographRenderer {
         PhotographRenderProperties properties = PhotographRenderProperties.get(stack);
         int size = ExposureClient.getExposureRenderer().getSize();
         float rotateOffset = size / 2f;
+
+        CompoundTag frame = stack.getTag();
+        RenderedImageProvider imageProvider = RenderedImageProvider.fromFrame(frame);
 
         @Nullable Either<String, ResourceLocation> idOrTexture = photographItem.getIdOrTexture(stack);
         int rotation = idOrTexture != null ? idOrTexture.map(Objects::hashCode, Objects::hashCode) % 4 : 0;
@@ -66,31 +70,29 @@ public class PhotographRenderer {
             }
         }
 
-        if (idOrTexture != null) {
-            if (renderPaper) {
-                poseStack.pushPose();
-                float offset = size * 0.0625f;
-                poseStack.translate(offset, offset, 1);
-                poseStack.scale(0.875f, 0.875f, 0.875f);
-                ExposureClient.getExposureRenderer().render(idOrTexture, properties.getModifier(), poseStack, bufferSource,
-                        packedLight, r, g, b, a);
-                poseStack.popPose();
-            } else {
-                ExposureClient.getExposureRenderer().render(idOrTexture, properties.getModifier(), poseStack, bufferSource,
-                        packedLight, r, g, b, a);
-            }
+        if (renderPaper) {
+            poseStack.pushPose();
+            float offset = size * 0.0625f;
+            poseStack.translate(offset, offset, 1);
+            poseStack.scale(0.875f, 0.875f, 0.875f);
+            ExposureClient.getExposureRenderer().render(imageProvider, properties.getModifier(), poseStack, bufferSource,
+                    packedLight, r, g, b, a);
+            poseStack.popPose();
+        } else {
+            ExposureClient.getExposureRenderer().render(imageProvider, properties.getModifier(), poseStack, bufferSource,
+                    packedLight, r, g, b, a);
+        }
 
-            if (renderPaper && properties.hasPaperOverlayTexture()) {
-                poseStack.pushPose();
+        if (renderPaper && properties.hasPaperOverlayTexture()) {
+            poseStack.pushPose();
 
-                poseStack.translate(rotateOffset, rotateOffset, 0);
-                poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
-                poseStack.translate(-rotateOffset, -rotateOffset, 0);
+            poseStack.translate(rotateOffset, rotateOffset, 0);
+            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation * 90));
+            poseStack.translate(-rotateOffset, -rotateOffset, 0);
 
-                poseStack.translate(0, 0, 2);
-                renderTexture(properties.getPaperOverlayTexture(), poseStack, bufferSource, packedLight, r, g, b, a);
-                poseStack.popPose();
-            }
+            poseStack.translate(0, 0, 2);
+            renderTexture(properties.getPaperOverlayTexture(), poseStack, bufferSource, packedLight, r, g, b, a);
+            poseStack.popPose();
         }
     }
 

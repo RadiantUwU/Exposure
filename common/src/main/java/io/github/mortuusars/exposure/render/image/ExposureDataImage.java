@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.render;
+package io.github.mortuusars.exposure.render.image;
 
 import io.github.mortuusars.exposure.data.storage.ExposureSavedData;
 import net.minecraft.world.level.material.MapColor;

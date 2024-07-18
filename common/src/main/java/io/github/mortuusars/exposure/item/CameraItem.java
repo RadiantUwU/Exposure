@@ -513,8 +513,6 @@ public class CameraItem extends Item {
         // Base properties. It's easier to add them client-side.
         frame.putString(FrameData.ID, exposureId);
         frame.putString(FrameData.TIMESTAMP, Util.getFilenameFormattedDateTime());
-        frame.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
-        frame.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
 
         if (!projectingFile) {
             frame.putInt(FrameData.FOCAL_LENGTH, Mth.ceil(getFocalLength(cameraStack)));
@@ -651,6 +649,9 @@ public class CameraItem extends Item {
     }
 
     public void addFrame(ServerPlayer player, ItemStack cameraStack, CompoundTag frameTag, List<Entity> entities) {
+        frameTag.putString(FrameData.PHOTOGRAPHER, player.getScoreboardName());
+        frameTag.putUUID(FrameData.PHOTOGRAPHER_ID, player.getUUID());
+
         if (!frameTag.getBoolean(FrameData.PROJECTED)) {
             addFrameData(player, cameraStack, frameTag, entities);
         }

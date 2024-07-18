@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.render;
+package io.github.mortuusars.exposure.render.image;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import io.github.mortuusars.exposure.Exposure;
@@ -45,16 +45,16 @@ public class TextureImage extends SimpleTexture implements IImage {
         return image != null ? image.getPixelRGBA(x, y) : 0x00000000;
     }
 
-    public static @Nullable io.github.mortuusars.exposure.render.TextureImage getTexture(ResourceLocation location) {
+    public static @Nullable io.github.mortuusars.exposure.render.image.TextureImage getTexture(ResourceLocation location) {
         TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
         @Nullable AbstractTexture existingTexture = textureManager.byPath.get(location);
         if (existingTexture != null) {
-            return existingTexture instanceof io.github.mortuusars.exposure.render.TextureImage exposureTexture ? exposureTexture : null;
+            return existingTexture instanceof io.github.mortuusars.exposure.render.image.TextureImage exposureTexture ? exposureTexture : null;
         }
 
         try {
-            io.github.mortuusars.exposure.render.TextureImage texture = new io.github.mortuusars.exposure.render.TextureImage(location);
+            io.github.mortuusars.exposure.render.image.TextureImage texture = new io.github.mortuusars.exposure.render.image.TextureImage(location);
             textureManager.register(location, texture);
             return texture;
         }

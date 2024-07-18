@@ -2,17 +2,14 @@ package io.github.mortuusars.exposure.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Either;
-import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.render.image.IImage;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.HashMap;
@@ -28,53 +25,34 @@ public class ExposureRenderer implements AutoCloseable {
         return 256;
     }
 
-    public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier, PoseStack poseStack, MultiBufferSource bufferSource) {
-        render(idOrTexture, modifier, poseStack, bufferSource, 0, 0, getSize(), getSize());
-    }
-
-    public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier,
-                       PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, float width, float height) {
-        render(idOrTexture, modifier, poseStack, bufferSource, x, y, x + width, y + height,
-                0, 0, 1, 1, LightTexture.FULL_BRIGHT, 255, 255, 255, 255);
-    }
-
-    public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier,
+    public void render(@NotNull RenderedImageProvider imageProvider, IPixelModifier modifier,
                        PoseStack poseStack, MultiBufferSource bufferSource,
                        int packedLight, int r, int g, int b, int a) {
-        render(idOrTexture, modifier, poseStack, bufferSource, 0, 0, getSize(), getSize(), packedLight, r, g, b, a);
+        render(imageProvider, modifier, poseStack, bufferSource, 0, 0, getSize(), getSize(), packedLight, r, g, b, a);
     }
 
-    public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier,
+    public void render(@NotNull RenderedImageProvider imageProvider, IPixelModifier modifier,
                        PoseStack poseStack, MultiBufferSource bufferSource, float x, float y, float width, float height,
                        int packedLight, int r, int g, int b, int a) {
-        render(idOrTexture, modifier, poseStack, bufferSource, x, y, x + width, y + height,
+        render(imageProvider, modifier, poseStack, bufferSource, x, y, x + width, y + height,
                 0, 0, 1, 1, packedLight, r, g, b, a);
     }
 
-    public void render(@NotNull Either<String, ResourceLocation> idOrTexture, IPixelModifier modifier,
+    public void render(@NotNull RenderedImageProvider imageProvider, IPixelModifier modifier,
                        PoseStack poseStack, MultiBufferSource bufferSource, float minX, float minY, float maxX, float maxY,
                        float minU, float minV, float maxU, float maxV, int packedLight, int r, int g, int b, int a) {
-        @Nullable IImage exposure = idOrTexture.map(
-                id -> ExposureClient.getExposureStorage().getOrQuery(id)
-                        .map(data -> new ExposureDataImage(id, data))
-                        .orElse(null),
-                TextureImage::getTexture
-        );
-
-        if (exposure != null) {
-            String id = idOrTexture.map(expId -> expId, ResourceLocation::toString);
-            getOrCreateExposureInstance(id, exposure, modifier)
+            getOrCreateExposureInstance(imageProvider, modifier)
                     .draw(poseStack, bufferSource, minX, minY, maxX, maxY, minU, minV, maxU, maxV, packedLight, r, g, b, a);
-        }
     }
 
-    private ExposureInstance getOrCreateExposureInstance(String id, IImage exposure, IPixelModifier modifier) {
-        String instanceId = id + modifier.getIdSuffix();
+    private ExposureInstance getOrCreateExposureInstance(RenderedImageProvider imageProvider, IPixelModifier modifier) {
+        IImage image = imageProvider.get();
+        String instanceId = image.getName() + modifier.getIdSuffix();
         return (this.cache).compute(instanceId, (expId, expData) -> {
             if (expData == null) {
-                return new ExposureInstance(expId, exposure, modifier);
+                return new ExposureInstance(expId, image, modifier);
             } else {
-                expData.replaceData(exposure);
+                expData.replaceData(image);
                 return expData;
             }
         });

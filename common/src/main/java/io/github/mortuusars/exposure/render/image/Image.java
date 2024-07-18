@@ -1,4 +1,4 @@
-package io.github.mortuusars.exposure.render;
+package io.github.mortuusars.exposure.render.image;
 
 import com.mojang.blaze3d.platform.NativeImage;
 

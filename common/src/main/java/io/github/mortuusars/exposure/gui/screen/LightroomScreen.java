@@ -15,6 +15,7 @@ import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.gui.screen.element.ChromaticProcessToggleButton;
 import io.github.mortuusars.exposure.item.DevelopedFilmItem;
 import io.github.mortuusars.exposure.menu.LightroomMenu;
+import io.github.mortuusars.exposure.render.RenderedImageProvider;
 import io.github.mortuusars.exposure.render.modifiers.ExposurePixelModifiers;
 import io.github.mortuusars.exposure.util.ColorChannel;
 import io.github.mortuusars.exposure.util.PagingDirection;
@@ -293,12 +294,11 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
         poseStack.translate(x, y, 0);
 
         MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-        Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(frame);
-        ExposureClient.getExposureRenderer().render(idOrTexture, ExposurePixelModifiers.NEGATIVE_FILM, poseStack, bufferSource,
-                0, 0, size, size, 0, 0, 1, 1, LightTexture.FULL_BRIGHT,
+        ExposureClient.getExposureRenderer().render(RenderedImageProvider.fromFrame(frame),
+                ExposurePixelModifiers.NEGATIVE_FILM, poseStack, bufferSource, LightTexture.FULL_BRIGHT,
                 negative.frameR, negative.frameG, negative.frameB, Mth.clamp((int) Math.ceil(alpha * 255), 0, 255));
-
         bufferSource.endBatch();
+
         poseStack.popPose();
     }
 
