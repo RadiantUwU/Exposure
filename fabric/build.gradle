@@ -55,7 +55,7 @@ dependencies {
 
     // modRuntimeOnly("dev.emi:emi-fabric:${emi_version}")
 
-    modRuntimeOnly("curse.maven:real-camera-851574:5328995")
+//    modRuntimeOnly("curse.maven:real-camera-851574:5328995")
 
     // Create
     modCompileOnly("com.simibubi.create:create-fabric-${minecraft_version}:${create_fabric_version}")
