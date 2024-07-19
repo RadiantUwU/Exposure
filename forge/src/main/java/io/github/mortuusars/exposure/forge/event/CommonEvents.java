@@ -6,7 +6,6 @@ import io.github.mortuusars.exposure.command.ShaderCommand;
 import io.github.mortuusars.exposure.command.TestCommand;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.data.LensesDataLoader;
-import io.github.mortuusars.exposure.integration.ModCompatibility;
 import io.github.mortuusars.exposure.network.forge.PacketsImpl;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -25,7 +24,6 @@ public class CommonEvents {
                 PacketsImpl.register();
                 Exposure.Advancements.register();
                 Exposure.Stats.register();
-                ModCompatibility.handle();
             });
         }
 

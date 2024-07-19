@@ -12,7 +12,7 @@ public class Image implements IImage {
     }
 
     @Override
-    public String getName() {
+    public String getImageId() {
         return name;
     }
 

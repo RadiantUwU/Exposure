@@ -15,7 +15,6 @@ import io.github.mortuusars.exposure.command.argument.ShaderLocationArgument;
 import io.github.mortuusars.exposure.command.argument.TextureLocationArgument;
 import io.github.mortuusars.exposure.entity.PhotographEntity;
 import io.github.mortuusars.exposure.entity.PhotographFrameEntity;
-import io.github.mortuusars.exposure.integration.ModCompatibility;
 import io.github.mortuusars.exposure.item.*;
 import io.github.mortuusars.exposure.menu.*;
 import io.github.mortuusars.exposure.recipe.FilmDevelopingRecipe;

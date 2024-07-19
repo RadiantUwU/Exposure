@@ -8,6 +8,7 @@ import com.mojang.math.Axis;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.item.PhotographItem;
 import io.github.mortuusars.exposure.item.StackedPhotographsItem;
+import io.github.mortuusars.exposure.render.image.RenderedImageProvider;
 import io.github.mortuusars.exposure.util.ItemAndStack;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;

@@ -5,7 +5,7 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.PlatformHelper;
 import io.github.mortuusars.exposure.integration.compat.RealCameraCompat;
 
-public class ModCompatibility {
+public class ModCompatibilityClient {
     private static final String REAL_CAMERA = "realcamera";
 
     @SuppressWarnings("ConstantValue")

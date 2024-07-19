@@ -7,6 +7,7 @@ import io.github.mortuusars.exposure.forge.event.ClientEvents;
 import io.github.mortuusars.exposure.forge.event.CommonEvents;
 import io.github.mortuusars.exposure.forge.integration.create.CreateFilmDeveloping;
 import io.github.mortuusars.exposure.forge.loot.LootTableAdditionModifier;
+import io.github.mortuusars.exposure.integration.ModCompatibilityClient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
@@ -62,7 +63,12 @@ public class ExposureForge {
     }
 
     private void onConfigReloading(ModConfigEvent.Reloading event) {
-        if (event.getConfig().getType() == ModConfig.Type.COMMON && ModList.get().isLoaded("create"))
+        if (event.getConfig().getType() == ModConfig.Type.COMMON && ModList.get().isLoaded("create")) {
             CreateFilmDeveloping.clearCachedData();
+        }
+
+        if (event.getConfig().getType() == ModConfig.Type.CLIENT) {
+            ModCompatibilityClient.handle();
+        }
     }
 }

@@ -8,7 +8,7 @@ import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FilmType;
 import io.github.mortuusars.exposure.gui.screen.element.Pager;
-import io.github.mortuusars.exposure.render.RenderedImageProvider;
+import io.github.mortuusars.exposure.render.image.RenderedImageProvider;
 import io.github.mortuusars.exposure.render.image.ExposureDataImage;
 import io.github.mortuusars.exposure.render.image.IImage;
 import io.github.mortuusars.exposure.render.image.TextureImage;

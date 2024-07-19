@@ -2,7 +2,7 @@ package io.github.mortuusars.exposure.render.image;
 
 public class EmptyImage implements IImage {
     @Override
-    public String getName() {
+    public String getImageId() {
         return "<empty>";
     }
 

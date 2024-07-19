@@ -24,7 +24,7 @@ dependencies {
 
     modCompileOnlyApi("dev.latvian.mods:kubejs:${kubejs_version}")
 
-    modCompileOnlyApi("curse.maven:real-camera-851574:5328994")
+    modCompileOnly("curse.maven:real-camera-851574:5328994")
 
     modCompileOnly("me.shedaniel.cloth:cloth-config-fabric:${cloth_config_version}") {
         exclude group: 'net.fabricmc.fabric-api'

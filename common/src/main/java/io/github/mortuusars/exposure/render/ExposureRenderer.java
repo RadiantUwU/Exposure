@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.mortuusars.exposure.render.image.IImage;
+import io.github.mortuusars.exposure.render.image.RenderedImageProvider;
 import io.github.mortuusars.exposure.render.modifiers.IPixelModifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -46,13 +47,12 @@ public class ExposureRenderer implements AutoCloseable {
     }
 
     private ExposureInstance getOrCreateExposureInstance(RenderedImageProvider imageProvider, IPixelModifier modifier) {
-        IImage image = imageProvider.get();
-        String instanceId = image.getName() + modifier.getIdSuffix();
+        String instanceId = imageProvider.getInstanceId() + modifier.getIdSuffix();
         return (this.cache).compute(instanceId, (expId, expData) -> {
             if (expData == null) {
-                return new ExposureInstance(expId, image, modifier);
+                return new ExposureInstance(expId, imageProvider.get(), modifier);
             } else {
-                expData.replaceData(image);
+                expData.replaceData(imageProvider.get());
                 return expData;
             }
         });
@@ -122,7 +122,7 @@ public class ExposureRenderer implements AutoCloseable {
         }
 
         private void replaceData(IImage exposure) {
-            boolean hasChanged = !this.exposure.getName().equals(exposure.getName());
+            boolean hasChanged = !this.exposure.getImageId().equals(exposure.getImageId());
             this.exposure = exposure;
             if (hasChanged) {
                 this.texture = new DynamicTexture(exposure.getWidth(), exposure.getHeight(), true);

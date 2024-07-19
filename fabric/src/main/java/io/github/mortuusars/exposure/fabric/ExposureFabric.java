@@ -10,7 +10,7 @@ import io.github.mortuusars.exposure.command.TestCommand;
 import io.github.mortuusars.exposure.data.Lenses;
 import io.github.mortuusars.exposure.fabric.integration.create.CreateFilmDeveloping;
 import io.github.mortuusars.exposure.fabric.resources.FabricLensesDataLoader;
-import io.github.mortuusars.exposure.integration.ModCompatibility;
+import io.github.mortuusars.exposure.integration.ModCompatibilityClient;
 import io.github.mortuusars.exposure.network.fabric.PacketsImpl;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -41,7 +41,9 @@ public class ExposureFabric implements ModInitializer {
                 CreateFilmDeveloping.clearCachedData();
             }
 
-            ModCompatibility.handle();
+            if (config.getType() == ModConfig.Type.CLIENT) {
+                ModCompatibilityClient.handle();
+            }
         });
 
         ForgeConfigRegistry.INSTANCE.register(Exposure.ID, ModConfig.Type.COMMON, Config.Common.SPEC);

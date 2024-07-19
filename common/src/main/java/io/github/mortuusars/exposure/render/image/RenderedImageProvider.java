@@ -1,14 +1,10 @@
-package io.github.mortuusars.exposure.render;
+package io.github.mortuusars.exposure.render.image;
 
 import com.mojang.datafixers.util.Either;
 import io.github.mortuusars.exposure.Config;
 import io.github.mortuusars.exposure.Exposure;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
-import io.github.mortuusars.exposure.render.image.EmptyImage;
-import io.github.mortuusars.exposure.render.image.ExposureDataImage;
-import io.github.mortuusars.exposure.render.image.IImage;
-import io.github.mortuusars.exposure.render.image.TextureImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -56,5 +52,9 @@ public class RenderedImageProvider {
 
     public IImage get() {
         return image;
+    }
+
+    public String getInstanceId() {
+        return get().getImageId();
     }
 }
