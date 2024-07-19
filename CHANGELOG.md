@@ -1,6 +1,8 @@
 # Changelog
 
-## 1.7.3 - Unreleased
+https://github.com/mortuusars/Exposure/blob/1.20.1/CHANGELOG.md
+
+## 1.7.3 - 2024-07-19
 - Fixed `export` command not working/crashing on a dedicated server.
 - Added config options to hide projected/all photographs made by other players.
 - [Real Camera compat] Player model will not be rendered while looking through viewfinder. 
