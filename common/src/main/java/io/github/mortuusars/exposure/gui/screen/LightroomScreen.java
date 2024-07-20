@@ -295,7 +295,7 @@ public class LightroomScreen extends AbstractContainerScreen<LightroomMenu> {
 
         MultiBufferSource.BufferSource bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         ExposureClient.getExposureRenderer().render(RenderedImageProvider.fromFrame(frame),
-                ExposurePixelModifiers.NEGATIVE_FILM, poseStack, bufferSource, LightTexture.FULL_BRIGHT,
+                ExposurePixelModifiers.NEGATIVE_FILM, poseStack, bufferSource, 0, 0, size, size, LightTexture.FULL_BRIGHT,
                 negative.frameR, negative.frameG, negative.frameB, Mth.clamp((int) Math.ceil(alpha * 255), 0, 255));
         bufferSource.endBatch();
 

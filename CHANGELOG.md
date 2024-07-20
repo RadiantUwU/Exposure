@@ -1,6 +1,7 @@
 # Changelog
 
-https://github.com/mortuusars/Exposure/blob/1.20.1/CHANGELOG.md
+## 1.7.4 - 2024-07-20
+- Fixed negatives in Lightroom rendering with larger size than they should.  
 
 ## 1.7.3 - 2024-07-19
 - Fixed `export` command not working/crashing on a dedicated server.
@@ -13,12 +14,8 @@ https://github.com/mortuusars/Exposure/blob/1.20.1/CHANGELOG.md
 - Viewfinder zooming animation is now slightly faster.
 - Photograph Frame and Interplanar Projector recipes now added to recipe book if player has required items. 
 
----
-
 ## 1.7.1 - 2024-06-28
 - Fixed Interplanar Projector not working when Supplementaries is installed.
-
----
 
 ## 1.7.0 - 2024-06-28
 - Added **Photograph Frames**
@@ -51,8 +48,6 @@ https://github.com/mortuusars/Exposure/blob/1.20.1/CHANGELOG.md
 - Fixed player selfie pose sometimes not applying when activating/deactivating Camera rapidly.  
 - Loaded exposures now support images with transparency, but only when the pixel is fully transparent.
 
----
-
 ## 1.6.0 - 2024-05-11
 
 - Middle mouse button can now be used to open Camera controls.
@@ -78,15 +73,11 @@ https://github.com/mortuusars/Exposure/blob/1.20.1/CHANGELOG.md
 - Fixed custom Lenses not syncing to the player when they join a server.
 - [Fabric] Fixed Sequenced Film Developing (with Create) recipes not showing in EMI
 
----
-
 ## 1.5.1 - 2024-04-06
 
 - Added advancement for getting a Photograph create with Chromatic process.
 - Fixed Chromatic Photograph not displaying correctly when trying to render it too quickly after printing (Usually when mouse was hovering over result slot).
 - Updated one localization file.
-
----
 
 ## 1.5.0 - 2024-04-04
 - Added chromatic (trichrome) printing process
@@ -122,8 +113,6 @@ Lightroom:
 - [Forge] Fixed crash when clicking on exposure in mods menu. For real this time.  
 - [Fabric] Fixed camera recipe not unlocking in recipe book when iron ingot is obtained.
 
----
-
 ## 1.4.1 - 2024-03-15
 - Fixed Lenses config resetting and not working properly.
 - Fixed issue with `Cold Sweat` when closing viewfinder with filter installed causing blur shader to apply when it shouldn't.
@@ -133,8 +122,6 @@ Lightroom:
 - [Fabric] Fixed Create's Spout crashing with latest `Create Fabric`.
 - There will be no crash anymore if the `Create` version is not supported. Spout Film Developing will not work for incompatible versions instead. 
 - Create 0.5.1f is needed for Spout Film Developing to work. 
-
----
 
 ## 1.4.0 - 2024-03-02
 - Added Aged Photographs. Created by crafting a Photograph with brown dye
@@ -149,8 +136,6 @@ Lightroom:
 - Fixed crash when opening Album that's placed in a Lectern
 - Fixed crash when clicking on Exposure entry in Mods menu
 
----
-
 ## 1.3.1 - 2024-02-09
 - Added advancement for taking a selfie
 - Slightly changed order of advancements
@@ -159,8 +144,6 @@ Lightroom:
 - Changed Film Frame Exposed advancement trigger from `minecraft:frame_exposed` to `exposure:frame_exposed`
 - [Fabric] Proper message will now show when `Fabric API` or `Forge Config Api Port` is not installed 
 - [Fabric] Fixed crash when signing album
-
----
 
 ## 1.3.0 - 2024-02-04
 - Added Photo Album 
@@ -178,8 +161,6 @@ Lightroom:
 - Fixed Lightroom not dropping due to the missing loot-table
 - [Forge] Fixed item frame also rendering an item over the photograph 
 
----
-
 ## 1.2.2 - 2024-01-01
 - Added `/exposure export` command. Allows exporting exposures to PNGs to `<world>/exposures` folder. Requires OP privileges.
 - Added some **creative-mode** tools to Photograph screen:
@@ -192,25 +173,17 @@ Lightroom:
 - Fixed Lightroom Screen film bugging out when replacing Developed Film in slot with a film that has fewer frames than currently selected frame index.   
 - Made some changes that may fix the crash with C2ME.
 
----
-
 ## 1.2.1 - 2023-12-24
 - Fixed water not rendering properly with shaders when looking through Viewfinder.
-
----
 
 ## 1.2.0 - 2023-12-22
 - Added `exposure:flashes` and `exposure:lenses` tags, allowing customization of items that can be attached to the camera. 
 - Added Focal Length config options, allowing to configure default camera range and range per specific lens.
 
----
-
 #### Changed Developing Recipe:
 - Developing recipes will no longer show in vanilla Recipe Book due to the book not working well with this type of recipes (like with cloning written books or dyeing armor)   
 - Developing can now be done with Create's Spouts. Configurable.
 - Films no longer can be developed with Create's Mechanical Crafter
-
----
 
 #### Misc: 
 - Added zh_cn localization provided by 'IwasConfused'
@@ -220,12 +193,8 @@ Lightroom:
 - Pressing Inventory Key or Esc in thirdperson-back camera mode (when viewfinder is not visible) will now deactivate camera instead of opening inventory or pause menu.
 - Slightly reduced z-fighting of the Hanging Photograph at greater distances.
 
----
-
 ## 1.1.1 - 2023-12-08
 - Fixed third-person camera distance being closer when not looking through the Viewfinder.
-
----
 
 ## 1.1.0 - 2023-12-07
 - Added selfies. Press F5 (by default) to be the star of the show. 
@@ -233,13 +202,9 @@ Lightroom:
 - Fixed Viewfinder Controls not showing up when sneak is bound to one of the mouse buttons.
 - Fixed errors in log about developing and cloning recipes
 
----
-
 ## 1.0.2 - 2023-12-03
 - Fixed Hanging Photograph not dropping when the block it's attached to is broken.
 - Fixed crash when trying to add more than 16 photographs to the Stacked Photographs item.
-
----
 
 ## 1.0.1 - 2023-12-01
 - Film developing recipe has been removed from Create's Automated Shapeless Crafting due to Mixer's whisk being too rough on the film, clearing any exposed images.   
