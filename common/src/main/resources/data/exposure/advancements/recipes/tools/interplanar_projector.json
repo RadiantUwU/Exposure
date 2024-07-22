@@ -1,21 +1,14 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_camera": {
+    "has_camera_and_eye": {
       "conditions": {
         "items": [
           {
             "items": [
               "exposure:camera"
             ]
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_eye": {
-      "conditions": {
-        "items": [
+          },
           {
             "items": [
               "minecraft:ender_eye"
@@ -35,8 +28,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_camera",
-      "has_eye"
+      "has_camera_and_eye"
     ]
   ],
   "rewards": {
