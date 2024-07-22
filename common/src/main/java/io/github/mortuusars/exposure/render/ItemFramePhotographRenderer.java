@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
 import io.github.mortuusars.exposure.ExposureClient;
+import io.github.mortuusars.exposure.camera.infrastructure.FrameData;
 import io.github.mortuusars.exposure.item.PhotographItem;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,11 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class ItemFramePhotographRenderer {
     public static boolean render(ItemFrame itemFrameEntity, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         ItemStack itemStack = itemFrameEntity.getItem();
-        if (!(itemStack.getItem() instanceof PhotographItem photographItem))
-            return false;
-
-        @Nullable Either<String, ResourceLocation> idOrTexture = photographItem.getIdOrTexture(itemStack);
-        if (idOrTexture == null)
+        if (!(itemStack.getItem() instanceof PhotographItem photographItem) || !FrameData.hasIdOrTexture(itemStack))
             return false;
 
         if (itemFrameEntity.getType() == EntityType.GLOW_ITEM_FRAME)

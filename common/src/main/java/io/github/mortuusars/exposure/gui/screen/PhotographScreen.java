@@ -49,12 +49,24 @@ public class PhotographScreen extends ZoomableScreen {
         Preconditions.checkState(!photographs.isEmpty(), "No photographs to display.");
         this.photographs = photographs;
 
-        // Query all photographs:
+        if (shouldQueryAllPhotographsImmediately()) {
+            queryAllPhotographs(photographs);
+        }
+    }
+
+    protected boolean shouldQueryAllPhotographsImmediately() {
+        return true;
+    }
+
+    protected void queryAllPhotographs(List<ItemAndStack<PhotographItem>> photographs) {
         for (ItemAndStack<PhotographItem> photograph : photographs) {
-            @Nullable Either<String, ResourceLocation> idOrTexture = photograph.getItem()
-                    .getIdOrTexture(photograph.getStack());
-            if (idOrTexture != null)
-                idOrTexture.ifLeft(id -> ExposureClient.getExposureStorage().getOrQuery(id));
+            FrameData.getIdOrTexture(photograph.getStack())
+                    .left()
+                    .ifPresent(id -> {
+                        if (!id.isBlank()) {
+                            ExposureClient.getExposureStorage().getOrQuery(id);
+                        }
+                    });
         }
     }
 
@@ -113,11 +125,12 @@ public class PhotographScreen extends ZoomableScreen {
 
         ItemAndStack<PhotographItem> photograph = photographs.get(pager.getCurrentPage());
 
-        Either<String, ResourceLocation> idOrTexture = photograph.getItem().getIdOrTexture(photograph.getStack());
-        if (minecraft.player != null && minecraft.player.isCreative() && idOrTexture != null) {
+        if (minecraft.player != null && minecraft.player.isCreative() && FrameData.hasIdOrTexture(photograph.getStack())) {
             guiGraphics.drawString(font, "?", width - font.width("?") - 10, 10, 0xFFFFFFFF);
 
             if (mouseX > width - 20 && mouseX < width && mouseY < 20) {
+                Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(photograph.getStack());
+
                 List<Component> lines = new ArrayList<>();
 
                 String exposureName = idOrTexture.map(id -> id, ResourceLocation::toString);
@@ -140,16 +153,13 @@ public class PhotographScreen extends ZoomableScreen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (Screen.hasControlDown() && player != null && player.isCreative()) {
-            ItemAndStack<PhotographItem> photograph = photographs.get(pager.getCurrentPage());
-
+        ItemAndStack<PhotographItem> photograph = photographs.get(pager.getCurrentPage());
+        if (Screen.hasControlDown() && player != null && player.isCreative() && FrameData.hasIdOrTexture(photograph.getStack())) {
             if (keyCode == InputConstants.KEY_C) {
-                @Nullable Either<String, ResourceLocation> idOrTexture = photograph.getItem().getIdOrTexture(photograph.getStack());
-                if (idOrTexture != null) {
-                    String text = idOrTexture.map(id -> id, ResourceLocation::toString);
-                    Minecraft.getInstance().keyboardHandler.setClipboard(text);
-                    player.displayClientMessage(Component.translatable("gui.exposure.photograph_screen.copied_message", text), false);
-                }
+                Either<String, ResourceLocation> idOrTexture = FrameData.getIdOrTexture(photograph.getStack());
+                String text = idOrTexture.map(id -> id, ResourceLocation::toString);
+                Minecraft.getInstance().keyboardHandler.setClipboard(text);
+                player.displayClientMessage(Component.translatable("gui.exposure.photograph_screen.copied_message", text), false);
                 return true;
             }
 
@@ -183,11 +193,11 @@ public class PhotographScreen extends ZoomableScreen {
             return;
         }
 
-        @Nullable Either<String, ResourceLocation> idOrTexture = photograph.getItem().getIdOrTexture(photograph.getStack());
-        if (idOrTexture == null)
-            return;
+        FrameData.getIdOrTexture(photograph.getStack()).left().ifPresent(id -> {
+            if (id.isBlank()) {
+                return;
+            }
 
-        idOrTexture.ifLeft(id -> {
             PhotographRenderProperties properties = PhotographRenderProperties.get(photograph.getStack());
             String filename = properties != PhotographRenderProperties.DEFAULT ? id + "_" + properties.getId() : id;
 

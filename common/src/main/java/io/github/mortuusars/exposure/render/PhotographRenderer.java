@@ -3,7 +3,6 @@ package io.github.mortuusars.exposure.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
 import io.github.mortuusars.exposure.ExposureClient;
 import io.github.mortuusars.exposure.item.PhotographItem;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.List;
-import java.util.Objects;
 
 public class PhotographRenderer {
     public static void render(ItemStack stack, boolean renderPaper, boolean renderBackside, PoseStack poseStack,
@@ -38,11 +36,10 @@ public class PhotographRenderer {
         int size = ExposureClient.getExposureRenderer().getSize();
         float rotateOffset = size / 2f;
 
-        CompoundTag frame = stack.getTag();
-        RenderedImageProvider imageProvider = RenderedImageProvider.fromFrame(frame);
+        @Nullable CompoundTag frame = stack.getTag();
+        RenderedImageProvider imageProvider = frame != null ? RenderedImageProvider.fromFrame(frame) : RenderedImageProvider.EMPTY;
 
-        @Nullable Either<String, ResourceLocation> idOrTexture = photographItem.getIdOrTexture(stack);
-        int rotation = idOrTexture != null ? idOrTexture.map(Objects::hashCode, Objects::hashCode) % 4 : 0;
+        int rotation = imageProvider.getInstanceId().hashCode() % 4;
 
         if (renderPaper) {
             poseStack.pushPose();
@@ -127,8 +124,10 @@ public class PhotographRenderer {
                 break;
             }
 
-            @Nullable Either<String, ResourceLocation> idOrTexture = photograph.getItem().getIdOrTexture(photograph.getStack());
-            int rotation = idOrTexture != null ? idOrTexture.map(Objects::hashCode, Objects::hashCode) % 4 : 0;
+            @Nullable CompoundTag frame = photograph.getStack().getTag();
+            RenderedImageProvider imageProvider = frame != null ? RenderedImageProvider.fromFrame(frame) : RenderedImageProvider.EMPTY;
+
+            int rotation = imageProvider.getInstanceId().hashCode() % 4;
 
             // Photographs below (only paper)
             float posOffset = getStackedPhotographOffset() * i;

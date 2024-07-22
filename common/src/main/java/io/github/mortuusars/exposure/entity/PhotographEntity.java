@@ -45,9 +45,6 @@ public class PhotographEntity extends HangingEntity {
     protected static final EntityDataAccessor<Boolean> DATA_GLOWING = SynchedEntityData.defineId(PhotographEntity.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> DATA_ROTATION = SynchedEntityData.defineId(PhotographEntity.class, EntityDataSerializers.INT);
 
-    @Nullable
-    private Either<String, ResourceLocation> idOrTexture;
-
     public PhotographEntity(EntityType<? extends PhotographEntity> entityType, Level level) {
         super(entityType, level);
     }
@@ -126,10 +123,6 @@ public class PhotographEntity extends HangingEntity {
 
 
     // Properties:
-
-    public @Nullable Either<String, ResourceLocation> getIdOrTexture() {
-        return idOrTexture;
-    }
 
     @Override
     protected float getEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions dimensions) {
@@ -226,9 +219,6 @@ public class PhotographEntity extends HangingEntity {
     protected void onItemChanged(ItemStack itemStack) {
         if (!itemStack.isEmpty()) {
             itemStack.setEntityRepresentation(this);
-            if (itemStack.getItem() instanceof PhotographItem photographItem) {
-                idOrTexture = photographItem.getIdOrTexture(itemStack);
-            }
         }
 
         this.recalculateBoundingBox();

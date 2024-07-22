@@ -3,6 +3,7 @@
 ## Unreleased
 - Minor adjustments to unlocking recipes in a recipe book
   - Fixed Camera recipe being unlocked from the start
+- Fixed crash trying to render a Photograph without NBT-tag. 
 
 ## 1.7.4 - 2024-07-20
 - Fixed negatives in Lightroom rendering with larger size than they should.  

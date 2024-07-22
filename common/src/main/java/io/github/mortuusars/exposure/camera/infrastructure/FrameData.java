@@ -3,6 +3,7 @@ package io.github.mortuusars.exposure.camera.infrastructure;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class FrameData {
@@ -52,5 +53,34 @@ public class FrameData {
             return Either.right(new ResourceLocation(texture));
 
         return Either.left("");
+    }
+
+    /**
+     * If both are defined - ID takes priority.
+     * @return 'Either.left("")' if nothing is defined or stack does not have a tag.
+     */
+    public static Either<String, ResourceLocation> getIdOrTexture(ItemStack photographStack) {
+        if (photographStack.getTag() == null) {
+            return Either.left("");
+        }
+
+        return getIdOrTexture(photographStack.getTag());
+    }
+
+    public static boolean hasIdOrTexture(ItemStack photographStack) {
+        CompoundTag tag = photographStack.getTag();
+        if (tag == null) {
+            return false;
+        }
+
+        String id = tag.getString(ID);
+        if (!id.isEmpty())
+            return true;
+
+        String texture = tag.getString(TEXTURE);
+        if (!texture.isEmpty())
+            return true;
+
+        return false;
     }
 }
