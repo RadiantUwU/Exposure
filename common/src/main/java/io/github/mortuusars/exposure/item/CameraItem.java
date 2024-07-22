@@ -963,18 +963,30 @@ public class CameraItem extends Item {
     }
 
     public void setAttachment(ItemStack cameraStack, AttachmentType attachmentType, ItemStack attachmentStack) {
-        if (attachmentStack.isEmpty()) {
-            if (cameraStack.getTag() != null)
-                cameraStack.getOrCreateTag().remove(attachmentType.id());
-        } else {
-            Preconditions.checkState(attachmentType.matches(attachmentStack),
-                    attachmentStack + " is not valid for the '" + attachmentType + "' attachment type.");
+        Preconditions.checkState(attachmentStack.isEmpty() || attachmentType.matches(attachmentStack),
+                attachmentStack + " is not valid for the '" + attachmentType + "' attachment type.");
 
-            cameraStack.getOrCreateTag().put(attachmentType.id(), attachmentStack.save(new CompoundTag()));
+        CompoundTag cameraTag = cameraStack.getOrCreateTag();
+
+        boolean hasChanged = getAttachment(cameraStack, attachmentType)
+                .map(stack -> !stack.equals(attachmentStack))
+                .orElse(!attachmentStack.isEmpty());
+
+        if (attachmentStack.isEmpty()) {
+            cameraTag.remove(attachmentType.id());
+        } else {
+            cameraTag.put(attachmentType.id(), attachmentStack.save(new CompoundTag()));
         }
 
-        if (attachmentType == LENS_ATTACHMENT)
+        if (hasChanged) {
+            onAttachmentChanged(cameraStack, attachmentType);
+        }
+    }
+
+    public void onAttachmentChanged(ItemStack cameraStack, AttachmentType attachmentType) {
+        if (attachmentType == LENS_ATTACHMENT) {
             setZoom(cameraStack, getFocalRange(cameraStack).min());
+        }
     }
 
     // ---

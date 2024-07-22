@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed Camera resetting zoom when attachments change.
 - Minor adjustments to unlocking recipes in a recipe book
   - Fixed Camera recipe being unlocked from the start
 - Fixed crash trying to render a Photograph without NBT-tag. 
