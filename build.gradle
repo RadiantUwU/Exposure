@@ -152,7 +152,7 @@ def getLatestVersionChangelog() {
 
 project.ext.changelog = getLatestVersionChangelog()
 
-task printLastVersionChangelog {
+task printLatestVersionChangelog {
     doLast {
         println project.changelog
     }
